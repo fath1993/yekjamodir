@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load gallery_custom_tag %}
+
+{% block extra_css %}
+<!-- Select2 -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.css' %}"/>
+<script src="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 mb-3">
+                            <h6 class="card-title">ویرایش صورت حساب</h6>
+                            <form action="{% url 'financial:financial-transaction-record-edit-with-transaction-id' transaction_id=transaction.id %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="broker">کارگزار مالی</label>
+                                    <input type="text" class="form-control text-left" dir="rtl" id="broker"
+                                    value="{{ broker.broker_name }}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_type">نوع تراکنش</label>
+                                    <select class="js-example-basic-single" id="transaction_type" name="transaction_type">
+                                        <option {% if transaction.transaction_type == 'withdraw' %}selected{% endif %} value="withdraw">برداشت از حساب</option>
+                                        <option {% if transaction.transaction_type == 'deposit' %}selected{% endif %} value="deposit">واریز به حساب</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_title">عنوان تراکنش</label>
+                                    <input type="text" class="form-control text-left" id="transaction_title" name="transaction_title"
+                                           aria-describedby="transaction_title" placeholder="" dir="rtl" required
+                                    oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                    oninput="setCustomValidity('')"
+                                    value="{{ transaction.title }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_description">توضیحات</label>
+                                    <textarea rows="4" class="form-control text-left" id="transaction_description" name="transaction_description"
+                                              placeholder="" dir="rtl">{{ transaction.description|default:'' }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_date">تاریخ اقدام</label>
+                                    <input type="text" data-jdp id="transaction_date" name="transaction_date" class="form-control text-left" dir="ltr"
+                                               required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                oninput="setCustomValidity('')"
+                                            value="{{ transaction.date_of_action|date:"Y/m/d" }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="transaction_amount">مبلغ</label>
+                                    <input type="text" class="form-control text-left" id="transaction_amount" name="transaction_amount"
+                                           aria-describedby="transaction_amount" placeholder="" dir="rtl" required
+                                    oninput="amount_human_Readable(this)">
+                                    <small class="text-muted">بر اساس ریال</small>
+                                    <script>
+                                        document.getElementById('transaction_amount').value=parseFloat('{{ transaction.amount }}').toLocaleString('en-US')
+                                        function amount_human_Readable(content) {
+                                            // Remove non-numeric characters and commas
+                                            let numericValue = content.value.replace(/[^\d.]/g, '').replace(/,/g, '');
+
+                                            // Use parseFloat to handle decimal numbers, default to 0 if NaN
+                                            let formattedValue = parseFloat(numericValue);
+                                            content.value = isNaN(formattedValue) ? 0 : formattedValue.toLocaleString('en-US');
+                                        }
+                                    </script>
+                                </div>
+                                <div class="form-group">
+                                    <label hidden for="metapost_attached_file_link">فایل ضمیمه</label>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-2 col-lg-2">
+                                            <button type="button" class="btn btn-primary text-center"
+                                                    data-toggle="modal" data-target="#addNewFileModal"><i
+                                                    class="fa fa-plus-circle mr-2"></i> افزودن فایل
+                                            </button>
+                                            <div id="addNewFileModal" class="modal fade" tabindex="-1" role="dialog"
+                                                 aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="gridModalLabel">افزودن
+                                                                فایل</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="بستن">
+                                                                <i class="ti-close"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div id="inner_upload_file_form">
+                                                            <div class="modal-body">
+                                                                <div class="container-fluid bd-example-row">
+                                                                    <div class="form-group">
+                                                                        <label for="file">فایل ضمیمه</label>
+                                                                        <input type="file"
+                                                                               onchange="upload_file_btn_refresh(); check_file_is_image()"
+                                                                               class="form-control-file" id="file"
+                                                                               name="file">
+                                                                    </div>
+                                                                    <div id="image-compressor-checkbox"
+                                                                         class="form-group form-check"
+                                                                         disabled="true" hidden>
+                                                                        <input type="checkbox"
+                                                                               class="form-check-input"
+                                                                               id="imageCompressor"
+                                                                               onchange="image_compressor(this)">
+                                                                        <label class="form-check-label"
+                                                                               for="imageCompressor">فشرده سازی
+                                                                            تصویر</label>
+                                                                    </div>
+                                                                    <div id="image-compress-size" class="form-group"
+                                                                         disabled="true" hidden>
+                                                                        <label for="image_compress_size">فشرده سازی
+                                                                            تا</label>
+                                                                        <input type="number"
+                                                                               class="form-control text-left"
+                                                                               id="image_compress_size"
+                                                                               name="image_compress_size"
+                                                                               placeholder="کیلوبایت" dir="ltr">
+                                                                    </div>
+                                                                    <div class="form-group" hidden>
+                                                                        <span id="upload-file-alert"
+                                                                              class="form-control-plaintext text-danger"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal"
+                                                                        id="inner_upload_file_form_close_btn">بستن
+                                                                </button>
+                                                                <button id="upload-file-btn" type="button"
+                                                                        class="btn btn-primary"
+                                                                        onclick="uploadPermission()">تایید
+                                                                </button>
+                                                                <button id="upload-file-form-reset-btn" type="reset" class="btn btn-primary" hidden></button>
+                                                            </div>
+                                                        </div>
+                                                        <script>
+                                                            function isImage(file) {
+                                                                return file.type.startsWith('image');
+                                                            }
+
+                                                            function check_file_is_image() {
+                                                                const fileInput = document.getElementById('file'); // Assuming you have a file input element
+                                                                const file = fileInput.files[0]; // Get the first file (assuming it's the one you want to check)
+
+                                                                if (isImage(file)) {
+                                                                    const image_compressor_checkbox = document.getElementById('image-compressor-checkbox')
+                                                                    const image_compressor = document.getElementById('imageCompressor')
+                                                                    image_compressor_checkbox.hidden=false
+                                                                    {% if not request.user.profile_user|check_user_is_vip %}
+                                                                        image_compressor.setAttribute('disabled', 'true')
+                                                                        image_compressor.setAttribute('readonly', 'true')
+                                                                        if (document.getElementById('upgrade-plan') === null) {
+                                                                            image_compressor_checkbox.innerHTML += `
+                                                                            <a id="upgrade-plan" href="javascript:void(0)" target="_blank"><span class="form-control-plaintext text-info">کاربر ویژه نیستید؟ ارتقا دهید!</span></a>
+                                                                            `
+                                                                        }
+                                                                    {% endif %}
+                                                                } else {
+                                                                    document.getElementById('imageCompressor').checked = false
+                                                                    document.getElementById('image-compressor-checkbox').hidden = true
+                                                                    document.getElementById('image-compressor-checkbox').setAttribute('disabled', 'true')
+                                                                    document.getElementById('image-compress-size').hidden = true
+                                                                    document.getElementById('image-compress-size').setAttribute('disabled', 'true')
+                                                                }
+                                                            }
+
+                                                            function image_compressor(check_box) {
+                                                                console.log(this)
+                                                                if (check_box.checked) {
+                                                                    document.getElementById('image-compress-size').hidden = false
+                                                                    document.getElementById('image-compress-size').setAttribute('disabled', 'false')
+                                                                } else {
+                                                                    document.getElementById('image-compress-size').hidden = true
+                                                                    document.getElementById('image-compress-size').setAttribute('disabled', 'true')
+                                                                }
+                                                            }
+
+                                                            function remove_file(file_id) {
+                                                                document.getElementById('file-gallery-id-' + file_id).hidden = true
+                                                                $.ajax({
+                                                                    type: "post",
+                                                                    url: "{% url 'file-gallery:ajax-file-remove' %}",
+                                                                    data: {
+                                                                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                                        file_id: file_id,
+                                                                    },
+                                                                    success: function (response) {
+                                                                        document.getElementById('file-gallery-id-' + file_id).remove()
+                                                                        toastr.success('با موفقیت انجام شد');
+                                                                        user_storage_analyzer()
+                                                                    },
+                                                                    error: function (xhr, errmsg, err) {
+                                                                        toastr.error('خطایی رخ داد');
+                                                                    }
+                                                                });
+                                                            }
+
+                                                            function upload_file_btn_refresh() {
+                                                                const upload_file_btn = document.getElementById('upload-file-btn')
+                                                                const upload_file_btn_parent = upload_file_btn.parentElement
+                                                                upload_file_btn.remove()
+                                                                upload_file_btn_parent.innerHTML += `
+                                                                <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="uploadPermission()">تایید</button>
+                                                                `
+                                                                const upload_file_alert = document.getElementById('upload-file-alert')
+                                                                upload_file_alert.innerText = ''
+                                                                upload_file_alert.parentElement.hidden = true
+                                                            }
+
+                                                            function startSpinner() {
+                                                                const upload_file_btn = document.getElementById('upload-file-btn')
+                                                                const upload_file_btn_parent = upload_file_btn.parentElement
+                                                                upload_file_btn.remove()
+                                                                upload_file_btn_parent.innerHTML += `
+                                                                <button id="upload-file-btn" class="btn btn-primary" type="button" disabled>
+                                                                    <span class="spinner-border spinner-border-sm m-r-5" role="status" aria-hidden="true"></span>
+                                                                            در حال بررسی ...
+                                                                </button>
+                                                                `
+
+
+                                                            }
+
+                                                            function stopSpinnerAndUploadFile() {
+                                                                const upload_file_btn = document.getElementById('upload-file-btn')
+                                                                const upload_file_btn_parent = upload_file_btn.parentElement
+                                                                upload_file_btn.remove()
+                                                                upload_file_btn_parent.innerHTML += `
+                                                                <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="uploadFiles()">تایید</button>
+                                                                `
+                                                            }
+
+                                                            function stopSpinnerAndPromotePlan() {
+                                                                const upload_file_btn = document.getElementById('upload-file-btn')
+                                                                const upload_file_btn_parent = upload_file_btn.parentElement
+                                                                upload_file_btn.remove()
+                                                                upload_file_btn_parent.innerHTML += `
+                                                                <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="{% url 'dashboard:dashboard' %}">خرید اشتراک ویژه</button>
+                                                                `
+                                                            }
+
+                                                            function uploadPermission() {
+                                                                const upload_file_alert = document.getElementById('upload-file-alert')
+                                                                const fileValue = document.getElementById('file').files;
+                                                                if (fileValue.length > 0) {
+                                                                    const file = fileValue[0]
+                                                                    const fileSize = file.size;
+                                                                    const formData = new FormData();
+                                                                    formData.append('fileSize', fileSize);
+                                                                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+
+                                                                    startSpinner()
+
+                                                                    fetch('{% url 'file-gallery:upload-permission' %}', {
+                                                                        method: 'POST',
+                                                                        body: formData
+                                                                    })
+                                                                        .then(response => response.json())
+                                                                        .then(data => {
+                                                                            if (data['message'] !== 'allowed') {
+                                                                                stopSpinnerAndPromotePlan()
+                                                                                upload_file_alert.innerText = data['message']
+                                                                                upload_file_alert.parentElement.hidden = false
+                                                                            } else {
+                                                                                uploadFiles()
+                                                                            }
+
+                                                                        })
+                                                                        .catch(error => {
+                                                                            console.error('Error:', error);
+                                                                            upload_file_btn_refresh()
+                                                                            upload_file_alert.innerText = error
+                                                                            upload_file_alert.parentElement.hidden = false
+                                                                        });
+                                                                } else {
+                                                                    if (fileValue.length === 0) {
+                                                                        upload_file_alert.innerText = 'فایل وارد نشده است'
+                                                                        upload_file_alert.parentElement.hidden = false
+                                                                    }
+
+                                                                }
+
+                                                            }
+
+                                                            function uploadFiles() {
+                                                                const upload_file_alert = document.getElementById('upload-file-alert')
+                                                                const file = document.getElementById('file')
+                                                                const image_compress_size = document.getElementById('image_compress_size')
+                                                                const file_thumbnails = document.getElementById('uploaded_file')
+
+                                                                if (file.files.length === 0) {
+                                                                    upload_file_alert.innerText = 'فایل نمیتواند خالی باشد'
+                                                                    upload_file_alert.parentElement.hidden = false
+                                                                } else {
+                                                                    upload_file_alert.innerText = ''
+                                                                    upload_file_alert.parentElement.hidden = true
+                                                                    const formData = new FormData();
+                                                                    formData.append('file_alt', 'فایل');
+                                                                    formData.append('file', file.files[0])
+                                                                    formData.append('image_compress_size', image_compress_size.value);
+                                                                    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+
+                                                                    fetch('{% url 'file-gallery:upload-files' %}', {
+                                                                        method: 'POST',
+                                                                        body: formData
+                                                                    })
+                                                                        .then(response => response.json())
+                                                                        .then(data => {
+                                                                            if (data['message'] === 'succeed') {
+                                                                                file.files[0].value = ''
+                                                                                document.getElementById('inner_upload_file_form_close_btn').click()
+                                                                                file_thumbnails.parentElement.parentElement.parentElement.hidden=false
+                                                                                file_thumbnails.innerHTML += `
+                                                                                <div class="col-md-2 m-b-15" id="file-gallery-id-` + data['file_id'] + `">
+                                                                                    <span class="badge badge-dark" style="cursor: pointer" onclick="remove_file(` + data['file_id'] + `)"><i class="fa fa-trash"></i></span>
+                                                                                    <img src="` + data['file_url'] + `" alt="image" class="img-thumbnail">
+                                                                                    <input type="hidden" name="uploaded_image_ids" value="` + data['file_id'] + `">
+                                                                                </div>
+                                                                                `
+                                                                                upload_file_btn_refresh()
+                                                                                upload_file_alert.innerText = ''
+                                                                                upload_file_alert.parentElement.hidden = true
+                                                                                file.value = ''
+                                                                                document.getElementById('image-compressor-checkbox').hidden=true
+                                                                                document.getElementById('image_compress_size').value=''
+                                                                                document.getElementById('image-compress-size').hidden=true
+                                                                                try {
+                                                                                    document.getElementById('upgrade-plan').remove()
+                                                                                } catch (err) {}
+                                                                            } else {
+                                                                                upload_file_btn_refresh()
+                                                                                upload_file_alert.innerText = data['message']
+                                                                                upload_file_alert.parentElement.hidden = false
+                                                                            }
+                                                                        })
+                                                                        .catch(error => {
+                                                                            upload_file_btn_refresh()
+                                                                            upload_file_alert.innerText = error
+                                                                            upload_file_alert.parentElement.hidden = false
+                                                                        });
+                                                                }
+                                                            }
+                                                        </script>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" {% if transaction.attachments.all.count == 0 %} hidden {% endif %}>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row" id="uploaded_file">
+                                                {% for file in transaction.attachments.all %}
+                                                    <div class="col-md-2 m-b-15" id="file-gallery-id-{{ file.id }}">
+                                                        <span class="badge badge-dark" style="cursor: pointer" onclick="remove_file('{{ file.id }}')"><i class="fa fa-trash"></i></span>
+                                                        <img src="{{ file.file.url }}" alt="{{ file.id }}- {{ file.file.name|file_name }}" class="img-thumbnail">
+                                                        <input type="hidden" name="uploaded_image_ids" value="{{ file.id }}">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if alert %}
+                                <div class="form-group">
+                                    <span class="text text-danger">{{ alert }}</span>
+                                </div>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary">ویرایش</button>
+                                <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker.id %}" class="btn btn-primary">بازگشت</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select2 -->
+<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+<script>
+jalaliDatepicker.startWatch({
+  minDate: "attr",
+  maxDate: "attr"
+});
+{% if toast %}
+    'use strict';
+    $(document).ready(function () {
+        toastr.options = {
+            timeOut: 3000,
+            progressBar: true,
+            showMethod: "slideDown",
+            hideMethod: "slideUp",
+            showDuration: 200,
+            hideDuration: 200
+        };
+        toastr.error('{{ toast }}');
+    });
+{% endif %}
+</script>
+{% endblock %}

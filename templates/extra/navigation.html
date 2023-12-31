@@ -1,0 +1,203 @@
+{% load static %}
+
+<div class="navigation">
+    <div class="navigation-icon-menu" style="background-color: #6359a8">
+        <ul>
+            <li id="overview" data-toggle="tooltip" title="پنل کاربری">
+                <a href="#navigationDashboard" title="پنل کاربری">
+                    <i class="icon ti-dashboard"></i>
+                </a>
+            </li>
+            <li id="subscription" data-toggle="tooltip" title="مالی و خرید اشتراک">
+                <a href="#navigationSubscription" title="مالی و خرید اشتراک">
+                    <i class="icon ti-star"></i>
+                </a>
+            </li>
+            <li id="service" data-toggle="tooltip" title="خدمات">
+                <a href="#navigationService" title="خدمات">
+                    <i class="icon ti-briefcase"></i>
+                </a>
+            </li>
+            <li id="storage" data-toggle="tooltip" title="ذخیره سازی">
+                <a href="#navigationStorage" title="ذخیره سازی">
+                    <i class="icon ti-files"></i>
+                </a>
+            </li>
+            <li data-toggle="tooltip" title="ارتباطات (غیر فعال)">
+                <a href="#navigationCommunication" title="ارتباطات">
+                    <i class="icon ti-comments"></i>
+                </a>
+            </li>
+            <li data-toggle="tooltip" title="پشتیبانی (غیر فعال)">
+                <a href="#navigationSupport" title="پشتیبانی">
+                    <i class="icon ti-help-alt"></i>
+                </a>
+            </li>
+            <li data-toggle="tooltip" title="آموزش(غیرفعال)">
+                <a href="#navigationTutorial" title="آموزش">
+                    <i class="icon ti-pencil"></i>
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li data-toggle="tooltip" title="ویرایش پروفایل">
+                <a href="{% url 'accounts:profile' %}" class="go-to-page">
+                    <i class="icon ti-settings"></i>
+                </a>
+            </li>
+            <li data-toggle="tooltip" title="خروج">
+                <a href="{% url 'accounts:logout' %}" class="go-to-page">
+                    <i class="icon ti-power-off"></i>
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void('');" class="go-to-page"></a>
+            </li>
+        </ul>
+    </div>
+    <div class="navigation-menu-body">
+        <ul id="navigationDashboard">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">دسترسی سریع</span></li>
+            <li>
+                <a {% if request.path == '/' %}class="active"{% endif %} href="{% url 'dashboard:dashboard' %}">صفحه اصلی</a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:pricing' %}">اشتراک</a>
+            </li>
+            <li>
+                <a href="{% url 'auto_robots:metapost-new' %}">متاپست</a>
+            </li>
+            <li>
+                <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=0 %}">حسابداری</a>
+            </li>
+            <li>
+                <a href="{% url 'calendar_event:calendar' %}">تقویم</a>
+            </li>
+        </ul>
+        <ul id="navigationSubscription">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">اشتراک</span></li>
+            <li>
+                <a {% if request.path == 'pricing/' %}class="active"{% endif %} id="pricing" href="{% url 'dashboard:pricing' %}">قیمت ها</a>
+            </li>
+            <li>
+                <a {% if request.path == 'accounts/invoices-list/' %}class="active"{% endif %} id="accounts_invoices_list" href="{% url 'accounts:invoices-list' %}">سوابق خرید</a>
+            </li>
+        </ul>
+        <ul id="navigationService">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">خدمات</span></li>
+{#                <a href="#">اسناد</a>#}
+{#                <ul>#}
+{#                    <li><a id="folder-new" href="{% url 'documents:folder-new' %}">ایجاد فولدر</a></li>#}
+{#                    <li><a id="folder-list" href="{% url 'documents:folder-list' %}">لیست فولدر ها</a></li>#}
+{#                    <li><a id="document-new" href="{% url 'documents:document-new' %}">ایجاد سند</a></li>#}
+{#                    <li><a id="document-list" href="{% url 'documents:document-list' %}">لیست اسناد</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+            <li>
+                <a id="blog" href="#">بلاگ</a>
+                <ul>
+                    <li><a id="blog-list" href="{% url 'blog:blog-list' %}">بلاگ های من </a></li>
+                </ul>
+            </li>
+            <li>
+                <a id="metapost" href="#">ارسال پیشرفته</a>
+                <ul>
+                    <li><a id="auto-robot-list" href="{% url 'auto_robots:auto-robots-list' %}">ربات های من </a></li>
+                    <li><a id="metapost-new" href="{% url 'auto_robots:metapost-new' %}">متا جدید </a></li>
+                    <li><a id="metapost-list" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}">متا های من </a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">اتوماسیون</a>
+                <ul>
+                    <li><a id="social-new" href="javascript:void(0)">کارتابل من</a></li>
+                    <li><a id="social-list" href="javascript:void(0)">ارسال نامه </a></li>
+                </ul>
+            </li>
+            <li>
+                <a id="tasks" href="#">وظیفه</a>
+                <ul>
+                    <li><a id="task-new" href="{% url 'tasks:task-new' %}">ثبت وظیفه </a></li>
+                    <li><a id="task-list-table" href="{% url 'tasks:my-task-list-table' %}">وظایف من&nbsp;<small class="text-info"> (لیست) </small></a></li>
+                    <li><a id="task-list-chart" href="{% url 'tasks:my-task-list-chart' %}">وظایف من&nbsp;<small class="text-info"> (چارت) </small></a></li>
+                </ul>
+            </li>
+            <li>
+                <a id="calender-event" href="#">تقویم</a>
+                <ul>
+                    <li><a id="event-manager" href="{% url 'calendar_event:calendar' %}">مدیریت برنامه</a></li>
+                </ul>
+            </li>
+            <li>
+                <a id="financial" href="#">حسابداری</a>
+                <ul>
+                    <li><a id="financial-broker-list" href="{% url 'financial:financial-broker-list' %}">کارگزاران مالی </a></li>
+                    <li><a id="financial-transaction-record-list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id='0' %}">صورت حساب های من </a></li>
+                </ul>
+            </li>
+{#            <li>#}
+{#                <a href="#">انبار<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>#}
+{#                <ul>#}
+{#                    <li><a href="#">ثبت وسیله </a></li>#}
+{#                    <li><a href="#">لیست وسایل </a></li>#}
+{#                </ul>#}
+{#            </li>#}
+        </ul>
+        <ul id="navigationStorage">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">ذخیره سازی</span></li>
+            <li>
+                <a id="file-manager" href="#">مدیریت فایل ها</a>
+                <ul>
+                    <li><a id="files-list" href="{% url 'file-gallery:files-list' %}">فایل های من</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul id="navigationCommunication">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">ارتباطات</span></li>
+            <li>
+                <a href="#">پیام رسانی<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+{#                <ul>#}
+{#                    <li><a href="#">ارسال پیام </a></li>#}
+{#                    <li><a href="#">لیست پیام ها </a></li>#}
+{#                </ul>#}
+            </li>
+        </ul>
+        <ul id="navigationSupport">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">پشتیبانی</span></li>
+            <li>
+                <a href="#">درباره ما<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+            </li>
+            <li>
+                <a href="#">ارتباط با ما<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+            </li>
+            <li>
+                <a href="#">تیکت<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+{#                <ul>#}
+{#                    <li><a href="#">ارسال تیکت </a></li>#}
+{#                    <li><a href="#">لیست تیکت ها </a></li>#}
+{#                </ul>#}
+            </li>
+        </ul>
+        <ul id="navigationTutorial">
+            <li class="navigation-divider"><span class="font-size-18 text-primary">آموزش</span></li>
+            <li>
+                <a href="#">سوالات متداول<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+            </li>
+            <li>
+                <a href="#">آموزش<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+{#                <ul>#}
+{#                    <li><a href="#">آموزش ویدیویی </a></li>#}
+{#                    <li><a href="#">مستندات </a></li>#}
+{#                </ul>#}
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    try {
+        document.getElementById('{{ navigation_icon_menu_id }}').className += 'active'
+        document.getElementById('{{ navigation_menu_body_id }}').className += 'navigation-active'
+        document.getElementById('{{ navigation_menu_body_main_item_id }}').parentElement.className += 'open'
+        document.getElementById('{{ navigation_menu_body_sub_item_id }}').className += 'active'
+    } catch (err){}
+</script>

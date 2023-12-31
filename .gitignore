@@ -1,0 +1,7 @@
+/default.sqlite3
+/logs.sqlite3
+/.idea/
+/backups/
+/media/
+/static/
+/venv/

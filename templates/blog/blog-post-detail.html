@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.categories-clouds li {
+    display: inline-block;
+    margin-bottom: 5px
+}
+
+.categories-clouds li a {
+    display: block;
+    border: 1px solid;
+    border-color: green;
+    padding: 6px 10px;
+    border-radius: 3px
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="loader" class="page-loader" hidden>
+    <div class="spinner-border"></div>
+</div>
+
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header mb-3 d-flex justify-content-between text-muted">
+                        <div>
+                            عنوان: {{ post_content.title }}
+                        </div>
+                        {% if post_content.post_publish_status == '1' %}
+                        <div>
+                            تاریخ انتشار: {{ post_content.created_at.date|date:"Y/m/d" }}
+                        </div>
+                        {% else %}
+                        <div>
+                            {% if post_content.post_publish_status == '2' %}
+                            وضعیت: درحال بررسی
+                            {% elif post_content.post_publish_status == '3' %}
+                            وضعیت: نیاز به ویرایش
+                            {% elif post_content.post_publish_status == '4' %}
+                            وضعیت: رد شده
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            نوشته شده توسط: {{ post_content.created_by.username }}
+                        </div>
+                    </div>
+                    {% if post_content.feature_image %}
+                    <div class="img-post mb-3">
+                        <img class="d-block img-fluid" src="{{ post_content.feature_image.url }}" alt="{{ post_content.title }}"
+                        style="object-fit: cover; width: 100%; max-height: 800px">
+                    </div>
+                    {% endif %}
+                    <h3 class="mb-3"><a class="text-primary" href="{{ post_content.get_absolute_url }}">{{ post_content.description }}</a></h3>
+                    <p class="mb-3">{{ post_content.content|safe }}</p>
+                    {% if post_content.created_by == request.user %}
+                    <form action="{% url 'blog:blog-post-remove-with-id' blog_post_id=post_content.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-secondary float-right" type="submit">حذف پست</button>
+                    </form>
+                    <a href="{% url 'blog:blog-post-edit-with-id' blog_post_id=post_content.id %}" class="btn btn-outline-secondary float-right mr-3">ویرایش پست</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body search">
+{#                    <form action="{% url 'blog:blog-post-list-with-blog-id' blog_id=blog.id %}" method="post" id="search-form-submit">#}
+{#                        {% csrf_token %}#}
+{#                        <div class="input-group m-b-0">#}
+{#                            <div class="input-group-prepend" onclick="on_click_submit()" style="cursor: pointer">#}
+{#                                <span class="input-group-text"><i class="fa fa-search"></i></span>#}
+{#                            </div>#}
+{#                            <input type="text" class="form-control" placeholder="جست و جو..." name="searched-word">#}
+{#                            <input type="submit" hidden=""/>#}
+{#                        </div>#}
+{#                        <script>#}
+{#                            function on_click_submit() {#}
+{#                                document.getElementById('search-form-submit').submit();#}
+{#                            }#}
+{#                        </script>#}
+{#                    </form>#}
+                </div>
+            </div>
+            {% if post_content.categories.all.count != 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header mb-3">
+                        <h2>دسته ها</h2>
+                    </div>
+                    <div class="widget">
+                        <ul class="list-unstyled categories-clouds m-b-0">
+                            {% for cat in post_content.categories.all %}
+                            <li><a href="{% url 'blog:blog-post-list-with-category-id-and-category-title' category_id=cat.id category_title=cat.slug_title %}">{{ cat.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <h6>بدون دسته</h6>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if post_content.keywords.all.count != 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header mb-3">
+                        <h2>کلمات کلیدی</h2>
+                    </div>
+                    <div class="widget">
+                        <ul class="list-unstyled categories-clouds m-b-0">
+                            {% for key in post_content.keywords.all %}
+                            <li><a href="{% url 'blog:blog-post-list-with-keyword-id-and-keyword-title' keyword_id=key.id keyword_title=key.slug_title %}">{{ key.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <h6>بدون کلمه کلیدی</h6>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if not post_content.post_publish_status == '1' %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header mb-3">
+                        <h2>بازخورد ادمین</h2>
+                    </div>
+                    <ul class="comment-reply list-unstyled">
+                        <li class="row clearfix">
+                            <div class="text-box col-md-10 col-8 p-l-0 p-r0">
+                                {% if post_content.admin_response_message %}
+                                <h5 class="m-b-0 text-danger">بازخورد: {{ post_content.admin_response_message }} </h5>
+                                {% endif %}
+                                {% if post_content.post_publish_status == '2' %}
+                                    <p>وضعیت: درحال بررسی</p>
+                                {% elif post_content.post_publish_status == '2' %}
+                                    <p>وضعیت: نیاز به ویرایش</p>
+                                {% elif post_content.post_publish_status == '4' %}
+                                    <p>وضعیت: رد شده</p>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if post_content.post_publish_status == '1' %}
+    <div class="row">
+        <div class="col-md-8">
+            {% if blog_post_comments.count != 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-header mb-3">
+                        <h2>نظرات ({{ blog_post_comments.count }})</h2>
+                    </div>
+                    <ul class="comment-reply list-unstyled">
+                        {% for comment in blog_post_comments %}
+                        <li class="row clearfix">
+                            <div class="icon-box col-md-2 col-4"><img class="img-fluid img-thumbnail" src="{% static 'custom/profile.png' %}" alt="{{ comment.replier.username }}"></div>
+                            <div class="text-box col-md-10 col-8 p-l-0 p-r0">
+                                <h5 class="m-b-0 text-muted">{{ comment.replier.username }} </h5>
+                                <p>{{ comment.comment }}</p>
+                                <div class="list-inline">
+                                    <a class="small float-left" href="javascript:void(0);" style="color: cornflowerblue;">{{ comment.created_at.date|date:'Y/m/d' }}</a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="mb-3">ثبت نظر </h2>
+                    <div class="comment-form">
+                        <form class="row clearfix" action="{% url 'blog:blog-post-detail-with-id' blog_post_id=post_content.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <textarea rows="4" class="form-control no-resize" name="comment" placeholder="نظر خود را ثبت نمایید..." required
+                                    oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                    oninput="setCustomValidity('')"></textarea>
+                                </div>
+                                {% if message %}
+                                <div class="form-control mb-3">
+                                    <span class="text-center form-control-plaintext" style="color: green">{{ message }}</span>
+                                </div>
+                                {% endif %}
+                                <button type="submit" class="btn btn-block btn-primary">ارسال</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

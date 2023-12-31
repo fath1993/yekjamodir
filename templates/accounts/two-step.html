@@ -1,0 +1,81 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+		<div class="spinner-border"></div>
+	</div>
+    <div class="form-wrapper" style="opacity: 0.85;">
+
+        <!-- logo -->
+        <div class="logo">
+            <img class="rounded-circle" src="{% static 'admin-panel/custom/yekjamodir-logo1.png' %}" alt="image" width="128" height="128">
+        </div>
+        <!-- ./ logo -->
+
+        <h5>کد تایید</h5>
+        <script>
+            console.log('{{ request.GET }}')
+        </script>
+        <form action="{% url 'accounts:two-step' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="phone_number" value="{{ phone_number }}">
+            <div class="form-group">
+                <input type="text" class="form-control text-left" id="verification_code" name="verification_code" placeholder="کد تایید"
+                       dir="ltr" required autofocus
+                oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                oninput="setCustomValidity('')">
+            </div>
+            <div class="form-group d-sm-flex justify-content-between text-left mb-4">
+                <a class="d-block mt-2 mt-sm-0 line-height-28 text-primary" id="retry_send" style="cursor: pointer" onclick="resend_verification_code('{{ phone_number }}')">ارسال مجدد</a>
+            </div>
+            <div class="form-group" hidden>
+                <strong class="form-control-plaintext" style="color: green" id="alert"></strong>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">تایید</button>
+        </form>
+        <hr>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm">بازگشت</a>
+    </div>
+    <script>
+        alert_manager()
+        function alert_manager() {
+            var alert_tag = document.getElementById('alert')
+            {% if err %}
+                alert_tag.parentElement.hidden=false
+                alert_tag.innerText={{ err }}
+                alert_tag.style.color='red'
+            {% endif %}
+            {% if alert %}
+                alert_tag.parentElement.hidden=false
+                alert_tag.innerText={{ alert }}
+                alert_tag.style.color='green'
+            {% endif %}
+
+        }
+        function resend_verification_code(phone_number) {
+            const alert_tag = document.getElementById('alert')
+            $.ajax({
+                url: '{% url 'accounts:ajax-two-step-verification-retry-send' %}',
+                method: 'post',
+                data: {
+                    phone_number: phone_number,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                success: function (data) {
+                    alert_tag.parentElement.hidden=false
+                    alert_tag.innerText=data['message']
+                    if (data['message'] === 'کد تایید به شما پیامک شد') {
+                        alert_tag.style.color='green'
+                    } else {
+                        alert_tag.style.color='red'
+                    }
+
+                }
+            })
+        }
+    </script>
+{% endblock %}

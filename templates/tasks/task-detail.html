@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="card card-body overflow-hidden" data-backround-image="{% static 'admin-panel/custom/banner1.png' %}">
+        <div class="p-3 d-lg-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div>
+                    <figure class="avatar avatar-xl mr-3">
+                        <img src="{% static 'admin-panel/custom/task-icon-gif.gif' %}" class="rounded-circle" alt="...">
+                    </figure>
+                </div>
+                <div class="text-white">
+                    <h3 class="line-height-30 m-b-10">
+                        {{ task.activity }}
+                        <a href="{% url 'tasks:task-edit-with-id' task_id=task.id %}" data-toggle="tooltip" title="ویرایش وظیفه" class="font-size-15 text-white btn-floating m-l-5 align-middle">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                    </h3>
+                    <p class="mb-0 opacity-8">مجری: {{ task.director.username }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-sm">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title d-flex justify-content-between align-items-center">
+                        اطلاعات
+                        <a href="{% url 'tasks:task-edit-with-id' task_id=task.id %}" class="link-1 font-size-13 primary-font">
+                            <i class="ti-pencil m-r-5 align-middle"></i> ویرایش
+                        </a>
+                    </h6>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">عنوان وظیفه</div>
+                        <div class="col-6">{{ task.activity }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">مجری:</div>
+                        <div class="col-6">{{ task.director.username }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع پیش بینی شده:</div>
+                        <div class="col-6">{{ task.prediction_progress_start_date|date:'Y/m/d' }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان پیش بینی شده:</div>
+                        <div class="col-6">{{ task.prediction_progress_end_date|date:'Y/m/d' }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع پیش بینی شده بر اساس روز در سال:</div>
+                        <div class="col-6">{{ task.prediction_progress_start_day }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان پیش بینی شده بر اساس روز در سال:</div>
+                        <div class="col-6">{{ task.prediction_progress_end_day }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">مدت زمان پیشبینی بر اساس روز:</div>
+                        <div class="col-6">{{ task.prediction_progress_days }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع پیش بینی شده بر اساس ماه در سال:</div>
+                        <div class="col-6">{{ task.prediction_progress_start_month }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان پیش بینی شده بر اساس ماه در سال:</div>
+                        <div class="col-6">{{ task.prediction_progress_end_month }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">مدت زمان پیشبینی بر اساس ماه:</div>
+                        <div class="col-6">{{ task.prediction_progress_months }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع واقعی:</div>
+                        <div class="col-6">{{ task.real_progress_start_date }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان واقعی:</div>
+                        <div class="col-6">{{ task.real_progress_end_date }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع واقعی بر اساس روز در سال:</div>
+                        <div class="col-6">{{ task.real_progress_start_day }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان واقعی بر اساس روز در سال:</div>
+                        <div class="col-6">{{ task.real_progress_end_day }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">مدت زمان واقعی بر اساس روز:</div>
+                        <div class="col-6">{{ task.real_progress_days }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ شروع واقعی بر اساس ماه در سال:</div>
+                        <div class="col-6">{{ task.real_progress_start_month }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ پایان واقعی بر اساس ماه در سال:</div>
+                        <div class="col-6">{{ task.real_progress_end_month }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">مدت زمان واقعی بر اساس ماه:</div>
+                        <div class="col-6">{{ task.real_progress_months }}</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">درصد پیشرفت فعالیت:</div>
+                        <div class="col-6">{{ task.activity_completion_percentage }} %</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6 text-muted">تاریخ ایجاد:</div>
+                        <div class="col-6">{{ task.created_at|date:'Y/m/d' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+        document.body.innerHTML
+            = document.body.innerHTML
+            .replace(/None/g, '-');
+    });
+</script>
+{% endblock %}

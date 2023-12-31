@@ -1,0 +1,24 @@
+{% extends 'admin/change_list.html' %}
+{% load static %}
+
+{% block content %}
+    {% if not has_add_permission %}
+        <ul class="messagelist">
+            <li class="warning">فضای ذخیره سازی شما پر شده است. امکان افزودن مورد جدید وجود ندارد</li>
+            <li class="info"><span>میزان فضای استفاده شده برابر است با: </span><span>{{ storage_usage }}</span> از <span>{{ quota }} مگابایت</span></li>
+        </ul>
+    {% else %}
+       <ul class="messagelist">
+            <li class="info"><span>میزان فضای استفاده شده برابر است با: </span><span>{{ storage_usage }}</span> از <span>{{ quota }} مگابایت</span></li>
+        </ul>
+    {% endif %}
+    <script>
+        if (document.getElementsByClassName('error') !== undefined) {
+            var success = document.getElementsByClassName('success')
+            for (var x = 0; x <= success.length; x++) {
+                success[x].remove()
+            }
+        }
+    </script>
+    {{ block.super }}
+{% endblock %}

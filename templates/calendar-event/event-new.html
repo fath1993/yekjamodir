@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.css' %}"/>
+<script src="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">ثبت یاداوری جدید</h6>
+                    <form action="{% url 'events:event-new' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="event-description">عنوان رویداد</label>
+                            <input type="text" class="form-control text-left" id="event-title" name="event-title"
+                                   aria-describedby="event-title" placeholder="" dir="ltr" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description">توضیحات</label>
+                            <textarea rows="4" class="form-control text-left" id="event-description" name="event-description"
+                                      placeholder="" dir="ltr"></textarea>
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="checkbox" name="checkbox">
+                            <label class="form-check-label" for="checkbox">یاداوری پیامکی</label>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label for="date-picker-shamsi">تاریخ یاداوری</label>
+                                <input type="text" data-jdp id="date" name="date" class="form-control text-left" dir="ltr">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="event-description">ساعت</label>
+                            <input type="text" class="form-control text-left" id="hour" name="hour"
+                                   aria-describedby="event-title" placeholder="00:00" dir="ltr" required>
+                            </div>
+                        </div>
+                        <script>
+                            jalaliDatepicker.startWatch({
+                              minDate: "attr",
+                              maxDate: "attr"
+                            });
+                        </script>
+                        <button type="submit" class="btn btn-primary">ثبت</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

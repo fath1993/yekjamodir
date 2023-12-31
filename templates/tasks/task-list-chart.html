@@ -1,0 +1,747 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin-panel/custom/task-style.css' %}"/>
+<link rel="stylesheet" href="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.css' %}"/>
+<script src="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div>
+            {% csrf_token %}
+            <div class="custom-container">
+                <div class="row-container">
+                    <div class="row custom-row mb-4">
+                        <div class="col">
+                            <div class="row-number-label">ردیف</div>
+                        </div>
+                        <div class="col">
+                            <div class="director-label">مجری</div>
+                        </div>
+                        <div class="col">
+                            <div class="activity-label">فعالیت</div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label">شروع برنامه ریزی</div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label">پیش بینی زمان</div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label">شروع واقعی</div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label">مدت زمان واقعی</div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label">درصد تکمیل شده</div>
+                        </div>
+                    </div>
+                    {% for item_row in  task_list %}
+                        {% if item_row.1 == 1 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="prediction-progress-start-date" name="prediction-progress-start-date" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="prediction-progress-days" name="prediction-progress-days"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="real-progress-start-date" name="real-progress-start-date" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="real-progress-days" name="real-progress-days"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="activity-completion-percentage" name="activity-completion-percentage"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% elif item_row.2.2 <= forloop.counter and forloop.counter <= item_row.2.3 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.1 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.3 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 2 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.1 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 3 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% elif item_row.2.2 <= forloop.counter and forloop.counter <= item_row.2.3 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-green-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.1 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.3 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 4 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% elif item_row.2.2 <= forloop.counter and forloop.counter <= item_row.2.3 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% elif item_row.2.4 <= forloop.counter and forloop.counter <= item_row.2.5 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.2 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.3 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.5 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 5 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% elif item_row.2.2 <= forloop.counter and forloop.counter <= item_row.2.3 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.2 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.3 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 6 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% elif item_row.2.2 <= forloop.counter and forloop.counter <= item_row.2.3 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% elif item_row.2.4 <= forloop.counter and forloop.counter <= item_row.2.5 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-green-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.2 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.3 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.5 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 7 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% elif item_row.2.2 == forloop.counter %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-orange-crosshatch"
+                                        {% elif item_row.2.3 <= forloop.counter and forloop.counter <= item_row.2.4 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-green-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.2 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.4 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 8 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% elif item_row.2.4 <= forloop.counter and forloop.counter <= item_row.2.5 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-green-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.1 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.4 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.5 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.real_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% elif item_row.1 == 9 %}
+                            <div class="row custom-row">
+                                <div class="col">
+                                    <div class="row-number-label">{{ forloop.counter }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="director-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.director.username }}">{{ item_row.0.director.username|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col custom-sticky">
+                                    <div class="activity-label" data-toggle="tooltip"
+                                         data-placement="top"
+                                         title="{{ item_row.0.activity }}">{{ item_row.0.activity|truncatechars:25 }}</div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.prediction_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.prediction_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input type="text" data-jdp id="x" name="x" class="form-control text-left" dir="ltr"
+                                               value="{{ item_row.0.real_progress_start_date|date:"Y/m/d" }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.real_progress_days }}">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="day-label day_input-box">
+                                        <input class="form-control" type="number" id="x" name="x"
+                                               value="{{ item_row.0.activity_completion_percentage }}" placeholder="%">
+                                    </div>
+                                </div>
+                                {% for i in num_boxes %}
+                                    <div id="{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                                         class="col custom-box custom-color-whitesmoke" data-toggle="tooltip"
+                                         data-placement="top"></div>
+                                    <script>
+                                        {% if item_row.2.0 <= forloop.counter and forloop.counter <= item_row.2.1 %}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').className = "col custom-box custom-color-grey-crosshatch"
+                                        {% endif %}
+
+                                        {% if item_row.2.0 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_start_date }}'
+                                        {% endif %}
+                                        {% if item_row.2.1 == forloop.counter%}
+                                            document.getElementById('{{ forloop.parentloop.counter }}-{{ forloop.counter }}').title = '{{ item_row.0.prediction_progress_end_date }}'
+                                        {% endif %}
+                                    </script>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div style="border-width: 1px; border-color: #e3e3e3; border-style: solid; margin: 15px"></div>
+                    {% endfor %}
+                    <div class="row custom-row custom-sticky-button">
+                        <div class="col">
+                            <div class="row-number-label"></div>
+                        </div>
+                        <div class="col">
+                            <div class="director-label"></div>
+                        </div>
+                        <div class="col">
+                            <div class="activity-label"></div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label day_input-box"></div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label day_input-box"></div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label day_input-box"></div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label day_input-box"></div>
+                        </div>
+                        <div class="col">
+                            <div class="day-label day_input-box"></div>
+                        </div>
+                        {% for i in num_boxes %}
+                            <div class="col custom-box">
+                                <div>{{ i }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3"></div>
+                <div class="col-md-6 d-flex d-md-inline-flex justify-content-center">
+                    <div class="text mr-1">پیش بینی</div>
+                    <div class="custom-box custom-color-grey-crosshatch mr-3"></div>
+                    <div class="text mr-1">واقعی</div>
+                    <div class="custom-box custom-color-green-crosshatch mr-3"></div>
+                    <div class="text mr-1">اشتراک پیش بینی و واقعی</div>
+                    <div class="custom-box custom-color-orange-crosshatch mr-3"></div>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+        jalaliDatepicker.startWatch({
+          minDate: "attr",
+          maxDate: "attr"
+        });
+        function row_designator(item_row) {
+            if ('{{ item_row.1 }}' === '1') {
+
+            } else if ('{{ item_row.1 }}' === '2') {
+
+            } else if ('{{ item_row.1 }}' === '3') {
+
+            } else if ('{{ item_row.1 }}' === '4') {
+
+            } else if ('{{ item_row.1 }}' === '5') {
+
+            } else if ('{{ item_row.1 }}' === '6') {
+
+            } else if ('{{ item_row.1 }}' === '7') {
+
+            } else if ('{{ item_row.1 }}' === '8') {
+
+            } else if ('{{ item_row.1 }}' === '2') {
+
+            } else if ('{{ item_row.1 }}' === '2') {
+
+            }
+        }
+    </script>
+{% endblock %}

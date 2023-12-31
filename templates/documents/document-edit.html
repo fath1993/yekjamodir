@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<script src="{% static 'tinymce_6.5.1/tinymce/js/tinymce/tinymce.min.js' %}" referrerpolicy="origin"></script>
+<script src="{% static 'tinymce_6.5.1/custom/init-func.js' %}"></script>
+<!-- Select2 -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+<!-- Tagsinput -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+        <div class="spinner-border"></div>
+    </div>
+    <main class="main-content">
+        <form action="{% url 'documents:document-edit' document_id=document.id %}" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><span>عنوان: </span><span class="text-black-50">{{ document.title }}</span></h6>
+                            <h6 class="card-title"><span>توضیحات: </span><span class="text-black-50">{{ document.description }}</span></h6>
+                            <textarea name="content" id="full-featured">{% if document.content %}{{ document.content }}{% endif %}</textarea>
+                        </div>
+                        {% if document.files.count != 0 %}
+                        <div class="card">
+                            <div class="card-header">
+                                فایل های ضمیمه شده
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for file in document.files.all %}
+                                <li class="list-group-item"><a href="javascript:void(0);"><i class="fa-solid fa-trash mr-2 {% if not file.created_by == request.user %}text-muted{% endif %}" {% if not file.created_by == request.user %}title="اجازه حذف ندارید" {% else %} data-toggle="modal" data-target="#gridSystemModal" title="حذف"{% endif %}></i></a><a href="{{ file.file.url }}" target="_blank" class="text-primary">فایل: {{ file.alt }}</a></li>
+                                <div class="text-center">
+                                    <div id="gridSystemModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="gridModalLabel">پیام</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                                                        <i class="ti-close"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="container-fluid bd-example-row">
+                                                        <div class="row">
+                                                            <span>آیا از حذف این مورد مطمئن هستید؟</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                    <button type="button" class="btn btn-primary" onclick="ajax_file_delete('{{ file.id }}')"><a class="text-white">بله</a></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+								<label for="files">ضمیمه فایل ها</label>
+								<input type="file" class="form-control-file" id="files" name="files" multiple>
+							</div>
+                            <div class="form-group">
+								<label for="access-user">اجازه دسترسی به</label>
+                                <select class="js-example-basic-single" multiple id="access-user" name="access-user">
+                                    <option>انتخاب</option>
+                                    <optgroup label="کارمندان">
+                                        {% for employee in employees %}
+                                        <option
+                                                {% for access_user in access_users %}
+                                                    {% if access_user.id == employee.user.id %}
+                                                    selected
+                                                    {% endif %}
+                                                {% endfor %}
+                                                value="{{ employee.user.id }}">{{ employee.user.username }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                    <optgroup label="سایر افراد">
+                                        {% for person in others %}
+                                        <option
+                                               {% for access_user in access_users %}
+                                                    {% if access_user.id == person.user.id %}
+                                                    selected
+                                                    {% endif %}
+                                                {% endfor %}
+                                                value="{{ person.user.id }}">{{ person.user.username }}</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                </select>
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit">
+                <i class="fa-solid fa-save mr-3"></i> ذخیره سند
+            </button>
+        </form>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var promotion_cleaner = setInterval(() => {
+        var promotions = document.getElementsByClassName('tox-promotion')
+        if (promotions.length > 0){
+            for (var i = 0; i <= promotions.length; i++) {
+                try {
+                    promotions[i].hidden = true
+                } catch {}
+            }
+            clearInterval(promotion_cleaner);
+        }
+
+    }, 1000);
+    function ajax_file_delete(file_id) {
+        $.ajax({
+            url: '{% url 'documents:ajax-file-delete' %}',
+            type: 'post',
+            data: {
+                file_id: file_id,
+                csrfmiddlewaretoken: '{{csrf_token}}',
+            },
+            beforeSend: function () {
+            },
+            error: function (err) {
+            },
+            success: function (data) {
+                location.reload()
+            }
+        })
+    }
+</script>
+<!-- Select2 -->
+<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+<!-- Tagsinput -->
+<script src="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/tagsinput.js' %}"></script>
+
+{% endblock %}

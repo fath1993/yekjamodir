@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+<!-- DataTable -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}" type="text/css">
+
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="card">
+            <div class="card-body">
+                <a href="{% url 'blog:blog-new' %}">
+                    <button type="button" class="btn btn-primary btn-uppercase mb-3">
+                        <i class="ti-plus m-r-5"></i> ایجاد بلاگ جدید
+                    </button>
+                </a>
+                <table class="datatable table table-striped table-bordered" width="100%">
+                    <thead>
+                    <tr>
+                        <th>ردیف</th>
+                        <th>عنوان</th>
+                        <th>توضیحات</th>
+                        <th>دامنه سیستمی</th>
+                        <th>دامنه شخصی</th>
+                        <th>عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody style="text-align: center">
+                    {% for blog in blogs %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{{ blog.get_absolute_url }}" class="text-primary">{{ blog.title }}</a></td>
+                            <td>{{ blog.description }}</td>
+                            <td><a href="https://{{ blog.generated_url }}" class="text-primary">{{ blog.generated_url }}</a></td>
+                            <td><a href="https://{{ blog.custom_url }}" class="text-primary">{{ blog.custom_url }}</a></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button"
+                                            class="btn btn-outline-warning btn-floating rounded" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        <i class="ti-settings"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="{% url 'blog:blog-edit-with-blog-id' blog_id=blog.id %}"><i class="ti-eye mr-2"></i> نمایش</a>
+                                        <a class="dropdown-item" href="{% url 'blog:blog-edit-with-blog-id' blog_id=blog.id %}"><i class="ti-reload mr-2"></i> ویرایش</a>
+                                        <a data-toggle="modal" data-target="#gridSystemModal_{{ forloop.counter }}" class="dropdown-item" href="#"><i class="ti-trash mr-2"></i> حذف</a>
+                                    </div>
+                                    <div class="text-center">
+                                        <div id="gridSystemModal_{{ forloop.counter }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="gridModalLabel_{{ forloop.counter }}">پیام</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                                                            <i class="ti-close"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="container-fluid bd-example-row">
+                                                            <div class="row">
+                                                                <span>آیا از حذف این مورد مطمئن هستید؟</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                        <form action="{% url 'blog:blog-remove-with-blog-id' blog_id=blog.id %}" method="post">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-primary">بله</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- DataTable -->
+<script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.responsive.min.js' %}"></script>
+
+<script>
+    {% if toast %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            if ('{{ toast }}' === '1') {
+                toastr.success('با موفقیت انجام شد');
+            } else {
+                toastr.error('خطایی رخ داد');
+            }
+        });
+    {% endif %}
+</script>
+<script>
+    'use strict';
+    $(document).ready(function () {
+        $('.datatable').DataTable({
+            responsive: true,
+            language: {
+                "sEmptyTable":     "هیچ داده ای در جدول وجود ندارد",
+                "sInfo":           "نمایش _START_ تا _END_ از _TOTAL_ رکورد",
+                "sInfoEmpty":      "نمایش 0 تا 0 از 0 رکورد",
+                "sInfoFiltered":   "(فیلتر شده از _MAX_ رکورد)",
+                "sInfoPostFix":    "",
+                "sInfoThousands":  ",",
+                "sLengthMenu":     "نمایش _MENU_ رکورد",
+                "sLoadingRecords": "در حال بارگزاری...",
+                "sProcessing":     "در حال پردازش...",
+                "sSearch":         "جستجو:",
+                "sZeroRecords":    "رکوردی با این مشخصات پیدا نشد",
+                "oPaginate": {
+                    "sFirst":    "ابتدا",
+                    "sLast":     "انتها",
+                    "sNext":     "بعدی",
+                    "sPrevious": "قبلی"
+                },
+                "oAria": {
+                    "sSortAscending":  ": فعال سازی نمایش به صورت صعودی",
+                    "sSortDescending": ": فعال سازی نمایش به صورت نزولی"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

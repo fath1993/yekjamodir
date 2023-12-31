@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+<!-- DataTable -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="card">
+            <div class="card-body">
+                <a href="{% url 'financial:financial-broker-new' %}">
+                    <button type="button" class="btn btn-primary btn-uppercase mb-3">
+                        <i class="ti-plus m-r-5"></i> کارگزار جدید
+                    </button>
+                </a>
+                <table id="my-broker-list" class="table table-striped table-bordered" width="100%">
+                    <thead>
+                        <tr>
+                            <th>ردیف</th>
+                            <th>نام کارگزار</th>
+                            <th>نام صاحب حساب</th>
+                            <th>شماره / شناسه حساب</th>
+                            <th>شماره شبا</th>
+                            <th>شماره کارت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody style="text-align: center">
+                    {% for broker in brokers %}
+                        <tr>
+                            <td style="width: 5%">{{ forloop.counter }}</td>
+                            <td style="width: 20%" data-toggle="tooltip" data-placement="top"
+                                         title="{{ broker.broker_name }}"><a href="{% url 'financial:financial-broker-edit-with-broker-id' broker_id=broker.id %}" class="text-primary">{{ broker.broker_name|truncatechars:30 }}</a></td>
+                            <td style="width: 20%" data-toggle="tooltip" data-placement="top"
+                                         title="{{ broker.account_owner }}">{{ broker.account_owner }}</td>
+                            <td style="width: 14%">{{ broker.account_number }}</td>
+                            {% if broker.account_ISBN %}
+                            <td style="width: 17%">{{ broker.account_ISBN }}</td>
+                            {% else %}
+                            <td style="width: 17%">-</td>
+                            {% endif %}
+                            {% if broker.account_card_number %}
+                            <td style="width: 17%">{{ broker.account_card_number }}</td>
+                            {% else %}
+                            <td style="width: 17%">-</td>
+                            {% endif %}
+                            <td style="width: 5%">
+                                <div class="btn-group" role="group">
+                                    <button id="btnGroupDrop1" type="button"
+                                            class="btn btn-outline-warning btn-floating rounded" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        <i class="ti-settings"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                        <a class="dropdown-item" href="{% url 'financial:financial-broker-edit-with-broker-id' broker_id=broker.id %}"><i class="ti-eye mr-2"></i> مشاهده</a>
+                                        <a class="dropdown-item" href="{% url 'financial:financial-broker-edit-with-broker-id' broker_id=broker.id %}"><i class="ti-reload mr-2"></i> ویرایش</a>
+                                        <a class="dropdown-item" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=broker.id %}"><i class="ti-list mr-2"></i> لیست فاکتور ها</a>
+                                        <a data-toggle="modal" data-target="#gridSystemModal_{{ forloop.counter }}" class="dropdown-item" href="#"><i class="ti-trash mr-2"></i> حذف</a>
+                                    </div>
+                                    <div class="text-center">
+                                        <div id="gridSystemModal_{{ forloop.counter }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="gridModalLabel_{{ forloop.counter }}">پیام</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                                                            <i class="ti-close"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="container-fluid bd-example-row">
+                                                            <div class="row">
+                                                                <span>آیا از حذف این مورد مطمئن هستید؟</span>
+                                                                <small class="text-muted">کارگزار و تمامی فاکتور ها و ضمائم متعلق به آن حذف خواهد شد</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                        <form action="{% url 'financial:financial-broker-remove-with-broker-id' broker_id=broker.id %}" method="post">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-primary">بله</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- DataTable -->
+<script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.responsive.min.js' %}"></script>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
+<script>
+    {% if toast %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            if ('{{ toast }}' === '1') {
+                toastr.success('با موفقیت انجام شد');
+            } else {
+                toastr.error('خطایی رخ داد');
+            }
+        });
+    {% endif %}
+</script>
+<script>
+    'use strict';
+    $(document).ready(function () {
+        $('#my-broker-list').DataTable({
+            responsive: true,
+            language: {
+                "sEmptyTable":     "هیچ داده ای در جدول وجود ندارد",
+                "sInfo":           "نمایش _START_ تا _END_ از _TOTAL_ رکورد",
+                "sInfoEmpty":      "نمایش 0 تا 0 از 0 رکورد",
+                "sInfoFiltered":   "(فیلتر شده از _MAX_ رکورد)",
+                "sInfoPostFix":    "",
+                "sInfoThousands":  ",",
+                "sLengthMenu":     "نمایش _MENU_ رکورد",
+                "sLoadingRecords": "در حال بارگزاری...",
+                "sProcessing":     "در حال پردازش...",
+                "sSearch":         "جستجو:",
+                "sZeroRecords":    "رکوردی با این مشخصات پیدا نشد",
+                "oPaginate": {
+                    "sFirst":    "ابتدا",
+                    "sLast":     "انتها",
+                    "sNext":     "بعدی",
+                    "sPrevious": "قبلی"
+                },
+                "oAria": {
+                    "sSortAscending":  ": فعال سازی نمایش به صورت صعودی",
+                    "sSortDescending": ": فعال سازی نمایش به صورت نزولی"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

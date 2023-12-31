@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Datepicker -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/flatpickr/flatpickr.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">ویرایش رویداد</h6>
+                    <form action="{% url 'events:event-edit' event_id=event.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="event-title">عنوان رویداد</label>
+                            <input type="text" class="form-control text-left" id="event-title" name="event-title"
+                                   aria-describedby="event-title" placeholder="" dir="ltr" required
+                                    value="{{ event.event.event_name }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description">توضیحات</label>
+                            <textarea rows="4" class="form-control text-left" id="event-description" name="event-description"
+                                      placeholder="" dir="ltr">{{ event.event.event_description }}</textarea>
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="checkbox" name="checkbox"
+                            {% if not event.date == event.created_at %}checked{% endif %}>
+                            <label class="form-check-label" for="checkbox">یاداوری پیامکی</label>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-4">
+                                <label for="date-picker-shamsi">تاریخ یاداوری</label>
+                                <input type="text" id="date-picker-shamsi" name="date-picker-shamsi" class="form-control text-left" dir="ltr"
+                                value="{{ event.date|date:'Y/m/d - i:H' }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">ثبت</button>
+                        <button type="submit" class="btn btn-primary">حذف</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Datepicker -->
+<script src="{% static 'admin-panel/vendors/jdate/jdate.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/l10n/fa.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/datepicker2.js' %}"></script>
+{% endblock %}

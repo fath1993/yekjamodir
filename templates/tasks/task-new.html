@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.css' %}"/>
+    <script src="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+    <!-- Tagsinput -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+        <div class="spinner-border"></div>
+    </div>
+    <main class="main-content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <h6 class="card-title">ثبت وظیفه جدید</h6>
+                                <form id="new-task-form" action="{% url 'tasks:task-new' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="director">مجری</label>
+                                        <select class="js-example-basic-single" id="director" name="director">
+                                            {% for director in directors %}
+                                            <option value="{{ director.user.id }}">{{ director.user.username }}</option>
+                                            {% empty %}
+                                            <option value="">انتخاب</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="social-name">فعالیت</label>
+                                        <input type="text" class="form-control text-left" id="activity-title"
+                                               name="activity-title"
+                                               aria-describedby="transaction-title" placeholder="" dir="rtl"
+                                               required
+                                               oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                               oninput="setCustomValidity('')"
+                                               value="{{ activity_title }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prediction-progress-start-date">تاریخ شروع پیش بینی شده</label>
+                                        <input type="text" data-jdp id="prediction-progress-start-date"
+                                               name="prediction-progress-start-date" class="form-control text-left" dir="ltr"
+                                                   required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                    oninput="setCustomValidity('')"
+                                                    value="{{ prediction_progress_start_date }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prediction-progress-end-date">تاریخ پایان پیش بینی شده</label>
+                                        <input type="text" data-jdp id="prediction-progress-end-date"
+                                               name="prediction-progress-end-date" class="form-control text-left" dir="ltr"
+                                                   required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                    oninput="setCustomValidity('')"
+                                                    value="{{ prediction_progress_end_date }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="real-progress-start-date">تاریخ شروع واقعی</label>
+                                        <input type="text" data-jdp id="real-progress-start-date"
+                                               name="real-progress-start-date" class="form-control text-left" dir="ltr"
+                                                   required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                    oninput="setCustomValidity('')"
+                                                    value="{{ real_progress_start_date }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="real-progress-end-date">تاریخ پایان واقعی</label>
+                                        <input type="text" data-jdp id="real-progress-end-date"
+                                               name="real-progress-end-date" class="form-control text-left" dir="ltr"
+                                                   required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                    oninput="setCustomValidity('')"
+                                                    value="{{ real_progress_end_date }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="activity-completion-percentage">درصد پیشرفت</label>
+                                        <input type="text" class="form-control text-left" id="activity-completion-percentage"
+                                               name="activity-completion-percentage"
+                                               aria-describedby="transaction-title" placeholder="" dir="rtl"
+                                               required
+                                               oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                               oninput="setCustomValidity('')"
+                                               value="{{ activity_completion_percentage }}">
+                                    </div>
+                                    {% if alert %}
+                                        <div class="form-group">
+                                            <span class="text text-danger">{{ alert }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <button type="submit" id="submit-btn" class="btn btn-primary"
+                                            onclick="form.submit()">ایجاد
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var promotion_cleaner = setInterval(() => {
+            var promotions = document.getElementsByClassName('tox-promotion')
+            if (promotions.length > 0) {
+                for (var i = 0; i <= promotions.length; i++) {
+                    try {
+                        promotions[i].hidden = true
+                    } catch {
+                    }
+                }
+                clearInterval(promotion_cleaner);
+            }
+
+        }, 1000);
+    </script>
+    <!-- Select2 -->
+    <script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+    <script>
+    jalaliDatepicker.startWatch({
+      minDate: "attr",
+      maxDate: "attr"
+    });
+    </script>
+    <script>
+        {% if toast %}
+            'use strict';
+            $(document).ready(function () {
+                toastr.options = {
+                    timeOut: 3000,
+                    progressBar: true,
+                    showMethod: "slideDown",
+                    hideMethod: "slideUp",
+                    showDuration: 200,
+                    hideDuration: 200
+                };
+                toastr.error('{{ toast }}');
+            });
+        {% endif %}
+    </script>
+    <!-- Tagsinput -->
+    <script src="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/tagsinput.js' %}"></script>
+{% endblock %}

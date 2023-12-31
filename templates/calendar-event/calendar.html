@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js'></script>
+
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+
+    <!-- Tagsinput -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+
+    <!-- Clockpicker -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/clockpicker/bootstrap-clockpicker.min.css' %}"
+          type="text/css">
+
+    <!-- Datepicker -->
+    	<link rel="stylesheet" href="{% static 'admin-panel/vendors/datepicker-jalali/bootstrap-datepicker.min.css' %}">
+	    <link rel="stylesheet" href="{% static 'admin-panel/vendors/datepicker/daterangepicker.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+    <main class="main-content">
+        <div class="mb-4 mt-1">
+            <button type="submit" class="btn btn-primary" onclick="form_reset()" data-toggle="modal" data-target="#createEventModal">
+                <i class="ti-plus mr-2"></i> ایجاد رویداد
+                <script>
+                    function form_reset() {
+                        document.getElementById('message_section').hidden=true
+                        document.getElementById('message').innerText=''
+                        document.getElementById('reset-btn').click()
+                    }
+                </script>
+            </button>
+        </div>
+
+        <!-- begin::Create Event Modal -->
+        <div class="modal fade" id="createEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">ایجاد رویداد</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                            <i class="ti-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="new_event_form" autocomplete="off" action="{% url 'calendar_event:event-new' %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group row mb-3">
+                                <label for="event_name" class="col-sm-3 col-form-label">عنوان</label>
+                                <div class="col-sm-9">
+                                    <input id="event_name" name="event_title" type="text" class="form-control" placeholder="عنوان" required>
+                                </div>
+                            </div>
+                            <div class="form-group row row-sm mb-3">
+                                <label for="event_start_date" class="col-sm-3 col-form-label">تاریخ شروع</label>
+                                <div class="col-sm-5 mb-2 mb-sm-0">
+                                    <input type="text" id="event_start_date" name="event_start_date" class="form-control text-left date-picker-shamsi" dir="ltr" placeholder="تاریخ">                               </div>
+                                <div class="col-sm-4">
+                                    <input id="event_start_time" name="event_start_time" type="text" class="form-control create-event-demo"
+                                           placeholder="ساعت">
+                                </div>
+                            </div>
+                            <div class="form-group row row-sm mb-3">
+                                <label for="event_end_date" class="col-sm-3 col-form-label">تاریخ پایان</label>
+                                <div class="col-sm-5 mb-2 mb-sm-0">
+                                    <input type="text" name="event_end_date" id="event_end_date" class="form-control text-left date-picker-shamsi" dir="ltr" placeholder="تاریخ">
+                                </div>
+                                <div class="col-sm-4">
+                                    <input id="event_end_time" name="event_end_time" type="text" class="form-control create-event-demo"
+                                           placeholder="ساعت">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-3">
+                                <label for="publish_with_bots" class="col-sm-3 col-form-label">یاداوری توسط ربات های</label>
+                                <div class="col-sm-9">
+                                    <select class="js-example-basic-single" id="publish_with_bots" name="publish_with_bots" multiple>
+                                        {% if publish_with_bots %}
+                                        {% for bot in bots %}
+                                            {% for publish_with_bot in publish_with_bots %}
+                                                {% if publish_with_bot == bot.id|stringformat:"s" %}
+                                                    <option selected value="{{ bot.id }}">{{ bot.bot_name }}</option>
+                                                {% else %}
+                                                    <option value="{{ bot.id }}">{{ bot.bot_name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% else %}
+                                            {% for bot in bots %}
+                                                <option value="{{ bot.id }}">{{ bot.bot_name }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group form-check mb-3">
+								<input type="checkbox" class="form-check-input" id="event_remind_me_at_once" name="event_remind_me_at_once" onchange="change_visibility(this, 'event_remind_me_at_once_section')">
+								<label class="form-check-label" for="event_remind_me_at_once">یاداوری یک بار</label>
+							</div>
+                            <div class="form-group row justify-content-center mb-3" id="event_remind_me_at_once_section" hidden>
+                                <div class="col-sm-5">
+                                    <input type="text" name="event_remind_me_at_once_date" id="event_remind_me_at_once_date" class="form-control text-left date-picker-shamsi" dir="ltr" placeholder="تاریخ">
+                                </div>
+                                <div class="col-sm-5">
+                                    <input id="event_remind_me_at_once_time" name="event_remind_me_at_once_time" type="text" class="form-control  create-event-demo" placeholder="ساعت">
+                                </div>
+                            </div>
+                            <div class="form-group form-check mb-3">
+								<input type="checkbox" class="form-check-input" id="event_hourly_remind_me_at" name="event_hourly_remind_me_at" onchange="change_visibility(this, 'event_hourly_remind_me_at_number_section')">
+								<label class="form-check-label" for="event_hourly_remind_me_at">یاداوری هر ساعت در</label>
+							</div>
+                            <div class="form-group mb-2" id="event_hourly_remind_me_at_number_section" hidden>
+                                <div class="col-sm-12">
+								    <input type="number" min="0" max="59" class="form-control text-left" id="event_hourly_remind_me_at_number" name="event_hourly_remind_me_at_number" placeholder="دقیقه" dir="ltr">
+                                </div>
+							</div>
+                            <div class="form-group form-check mb-3">
+								<input type="checkbox" class="form-check-input" id="event_daily_remind_me_at" name="event_daily_remind_me_at" onchange="change_visibility(this, 'event_daily_remind_me_at_section')">
+								<label class="form-check-label" for="event_daily_remind_me_at">یاداوری هر روز در</label>
+							</div>
+                            <div class="form-group mb-2" id="event_daily_remind_me_at_section" hidden>
+                                <div class="col-sm-12">
+                                    <input id="event_daily_remind_me_at_time" name="event_daily_remind_me_at_time" type="text" class="form-control create-event-demo" placeholder="ساعت">
+                                </div>
+                            </div>
+                            <div class="form-group form-check mb-3">
+								<input type="checkbox" class="form-check-input" id="event_monthly_remind_me_at" name="event_monthly_remind_me_at" onchange="change_visibility(this, 'event_monthly_remind_me_at_section')">
+								<label class="form-check-label" for="event_monthly_remind_me_at">یاداوری هر ماه در</label>
+							</div>
+                            <div class="form-group row justify-content-center mb-3" id="event_monthly_remind_me_at_section" hidden>
+                                <div class="col-sm-5">
+								    <input type="number" min="0" max="59" class="form-control text-left" id="event_monthly_remind_me_at_day" name="event_monthly_remind_me_at_day" placeholder="روز" dir="ltr">
+                                </div>
+                                <div class="col-sm-5">
+                                    <input id="event_monthly_remind_me_at_time" name="event_monthly_remind_me_at_time" type="text" class="form-control  create-event-demo" placeholder="ساعت">
+                                </div>
+                            </div>
+                            <div class="form-group form-check mb-3">
+								<input type="checkbox" class="form-check-input" id="event_yearly_remind_me_at" name="event_yearly_remind_me_at" onchange="change_visibility(this, 'event_yearly_remind_me_at_section')">
+								<label class="form-check-label" for="event_yearly_remind_me_at">یاداوری هر سال در</label>
+							</div>
+                            <div class="form-group row justify-content-center mb-3" id="event_yearly_remind_me_at_section" hidden>
+                                <div class="col-sm-3">
+								    <input type="number" min="0" max="59" class="form-control text-left" id="event_yearly_remind_me_at_month" name="event_yearly_remind_me_at_month" placeholder="ماه" dir="ltr">
+                                </div>
+                                <div class="col-sm-3">
+								    <input type="number" min="0" max="59" class="form-control text-left" id="event_yearly_remind_me_at_day" name="event_yearly_remind_me_at_day" placeholder="روز" dir="ltr">
+                                </div>
+                                <div class="col-sm-3">
+                                    <input id="event_yearly_remind_me_at_time" name="event_yearly_remind_me_at_time" type="text" class="form-control  create-event-demo" placeholder="ساعت">
+                                </div>
+                            </div>
+                            <hr class="mb-4">
+                            <div class="form-group row mb-3">
+                                <label for="event_description" class="col-sm-3 col-form-label">توضیحات</label>
+                                <div class="col-sm-9">
+                                    <textarea id="event_description" name="event_description" class="form-control" rows="6"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3" id="message_section" hidden>
+                                <span type="text" class="form-control-plaintext text-danger" id="message"></span>
+							</div>
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-3"></label>
+                                <div class="col-sm-9">
+                                    <button type="button" onclick="submit_new_event()" id="btn-save" class="btn btn-primary">ایجاد</button>
+                                    <button type="button" data-dismiss="modal" id="dismiss-btn" class="btn btn-primary" hidden></button>
+                                    <button type="reset" id="reset-btn" class="btn btn-primary" hidden></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end::Create Event Modal -->
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Select2 -->
+    <script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+    <!-- Tagsinput -->
+    <script src="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/tagsinput.js' %}"></script>
+
+    <!-- Datepicker -->
+	<script src="{% static 'admin-panel/vendors/datepicker-jalali/bootstrap-datepicker.min.js' %}"></script>
+	<script src="{% static 'admin-panel/vendors/datepicker-jalali/bootstrap-datepicker.fa.min.js' %}"></script>
+	<script src="{% static 'admin-panel/vendors/datepicker/daterangepicker.js' %}"></script>
+    <script>
+		$('.date-picker-shamsi').datepicker({
+            beforeShow: function() {
+                setTimeout(function(){
+                    $('.ui-datepicker').css('z-index', 99999999999999);
+                }, 0);
+            },
+			dateFormat: "yy/mm/dd",
+            showOtherMonths: true,
+            selectOtherMonths: false
+
+		});
+	</script>
+
+    <script src="{% static 'admin-panel/vendors/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/clockpicker.js' %}"></script>
+
+    <!-- include moment and one of the moment-timezone builds -->
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/custom/moment.min.js' %}'></script>
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/custom/moment-timezone-with-data.min.js' %}'></script>
+
+    <!-- fullcalendar bundle -->
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/custom/fullcalendar-index.global.min.js' %}'></script>
+
+    <!-- the moment-to-fullcalendar connector. must go AFTER the moment lib -->
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/custom/fullcalendar-moment-index.global.min.js' %}'></script>
+
+    <!-- the connector. must go AFTER moment-timezone -->
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/custom/fullcalendar-moment-timezone-index.global.min.js' %}'></script>
+
+    <script src='{% static 'admin-panel/fullcalendar-6.1.9/packages/core/locales-all.global.min.js' %}'></script>
+
+    <script>
+        function change_visibility(checkbox, item_visibility_change_id) {
+            document.getElementById(item_visibility_change_id).hidden = !checkbox.checked;
+        }
+    </script>
+
+    <script>
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            themeSystem: 'bootstrap5',
+            titleFormat: {year: 'numeric', month: 'long'},
+            timeZone: 'UTC',
+            locale: 'fa',
+            direction: 'rtl',
+            selectable: true,
+            select: function (selectionInfo) {
+                document.getElementById('message_section').hidden=true
+                document.getElementById('message').innerText=''
+                document.getElementById('reset-btn').click()
+                const startStr = FullCalendar.formatDate(selectionInfo.startStr, {
+                    month: 'numeric',
+                    year: 'numeric',
+                    day: 'numeric',
+                    timeZone: 'Asia/Tehran',
+                    locale: 'fa'
+                });
+                const endDate = new Date(selectionInfo.endStr);
+                // Subtract one day from the date
+                endDate.setDate(endDate.getDate() - 1);
+                const endStr = FullCalendar.formatDate(endDate, {
+                    month: 'numeric',
+                    year: 'numeric',
+                    day: 'numeric',
+                    timeZone: 'Asia/Tehran',
+                    locale: 'fa'
+                });
+                const create_event_modal = new bootstrap.Modal(document.getElementById('createEventModal'))
+                create_event_modal.show()
+                document.getElementById('event_start_date').value=startStr
+                document.getElementById('event_end_date').value=endStr
+            },
+            events: '{% url 'calendar_event:ajax-event-list' %}', // as json
+        });
+        calendar.render();
+
+
+        function submit_new_event() {
+            const form = document.getElementById('new_event_form');
+            const formData = new FormData(form);
+
+            fetch('{% url 'calendar_event:event-new' %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data['message'] !== 'با موفقیت انجام شد') {
+                    document.getElementById('message_section').hidden=false
+                    document.getElementById('message').innerText=data['message']
+                } else {
+                    document.getElementById('message_section').hidden=true
+                    document.getElementById('message').innerText=''
+
+                    calendar.addEventSource(data.events);
+                    calendar.refetchEvents();
+
+                    document.getElementById('dismiss-btn').click()
+                }
+            })
+            .catch(error => {
+                console.log(error)
+            });
+        }
+    </script>
+
+{% endblock %}

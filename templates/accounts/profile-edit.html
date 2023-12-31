@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 mb-3">
+                            <h6 class="card-title">ویرایش پروفایل</h6>
+                            <form action="{% url 'accounts:profile-edit' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="full_name">نام و نام خانوادگی</label>
+                                    <input type="text" class="form-control text-left" id="full_name" name="full_name"
+                                           aria-describedby="full_name" placeholder="نام و نام خانوادگی" dir="rtl"
+                                            value="{{ request.user.first_name|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">ایمیل</label>
+                                    <input type="text" class="form-control text-left" id="email" name="email"
+                                           aria-describedby="email" placeholder="ایمیل" dir="rtl"
+                                            value="{{ request.user.email|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mobile_phone_number">شماره همراه</label>
+                                    <input type="text" class="form-control text-left" id="mobile_phone_number" name="mobile_phone_number"
+                                           aria-describedby="mobile_phone_number" placeholder="شماره همراه" dir="rtl" disabled
+                                            value="{{ request.user.profile_user.mobile_phone_number|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="landline">شماره ثابت</label>
+                                    <input type="text" class="form-control text-left" id="landline" name="landline"
+                                           aria-describedby="landline" placeholder="شماره ثابت" dir="rtl"
+                                            value="{{ request.user.profile_user.landline|default:'' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">آدرس</label>
+                                    <input type="text" class="form-control text-left" id="address" name="address"
+                                           aria-describedby="address" placeholder="آدرس" dir="rtl"
+                                            value="{{ request.user.profile_user.address|default:'' }}">
+                                </div>
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" id="change_picture_checkbox"
+                                           aria-describedby="checkbox" dir="rtl"
+                                            onchange="change_picture_Section_visibility(this)">
+                                    <label for="change_picture_checkbox" class="form-check-label">تغییر عکس پروفایل</label>
+                                    <script>
+                                        function change_picture_Section_visibility(content) {
+                                            const profile_picture_section = document.getElementById('profile_picture_section')
+                                            profile_picture_section.hidden = !content.checked;
+                                        }
+                                    </script>
+                                </div>
+                                <div id="profile_picture_section" hidden>
+                                    <div class="form-group">
+                                        <label for="profile_pic">عکس جدید پروفایل</label>
+                                        <input type="file" class="form-control form-control-file" id="profile_pic" name="profile_pic"
+                                               aria-describedby="profile_pic" placeholder="عکس جدید پروفایل" dir="rtl">
+                                    </div>
+                                </div>
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" id="change_password_check_box"
+                                           aria-describedby="checkbox" dir="rtl"
+                                            onchange="change_password_Section_visibility(this)">
+                                    <label for="change_password_check_box" class="form-check-label">تغییر رمز ثابت</label>
+                                    <script>
+                                        function change_password_Section_visibility(content) {
+                                            const password_section = document.getElementById('password_section')
+                                            password_section.hidden = !content.checked;
+                                        }
+                                    </script>
+                                </div>
+                                <div id="password_section" {% if not password_check %} hidden {% endif %}>
+                                    <div class="form-group">
+                                        <label for="old_password">رمز قدیم</label>
+                                        <input type="password" class="form-control text-left" id="old_password" name="old_password"
+                                               aria-describedby="old_password" placeholder="رمز قدیم" dir="rtl"
+                                                value="" autocomplete="new-password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password_1">رمز ثابت جدید</label>
+                                        <input type="password" class="form-control text-left" id="password_1" name="password_1"
+                                               aria-describedby="password_1" placeholder="رمز ثابت جدید" dir="rtl"
+                                                value="" autocomplete="new-password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password_2">تکرار رمز ثابت جدید</label>
+                                        <input type="password" class="form-control text-left" id="password_2" name="password_2"
+                                               aria-describedby="password_2" placeholder="تکرار رمز ثابت جدید" dir="rtl"
+                                                value="" autocomplete="new-password">
+                                    </div>
+                                </div>
+                                {% if alert %}
+                                <div class="form-group">
+                                    <span class="text text-danger">{{ alert }}</span>
+                                </div>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary">ویرایش</button>
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-primary">بازگشت</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if alert %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            toastr.error('{{ alert }}');
+        });
+    {% endif %}
+</script>
+{% endblock %}

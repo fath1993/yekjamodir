@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Datepicker -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/flatpickr/flatpickr.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">ساخت پوشه جدید</h6>
+                    <form action="{% url 'documents:folder-new' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="folder-parent">پوشه مادر</label>
+                            <select class="form-control" id="folder-parent" name="folder-parent">
+                                <option selected> - </option>
+                                {% for folder in folders %}
+                                <option value="{{ folder.id }}">({{ folder.id }}) {{ folder.title }}</option>
+                                {% empty %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="folder-title">عنوان پوشه</label>
+                            <input type="text" class="form-control text-left" id="folder-title" name="folder-title"
+                                   aria-describedby="folder-title" placeholder="" dir="ltr" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">ساخت</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Datepicker -->
+<script src="{% static 'admin-panel/vendors/jdate/jdate.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/l10n/fa.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/datepicker2.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,392 @@
+{% extends 'blog/1/base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Slider Carousel -->
+    <section id="slider">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
+                                class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
+                                aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
+                                aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner" style="max-height: 330px">
+                        <div class="carousel-item active">
+                            <img src="{% static 'blog-theme-1/custom/2013217_230.jpg' %}"
+                                 class="d-block w-100 h-100" alt="..." style="object-fit: cover">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{% static 'blog-theme-1/custom/contactus_banner.jpg' %}"
+                                 class="d-block w-100 h-100" alt="..." style="object-fit: cover">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{% static 'blog-theme-1/custom/WhatsApp-Image-2021-10-31-at-10.18.15-AM-768x384.jpeg' %}"
+                                 class="d-block w-100 h-100" alt="..." style="object-fit: cover">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Slider Carousel -->
+
+    <!-- Latest News -->
+    {% if latest_posts.count != 0 %}
+    <section id="latest-news" class="mb-3">
+        <div class="row font-iransans-medium mb-3">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav nav-underline">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary" aria-current="page" href="javascript:void('');">آخرین اخبار</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="card-group">
+                {% for post in latest_posts %}
+                <div class="col-md-6 col-lg-3 col-sm-12 my-2">
+                    <div class="card border-3 h-100 mx-2" style="border-radius: 15px; border-color: goldenrod">
+                        <img src="{{post.feature_image.url}}"
+                             style="object-fit: cover; height: 180px; border-radius: 15px" class="card-img-top" alt="latest-news-{{ forloop.counter }}">
+                        <div class="card-body mt-1" style="text-align: right">
+                            <h5 class="card-title text-primary font-iransans-medium mt-2" style="text-align: justify">{{ post.title}}</h5>
+                            <p class="card-text font-iransans-light mt-2" style="text-align: justify">{{ post.description|truncatechars:150 }}</p>
+                            <a href="{% url 'website:blog-front-post-detail-with-post-id' post_id=post.id %}" class="btn btn-primary">مطالعه</a>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-body-secondary">تاریخ انتشار: {{ post.created_at|date:"Y/m/d" }}</small>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- Latest News -->
+
+    <!-- فیش منبر -->
+    {% if latest_posts.count != 0 %}
+    <section id="fish-menbar" class="mb-3">
+        <div class="row font-iransans-bold" style="background-color: #8ed1fc">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary" style="font-size: 25px" aria-current="page" href="javascript:void('')">فیش منبر</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-10">
+                <div class="card-group">
+                {% for post in latest_posts %}
+                <div class="col-md-6 col-lg-3 col-sm-12 my-2">
+                    <div class="card shadow h-100 mx-2" style="border-radius: 15px">
+                        <img src="{{post.feature_image.url}}"
+                             style="object-fit: cover; height: 130px; border-radius: 15px" class="card-img-top" alt="latest-news-{{ forloop.counter }}">
+                        <div class="card-body" style="text-align: right">
+                            <h5 class="card-title text-primary font-iransans-bold" style="text-align: justify; font-size: 13px">{{ post.title}}</h5>
+                            <p class="card-text font-iransans-light" style="text-align: justify; font-size: 13px">{{ post.description|truncatechars:150 }}</p>
+                            <a href="{% url 'website:blog-front-post-detail-with-post-id' blog_post_id=post.id %}" class="text-primary">ادامه مطلب</a>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-body-secondary">تاریخ انتشار: {{ post.created_at|date:"Y/m/d" }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- فیش منبر -->
+
+    <!-- سامانه ها -->
+    {% if latest_posts.count != 0 %}
+    <section id="services" class="mb-3">
+        <div class="row font-iransans-bold" style="background-color: #8ed1fc">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary" style="font-size: 25px" aria-current="page" href="javascript:void('')">سامانه ها</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <div class="card-group">
+                    <div class="col-md-6 col-lg-3 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/services-1.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top hover-animation" alt="services-1">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">ثبت نام مجموعه ها</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/services-2.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top hover-animation" alt="services-2">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">ثبت نام شکوه مادرانه</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/services-3.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top hover-animation" alt="services-3">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">ثبت نام گروه های مادرانه</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/services-4.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top hover-animation" alt="services-4">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">ثبت نام فعالان</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- سامانه ها -->
+
+    <!-- کارگروه های تخصصی -->
+    {% if latest_posts.count != 0 %}
+    <section id="services" class="mb-3">
+        <div class="row font-iransans-bold" style="background-color: #8ed1fc">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary" style="font-size: 25px" aria-current="page" href="javascript:void('')">کارگروه های تخصصی</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+            <div class="col-sm-8 col-md-8 col-lg-8">
+                <div class="card-group">
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/hamian-hayat-janin.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="hamian-hayat-janin.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">حامیان حیات جنین</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/madarane.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="madarane.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">مادرانه</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/shokoh-madari.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="shokoh-madari.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">خانواده با شکوه</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/majazi.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="majazi.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">فضای مجازی</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/media.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="media.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">رسانه</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/pezeshkan.png' %}"
+                                 style="object-fit: contain; height: 150px" class="card-img-top hover-animation" alt="pezeshkan.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">پزشکان</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2"></div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- کارگروه های تخصصی -->
+
+    <!-- Books -->
+    {% if latest_posts.count != 0 %}
+    <section id="latest-news" class="mb-3">
+        <div class="row font-iransans-medium mb-3">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav nav-underline">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary" aria-current="page" href="javascript:void('');">کتاب</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="card-group">
+                {% for post in latest_posts %}
+                <div class="col-sm-12 col-md-6 col-lg-3 my-2">
+                    <div class="card shadow h-100 mx-2">
+                        <div class="card w-75 h-100 border-0 align-self-center mt-5 ">
+                            <div class="square-image-container">
+                                <img src="{{post.feature_image.url}}" class="card-img-top img-thumbnail" alt="latest-news-{{ forloop.counter }}">
+                            </div>
+                            <div class="card-body mt-1" style="text-align: right">
+                                <h5 class="card-title text-primary font-iransans-medium mt-2" style="text-align: justify">{{ post.title}}</h5>
+                                <a href="{% url 'website:blog-front-post-detail-with-post-id' blog_post_id=post.id %}" class="btn btn-primary">مطالعه</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- Books -->
+
+    <!-- جبهه فعالان مردمی در یک نگاه -->
+    <section id="services" class="mb-3">
+        <div class="row font-iransans-bold" style="background-color: #8ed1fc">
+            <div class="col-12 align-self-center">
+                <div class="d-flex justify-content-center">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link active text-primary"
+                               style="font-size: 25px" aria-current="page" href="javascript:void('')">جبهه فعالان مردمی در یک نگاه</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-1 col-md-1 col-lg-1"></div>
+            <div class="col-sm-10 col-md-10 col-lg-10">
+                <div class="card-group  justify-content-center">
+                    <div class="col-md-6 col-lg-2 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/iranmap.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top" alt="iranmap.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">مجامع استانی</h5>
+                            </div>
+                            <div class="card-footer" style="border: none; background-color: transparent">
+                                <strong class="text-primary border-0">10</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-2 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/ostad.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top" alt="ostad.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">اساتید</h5>
+                            </div>
+                            <div class="card-footer" style="border: none; background-color: transparent">
+                                <strong class="text-primary border-0">15</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-2 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/falan-2.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top" alt="services-3">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">خانواده های با شکوه</h5>
+                            </div>
+                            <div class="card-footer" style="border: none; background-color: transparent">
+                                <strong class="text-primary border-0">43</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-2 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/colection.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top" alt="colection.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">مجموعه ها</h5>
+                            </div>
+                            <div class="card-footer" style="border: none; background-color: transparent">
+                                <strong class="text-primary border-0">56</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-2 col-sm-12 my-2" style="cursor: pointer" onclick="window.open('https://hafin.ir')">
+                        <div class="card border-0 h-100 mx-2">
+                            <img src="{% static 'blog-theme-1/new-design/img/falan-1.png' %}"
+                                 style="object-fit: contain; height: 160px" class="card-img-top" alt="falan-1.png">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary font-iransans-bold">فعالان</h5>
+                            </div>
+                            <div class="card-footer" style="border: none; background-color: transparent">
+                                <strong class="text-primary border-0">59</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1 col-md-1 col-lg-1"></div>
+        </div>
+    </section>
+    <!-- جبهه فعالان مردمی در یک نگاه -->
+{% endblock %}

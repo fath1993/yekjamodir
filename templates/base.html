@@ -1,0 +1,136 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="description" content="پنل مدیریت حافین - جبهه مردمی فعالان جمعیت">
+    <meta name="author" content="امیرحسین فتح اللهی">
+    <meta name="keyword" content="جبهه مردمی فعالان جمعیت ,جبهه ,مردمی ,فعالان ,جمعیت">
+    <title>{{ page_title }}</title>
+    <meta name="theme-color" content="#0b2e13">
+	<link rel="shortcut icon" href="{% static 'admin-panel/custom/favicon/favicon_256_256.png' %}">
+
+    <link href="{% static 'fontawesome-free-6.4.0-web/css/all.min.css' %}" rel="stylesheet">
+    <script src="{% static 'admin-panel/custom/jquery-3.6.4.min.js' %}"></script>
+
+    <!-- Plugin styles -->
+	<link rel="stylesheet" href="{% static 'admin-panel/vendors/bundle.css' %}" type="text/css">
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="{% static 'admin-panel/assets/css/app.css' %}" type="text/css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="">
+	<!-- begin::page loader-->
+	<div class="page-loader">
+		<div class="spinner-border"></div>
+	</div>
+	<!-- end::page loader -->
+
+	<!-- begin::sidebar user profile -->
+	{% include 'extra/sidebar-user.html' %}
+	<!-- end::sidebar user profile -->
+
+	<!-- begin::sidebar settings -->
+	{% include 'extra/sidebar-settings.html' %}
+	<!-- end::sidebar settings -->
+
+	<!-- begin::navigation -->
+	{% include 'extra/navigation.html' %}
+	<!-- end::navigation -->
+
+	<!-- begin::header -->
+	{% include 'extra/header.html' %}
+	<!-- end::header -->
+
+    <!-- begin::main content -->
+	{% block content %}{% endblock %}
+    <!-- end::main content -->
+
+    <!-- Plugin scripts -->
+    <script src="{% static 'admin-panel/vendors/bundle.js' %}"></script>
+
+    <!-- Theme Color -->
+    <div class="colors">
+        <!-- To use theme colors with Javascript -->
+        <div class="bg-primary"></div>
+        <div class="bg-primary-bright"></div>
+        <div class="bg-secondary"></div>
+        <div class="bg-secondary-bright"></div>
+        <div class="bg-info"></div>
+        <div class="bg-info-bright"></div>
+        <div class="bg-success"></div>
+        <div class="bg-success-bright"></div>
+        <div class="bg-danger"></div>
+        <div class="bg-danger-bright"></div>
+        <div class="bg-warning"></div>
+        <div class="bg-warning-bright"></div>
+    </div>
+    {% block extra_js %}{% endblock %}
+    <!-- App scripts -->
+    <script src="{% static 'admin-panel/assets/js/app.js' %}"></script>
+    <script>
+        user_storage_analyzer()
+        function user_storage_analyzer() {
+            $.ajax({
+                type: "post",
+                url: "{% url 'file-gallery:ajax-user-storage-analyzer' %}",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function (response) {
+                    if (response['result'] !== 'failed') {
+                        const image_files_number = response['result']['image_files_number']
+                        const video_files_number = response['result']['video_files_number']
+                        const document_files_number = response['result']['document_files_number']
+                        const system_files_number = response['result']['system_files_number']
+                        const other_files_number = response['result']['other_files_number']
+                        const all_files_size = response['result']['all_files_size']
+                        const image_files_size = response['result']['image_files_size']
+                        const video_files_size = response['result']['video_files_size']
+                        const document_files_size = response['result']['document_files_size']
+                        const system_files_size = response['result']['system_files_size']
+                        const other_files_size = response['result']['other_files_size']
+                        const image_files_percent = response['result']['image_files_percent']
+                        const video_files_percent = response['result']['video_files_percent']
+                        const document_files_percent = response['result']['document_files_percent']
+                        const system_files_percent = response['result']['system_files_percent']
+                        const other_files_percent = response['result']['other_files_percent']
+                        document.getElementById('image-files-number').innerText=image_files_number
+                        document.getElementById('video-files-number').innerText=video_files_number
+                        document.getElementById('document-files-number').innerText=document_files_number
+                        document.getElementById('system-files-number').innerText=system_files_number
+                        document.getElementById('other-files-number').innerText=other_files_number
+                        document.getElementById('all-files-size').innerText=all_files_size
+                        document.getElementById('image-files-size').innerText=image_files_size
+                        document.getElementById('video-files-size').innerText=video_files_size
+                        document.getElementById('document-files-size').innerText=document_files_size
+                        document.getElementById('system-files-size').innerText=system_files_size
+                        document.getElementById('other-files-size').innerText=other_files_size
+                        document.getElementById('image-files-percent').style.width=image_files_percent + "%"
+                        document.getElementById('video-files-percent').style.width=video_files_percent + "%"
+                        document.getElementById('document-files-percent').style.width=document_files_percent + "%"
+                        document.getElementById('system-files-percent').style.width=system_files_percent + "%"
+                        document.getElementById('other-files-percent').style.width=other_files_percent + "%"
+                        document.getElementById('image-files-percent').setAttribute("aria-valuenow", image_files_percent)
+                        document.getElementById('video-files-percent').setAttribute("aria-valuenow", video_files_percent)
+                        document.getElementById('document-files-percent').setAttribute("aria-valuenow", document_files_percent)
+                        document.getElementById('system-files-percent').setAttribute("aria-valuenow", system_files_percent)
+                        document.getElementById('other-files-percent').setAttribute("aria-valuenow", other_files_percent)
+                    }
+                },
+                error: function (xhr, errmsg, err) {
+                    console.log(err)
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

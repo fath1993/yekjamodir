@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+<!-- Tagsinput -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">ایجاد سند جدید</h6>
+                    <form action="{% url 'documents:document-new' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="folder">پوشه</label>
+                            <select class="form-control" id="folder" name="folder">
+                                <option selected> - </option>
+                                {% for folder in folders %}
+                                <option value="{{ folder.id }}">({{ folder.id }}) {{ folder.title }}</option>
+                                {% empty %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="document-title">عنوان</label>
+                            <input type="text" class="form-control text-left" id="document-title" name="document-title"
+                                   aria-describedby="document-title" placeholder="" dir="ltr" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="document-description">توضیحات</label>
+                            <textarea rows="4" class="form-control text-left" id="document-description" name="document-description"
+                                      placeholder="" dir="ltr"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="access-user">اجازه دسترسی به</label>
+							<select class="js-example-basic-single" multiple id="access-user" name="access-user">
+                                <option>انتخاب</option>
+                                <optgroup label="کارمندان">
+                                    {% for employee in employees %}
+                                    <option value="{{ employee.user.id }}">{{ employee.user.username }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="سایر افراد">
+                                    {% for person in others %}
+                                    <option value="{{ person.user.id }}">{{ person.user.username }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">ایجاد</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select2 -->
+<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+<!-- Tagsinput -->
+<script src="{% static 'admin-panel/vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/tagsinput.js' %}"></script>
+{% endblock %}

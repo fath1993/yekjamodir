@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+        <div class="spinner-border"></div>
+    </div>
+    <main class="main-content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12 mb-3">
+                                <h6 class="card-title">ایجاد بلاگ جدید</h6>
+                                <form id="new-post-form" action="{% url 'blog:blog-new' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="blog_name">نام</label>
+                                        <input type="text" class="form-control text-left" id="blog_name"
+                                               name="blog_name"
+                                               aria-describedby="blog_name" placeholder="" dir="rtl"
+                                               required
+                                               oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                               oninput="setCustomValidity('')"
+                                               value="{{ blog_name }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_description">توضیحات</label>
+                                        <input type="text" class="form-control text-left" id="blog_description"
+                                               name="blog_description"
+                                               aria-describedby="blog_description" placeholder="" dir="rtl"
+                                               value="{{ blog_description }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_keywords">کلمات کلیدی</label>
+                                        <input type="text" class="form-control text-left" id="blog_keywords"
+                                               name="blog_keywords"
+                                               aria-describedby="blog_keywords" placeholder="" dir="rtl"
+                                               value="{{ blog_keywords }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_address">آدرس</label>
+                                        <input type="text" class="form-control text-left" id="blog_address"
+                                               name="blog_address"
+                                               aria-describedby="blog_address" placeholder="" dir="rtl"
+                                               value="{{ blog_address }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_email">ایمیل</label>
+                                        <input type="text" class="form-control text-left" id="blog_email"
+                                               name="blog_email"
+                                               aria-describedby="blog_email" placeholder="" dir="rtl"
+                                               value="{{ blog_email }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_mobile_phone">شماره موبایل</label>
+                                        <input type="text" class="form-control text-left" id="blog_mobile_phone"
+                                               name="blog_mobile_phone"
+                                               aria-describedby="blog_mobile_phone" placeholder="" dir="rtl"
+                                               value="{{ blog_mobile_phone }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_landline">شماره ثابت</label>
+                                        <input type="text" class="form-control text-left" id="blog_landline"
+                                               name="blog_landline"
+                                               aria-describedby="blog_landline" placeholder="" dir="rtl"
+                                               value="{{ blog_landline }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_generated_url">دامنه سیستمی</label>
+                                        <input type="text" class="form-control text-left" id="blog_generated_url"
+                                               name="blog_generated_url"
+                                               aria-describedby="blog_generated_url" placeholder="" dir="rtl"
+                                               disabled
+                                               value="{{ blog_generated_url }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_generated_url_id">آیدی دامنه سیستمی</label>
+                                        <input type="text" class="form-control text-left" id="blog_generated_url_id"
+                                               name="blog_generated_url_id"
+                                               aria-describedby="blog_generated_url_id" placeholder="" dir="rtl"
+                                               disabled
+                                               value="{{ blog_generated_url_id }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_custom_url">دامنه شخصی</label>
+                                        <input type="text" class="form-control text-left" id=blog_custom_url"
+                                               name="blog_custom_url"
+                                               aria-describedby="blog_custom_url" placeholder="" dir="rtl"
+                                               value="{{ blog_custom_url }}">
+                                        <small class="text-muted>">بدون https</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_theme">پوسته</label>
+                                        <select class="js-example-basic-single" id="blog_theme" name="blog_theme">
+                                            <option {% if blog.theme == '1' %}selected{% endif %}value=1>پوسته 1</option>
+                                            <option {% if blog.theme == '2' %}selected{% endif %}value=2>پوسته 2</option>
+                                            <option {% if blog.theme == '3' %}selected{% endif %}value=3>پوسته 3</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_created_at">تاریخ ایجاد</label>
+                                        <input type="text" class="form-control text-left" id="blog_created_at"
+                                               name="blog_created_at"
+                                               aria-describedby="blog_created_at" placeholder="" dir="rtl"
+                                               disabled
+                                               value="{{ blog_created_at }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="blog_created_by">ایجاد شده توسط</label>
+                                        <input type="text" class="form-control text-left" id="blog_created_by"
+                                               name="blog_created_by"
+                                               aria-describedby="blog_description" placeholder="" dir="rtl"
+                                               disabled
+                                               value="{{ blog_created_by }}">
+                                    </div>
+                                    {% if alert %}
+                                        <div class="form-group">
+                                            <span class="text text-danger">{{ alert }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <button type="submit" id="submit-btn" class="btn btn-primary"
+                                            onclick="form.submit()">ساخت
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        var promotion_cleaner = setInterval(() => {
+            var promotions = document.getElementsByClassName('tox-promotion')
+            if (promotions.length > 0) {
+                for (var i = 0; i <= promotions.length; i++) {
+                    try {
+                        promotions[i].hidden = true
+                    } catch {
+                    }
+                }
+                clearInterval(promotion_cleaner);
+            }
+
+        }, 1000);
+    </script>
+    <!-- Select2 -->
+    <script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+    <script>
+        {% if toast %}
+            'use strict';
+            $(document).ready(function () {
+                toastr.options = {
+                    timeOut: 3000,
+                    progressBar: true,
+                    showMethod: "slideDown",
+                    hideMethod: "slideUp",
+                    showDuration: 200,
+                    hideDuration: 200
+                };
+                toastr.error('{{ toast }}');
+            });
+        {% endif %}
+    </script>
+{% endblock %}

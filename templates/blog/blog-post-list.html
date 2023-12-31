@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    {% if blog_posts.count != 0 %}
+        <div class="card-columns">
+        {% for post in blog_posts %}
+            {% if post.feature_image %}
+                {% if post.post_view_type == '1' %}
+                    <div class="card">
+                        <a href="{{ post.get_absolute_url }}">
+                            <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                            <div class="card-body">
+                                <p class="card-text">{{ post.description }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% elif post.post_view_type == '2' %}
+                    <div class="card">
+                        <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                        <div class="card-body">
+                            <p class="card-text">{{ post.description }}</p>
+                            <a href="{{ post.get_absolute_url }}" class="btn btn-primary">بیشتر بخوانید</a>
+                        </div>
+                    </div>
+                {% elif post.post_view_type == '3' %}
+                    <div class="card bg-dark text-white">
+                        <a href="{{ post.get_absolute_url }}">
+                            <img src="{{ post.feature_image.url }}" class="card-img" alt="image">
+                            <div class="card-img-overlay">
+                                <h6 class="card-title">{{ post.title }}</h6>
+                                <p class="card-text">{{ post.description }}</p>
+                                <p class="card-text">تاریخ انتشار {{ post.updated_at.date }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% elif post.post_view_type == '4' %}
+                    <div class="card">
+                        <a href="{{ post.get_absolute_url }}">
+                            <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ post.title }}</h6>
+                                <p class="card-text">{{ post.description }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">تاریخ انتشار {{ post.updated_at.date }}</small>
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                {% elif post.post_view_type == '5' %}
+                    <div class="card">
+                        <a href="{{ post.get_absolute_url }}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ post.title }}</h6>
+                                <p class="card-text">{{ post.description }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">تاریخ انتشار {{ post.updated_at.date }}</small>
+                                </p>
+                            </div>
+                            <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                        </a>
+                    </div>
+                {% elif post.post_view_type == '6' %}
+                    <div class="card">
+                        <a href="{{ post.get_absolute_url }}">
+                            <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                        </a>
+                    </div>
+                {% elif post.post_view_type == '7' %}
+                    <div class="card">
+                        <div class="card-header">{{ post.title }}</div>
+                        <div class="card-body">
+                            <figure>
+                                <img src="{{ post.feature_image.url }}" class="card-img-top" alt="image">
+                            </figure>
+                            <p class="card-text">{{ post.description }}</p>
+                            <a href="{{ post.get_absolute_url }}" class="btn btn-primary">بیشتر بخوانید</a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="card">
+                    <a href="{{ post.get_absolute_url }}">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ post.title }}</h6>
+                            <p class="card-text">{{ post.description }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">تاریخ انتشار {{ post.updated_at.date }}</small>
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="card bg-transparent">
+            <div class="card-body">
+                <nav aria-label="...">
+                    <ul class="pagination pagination-rounded justify-content-center mb-3">
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">
+                                <i class="ti-angle-double-right"></i>
+                            </a>
+                        </li>
+                        {% if blog_posts.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ blog_posts.previous_page_number }}">{{ blog_posts.previous_page_number }}</a></li>
+                        {% endif %}
+
+                        <li class="page-item active" aria-current="page">
+                            <a class="page-link" href="?page={{ blog_posts.number }}">{{ blog_posts.number }} <span class="sr-only">(کنونی)</span></a>
+                        </li>
+
+                        {% if blog_posts.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ blog_posts.next_page_number }}">{{ blog_posts.next_page_number }}</a></li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ blog_posts.paginator.num_pages }}">
+                                <i class="ti-angle-double-left"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <img class="rounded mx-auto d-block" src="{% static 'custom/image/not-found.png' %}" alt="image" style="width: 30%">
+                <div class="card-body">
+                    <h2 class="card-text text-center mb-5">پست مرتبطی یافت نشد</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

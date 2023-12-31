@@ -1,0 +1,15 @@
+Django
+django-admin-interface
+django-crontab
+django-environ
+django-jalali
+django-robots
+django-tinymce
+openpyxl
+Pillow
+psycopg2-binary
+pytz
+requests
+beautifulsoup4
+
+

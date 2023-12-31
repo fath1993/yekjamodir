@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<script src="{% static 'tinymce_6.5.1/tinymce/js/tinymce/tinymce.min.js' %}" referrerpolicy="origin"></script>
+<script src="{% static 'tinymce_6.5.1/custom/init-func.js' %}"></script>
+<!-- Select2 -->
+<link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'custom/persian-date-picker/jalalidatepicker.css' %}"/>
+<script src="{% static 'custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+<!-- Tagsinput -->
+<link rel="stylesheet" href="{% static 'vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+        <div class="spinner-border"></div>
+    </div>
+    <main class="main-content">
+        {% if blog_post.created_by == request.user %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12 mb-3">
+                                    <h6 class="card-title">ویرایش پست {{ blog_post.title }}</h6>
+                                    <form action="{% url 'blog:blog-post-edit-with-id' blog_post_id=blog_post.id %}" method="post"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="blog-post-title">عنوان</label>
+                                            <input type="text" class="form-control text-left" id="blog-post-title"
+                                                   name="blog-post-title"
+                                                   aria-describedby="transaction-title" placeholder="" dir="rtl"
+                                                   value="{{ blog_post.title }}"
+                                                   required
+                                                   oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                   oninput="setCustomValidity('')">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog-post-description">توضیحات مختصر</label>
+                                            <textarea rows="2" class="form-control text-left"
+                                                      id="blog-post-description" name="blog-post-description"
+                                                      placeholder="" dir="rtl"
+                                                    required
+                                                   oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                   oninput="setCustomValidity('')">{{ blog_post.description }}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog-post-categories">دسته ها</label>
+                                            <select class="js-example-basic-single" multiple id="blog-post-categories" name="blog-post-categories">
+                                                <optgroup label="">
+                                                    <option value="uncategorized">بدون دسته</option>
+                                                    {% for category in categories %}
+                                                    <option
+                                                            {% for cat in blog_post.categories.all %}
+                                                                {% if cat.id == category.id %}
+                                                                selected
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            value="{{ category.id }}">{{ category.title }}</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog-post-keywords">کلمات کلیدی</label>
+                                            <input type="text" class="form-control text-left" id="blog-post-keywords"
+                                                   name="blog-post-keywords"
+                                                   value="{{ blog_post.keywords.all|join:',' }}"
+                                                   aria-describedby="transaction-title" placeholder="کلمه اول,کلمه دوم,..." dir="rtl">
+                                            <small class="text-muted">کلمات جدید را با , از هم جدا کنید</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="text-primary" for="blog-post-feature-image-old">تصویر شاخص</label>
+                                            <p id="blog-post-feature-image-old">
+                                                <a class="text-primary" href="{{ blog_post.feature_image.url }}" target="_blank">
+                                                    <img class="rounded" src="{{ blog_post.feature_image.url }}" style="width: 120px; height: 120px; object-fit: cover">
+                                                </a>
+                                            </p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog-feature-image">تصویر شاخص جدید</label>
+                                            <input type="file" class="form-control-file" id="blog-feature-image"
+                                                   name="blog-feature-image">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="full-featured">محتوای اصلی</label>
+                                            <textarea name="blog-post-content" id="full-featured">{{ blog_post.content|safe }}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog-post-type">نوع نمایش محتوا</label>
+                                            <select class="js-example-basic-single" id="blog-post-type" name="blog-post-type">
+                                                <option {% if blog_post.post_view_type == '1' %}selected{% endif %} value="1">عکس + توضیحات</option>
+                                                <option {% if blog_post.post_view_type == '2' %}selected{% endif %}value="2">عکس + توضیحات + بیشتر بخوانید</option>
+                                                <option {% if blog_post.post_view_type == '3' %}selected{% endif %}value="3">توضیحات بر روی عکس</option>
+                                                <option {% if blog_post.post_view_type == '4' %}selected{% endif %}value="4">عکس + عنوان + توضیحات + تاریخ</option>
+                                                <option {% if blog_post.post_view_type == '5' %}selected{% endif %}value="5">عنوان + توضیحات + تاریخ + عکس</option>
+                                                <option {% if blog_post.post_view_type == '6' %}selected{% endif %}value="6">تنها عکس</option>
+                                                <option {% if blog_post.post_view_type == '7' %}selected{% endif %}value="7">عنوان + عکس + توضیحات + بیشتر بخوانید</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input" {% if blog_post.publish_on_this_site %}checked{% endif %} id="publish-on-this-self-panel" name="publish-on-this-self-panel">
+                                            <label class="form-check-label" for="publish-on-this-self-panel">انتشار در پنل</label>
+                                        </div>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input" {% if blog_post.publish_on_namayejavani %}checked{% endif %} id="publish-on-namaye-javani" name="publish-on-namaye-javani">
+                                            <label class="form-check-label" for="publish-on-namaye-javani">انتشار در سایت نمای جوانی</label>
+                                        </div>
+                                        {% if my_bots.count != 0 %}
+                                        <div class="form-group">
+                                            <label for="bot-channels">انتشار توسط ربات های</label>
+                                            <select class="js-example-basic-single" multiple id="bot-channels" name="bot-channels">
+                                                <optgroup label="">
+                                                    {% for bot in my_bots %}
+                                                    <option
+                                                            {% for ch in eitaa_channels.all %}
+                                                                {% if bot.id == ch %}
+                                                                selected
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            value="{{ bot.id }}">{{ bot.bot_name }}</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        {% endif %}
+                                        {% if alert %}
+                                            <div class="form-group">
+                                                <span class="text text-danger">{{ alert }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <button type="submit" class="btn btn-primary">ویرایش</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <img class="rounded mx-auto d-block" src="{% static 'custom/image/not-found.png' %}" alt="image"
+                             style="width: 30%">
+                        <div class="card-body">
+                            <h2 class="card-text text-center mb-5">دسترسی ویرایش این پست برای شما وجود ندارد</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var promotion_cleaner = setInterval(() => {
+        var promotions = document.getElementsByClassName('tox-promotion')
+        if (promotions.length > 0){
+            for (var i = 0; i <= promotions.length; i++) {
+                try {
+                    promotions[i].hidden = true
+                } catch {}
+            }
+            clearInterval(promotion_cleaner);
+        }
+
+    }, 1000);
+</script>
+<!-- Select2 -->
+<script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/examples/select2.js' %}"></script>
+<script>
+    jalaliDatepicker.startWatch({
+        minDate: "attr",
+        maxDate: "attr"
+    });
+</script>
+<script>
+    {% if toast %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            toastr.error('{{ toast }}');
+        });
+    {% endif %}
+</script>
+<!-- Tagsinput -->
+<script src="{% static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'assets/js/examples/tagsinput.js' %}"></script>
+{% endblock %}

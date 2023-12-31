@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <script src="{% static 'tinymce_6.5.1/tinymce/js/tinymce/tinymce.min.js' %}" referrerpolicy="origin"></script>
+    <script src="{% static 'tinymce_6.5.1/custom/init-func.js' %}"></script>
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'vendors/select2/css/select2.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'custom/persian-date-picker/jalalidatepicker.css' %}"/>
+    <script src="{% static 'custom/persian-date-picker/jalalidatepicker.js' %}"></script>
+    <!-- Tagsinput -->
+    <link rel="stylesheet" href="{% static 'vendors/tagsinput/bootstrap-tagsinput.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+        <div class="spinner-border"></div>
+    </div>
+    <main class="main-content">
+        {% if request.user.is_superuser or request.user.profile.is_blog_admin %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12 mb-3">
+                                    <h6 class="card-title">ایجاد پست جدید</h6>
+                                    <form action="#" method="post"
+                                          enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="blog_post_title">عنوان</label>
+                                            <input type="text" class="form-control text-left" id="blog_post_title"
+                                                   name="blog_post_title"
+                                                   placeholder="" dir="rtl"
+                                                   required
+                                                   oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                   value="{% if blog_post_title %}{{ blog_post_title }}{% endif %}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_post_description">توضیحات مختصر</label>
+                                            <textarea rows="2" class="form-control text-left"
+                                                      id="blog_post_description" name="blog_post_description"
+                                                      placeholder="" dir="rtl">{% if blog_post_description %}{{ blog_post_description }}{% endif %}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_post_categories">دسته ها</label>
+                                            <select class="js-example-basic-single" multiple id="blog_post_categories"
+                                                    name="blog_post_categories">
+                                                <optgroup label="">
+                                                    <option value="uncategorized">بدون دسته</option>
+                                                    {% for category in categories %}
+                                                        <option {% if category.id|stringformat:"s" in blog_post_categories %}selected{% endif %} value="{{ category.id }}">{{ category.title }}</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_post_keywords">کلمات کلیدی</label>
+                                            <input type="text" class="form-control text-left" id="blog_post_keywords"
+                                                   name="blog_post_keywords"
+                                                   aria-describedby="transaction-title"
+                                                   placeholder="کلمه اول,کلمه دوم,..." dir="rtl" value="{% if blog_post_keywords %}{{ blog_post_keywords }}{% endif %}">
+                                            <small class="text-muted">کلمات جدید را با , از هم جدا کنید</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_feature_image">تصویر شاخص</label>
+                                            <input type="file" class="form-control-file" id="blog_feature_image"
+                                                   name="blog_feature_image" onchange="file_size_checker(document.getElementById('blog_feature_image'))">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_attached_file">فایل ضمیمه</label>
+                                            <input type="file" class="form-control-file" id="blog_attached_file"
+                                                   name="blog_attached_file" onchange="file_size_checker(document.getElementById('blog_attached_file'))">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="full-featured">محتوای اصلی</label>
+                                            <textarea name="blog_post_content" id="full-featured"
+                                                      oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')">{% if blog_post_content %}{{ blog_post_content|safe }}{% endif %}</textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="blog_post_type">نوع نمایش محتوا</label>
+                                            <select class="js-example-basic-single" id="blog_post_type"
+                                                    name="blog_post_type">
+                                                <option {% if blog_post_type == '1' %}selected{% endif %} value="1">عکس + توضیحات</option>
+                                                <option {% if blog_post_type == '2' %}selected{% endif %} value="2">عکس + توضیحات + بیشتر بخوانید</option>
+                                                <option {% if blog_post_type == '3' %}selected{% endif %} value="3">توضیحات بر روی عکس</option>
+                                                <option {% if blog_post_type == '4' %}selected{% endif %} value="4">عکس + عنوان + توضیحات + تاریخ</option>
+                                                <option {% if blog_post_type == '5' %}selected{% endif %} value="5">عنوان + توضیحات + تاریخ + عکس</option>
+                                                <option {% if blog_post_type == '6' %}selected{% endif %} value="6">تنها عکس</option>
+                                                <option {% if blog_post_type == '7' %}selected{% endif %} value="7">عنوان + عکس + توضیحات + بیشتر بخوانید</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input"
+                                                   id="publish_on_this_self_panel" name="publish_on_this_self_panel" {% if publish_on_this_self_panel %}checked{% endif %}>
+                                            <label class="form-check-label" for="publish_on_this_self_panel">انتشار در
+                                                پنل</label>
+                                        </div>
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input"
+                                                   id="publish_on_namaye_javani" name="publish_on_namaye_javani" {% if publish_on_namaye_javani %}checked{% endif %}>
+                                            <label class="form-check-label" for="publish_on_namaye_javani">انتشار در
+                                                سایت نمای جوانی</label>
+                                        </div>
+                                        {% if my_bots.count != 0 %}
+                                            <div class="form-group">
+                                                <label for="bot_channels">انتشار توسط ربات های</label>
+                                                <select class="js-example-basic-single" multiple id="bot_channels"
+                                                        name="bot_channels">
+                                                    <optgroup label="">
+                                                        {% for bot in my_bots %}
+                                                            <option {% if bot.id|stringformat:"s" in bot_channels %}selected{% endif %} value="{{ bot.id }}">{{ bot.bot_name }}</option>
+                                                        {% endfor %}
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                        {% if alert %}
+                                            <div class="form-group">
+                                                <span class="text text-danger">{{ alert }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <button type="submit" id="submit-btn" class="btn btn-primary">ایجاد
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <img class="rounded mx-auto d-block" src="{% static 'custom/image/not-found.png' %}" alt="image"
+                             style="width: 30%">
+                        <div class="card-body">
+                            <h2 class="card-text text-center mb-5">دسترسی ایجاد پست برای شما وجود ندارد</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {% if toast %}
+                $(document).ready(function () {
+                    toastr.options = {
+                        timeOut: 3000,
+                        progressBar: true,
+                        showMethod: "slideDown",
+                        hideMethod: "slideUp",
+                        showDuration: 200,
+                        hideDuration: 200
+                    };
+                    toastr.error(`{{ toast }}`);
+                });
+            {% endif %}
+            var promotion_cleaner = setInterval(() => {
+                var promotions = document.getElementsByClassName('tox-promotion')
+                if (promotions.length > 0) {
+                    for (var i = 0; i <= promotions.length; i++) {
+                        try {
+                            promotions[i].hidden = true
+                        } catch {
+                        }
+                    }
+                    clearInterval(promotion_cleaner);
+                }
+
+            }, 1000);
+        })
+
+        jalaliDatepicker.startWatch({
+            minDate: "attr",
+            maxDate: "attr"
+        });
+
+        function file_size_checker (form_file) {
+            const form_file_size_in_kb = form_file.files[0].size / 1024;
+            if (form_file_size_in_kb > 256) {
+                form_file.value=''
+                if (document.getElementById('file-upload-error-' + String(form_file.id)) === null){
+                    form_file.parentElement.innerHTML += `<p id="file-upload-error-` + form_file.id + `" style="color: red">سایز فایل باید کمتر از 256 کیلوبایت باشد</p>`
+                }
+            } else {
+                if (document.getElementById('file-upload-error-' + String(form_file.id)) !== null){
+                    document.getElementById('file-upload-error-' + String(form_file.id)).remove()
+                }
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Select2 -->
+    <script src="{% static 'vendors/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/examples/select2.js' %}"></script>
+    <!-- Tagsinput -->
+    <script src="{% static 'vendors/tagsinput/bootstrap-tagsinput.js' %}"></script>
+    <script src="{% static 'assets/js/examples/tagsinput.js' %}"></script>
+{% endblock %}

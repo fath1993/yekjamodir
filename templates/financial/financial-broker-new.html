@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 mb-3">
+                            <h6 class="card-title">ایجاد کارگزار جدید</h6>
+                            <form action="{% url 'financial:financial-broker-new' %}" method="post">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="broker-name">نام کارگزار مالی</label>
+                                    <input type="text" class="form-control text-left" id="broker-name" name="broker-name"
+                                           aria-describedby="broker-name" placeholder="" dir="rtl" required
+                                    oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                    oninput="setCustomValidity('')">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account-owner">نام صاحب حساب</label>
+                                    <input type="text" class="form-control text-left" id="account-owner" name="account-owner"
+                                           aria-describedby="account-owner" placeholder="" dir="rtl" required
+                                    oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                    oninput="setCustomValidity('')">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account-number">شماره حساب</label>
+                                    <input type="text" class="form-control text-left" id="account-number" name="account-number"
+                                           aria-describedby="account-number" placeholder="" dir="rtl" required>
+                                    <small class="text-muted">شناسه یا شماره یکتای حساب</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="isbn">شماره شبا</label>
+                                    <input type="text" class="form-control text-left" id="isbn" name="isbn"
+                                           aria-describedby="isbn" placeholder="" dir="rtl">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account-card-number">شماره کارت</label>
+                                    <input type="text" class="form-control text-left" id="account-card-number" name="account-card-number"
+                                           aria-describedby="account-card-number" placeholder="" dir="rtl">
+                                </div>
+                                {% if alert %}
+                                <div class="form-group">
+                                    <span class="text text-danger">{{ alert }}</span>
+                                </div>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary">ایجاد</button>
+                                <a href="{%url 'financial:financial-broker-list' %}" class="btn btn-primary">بازگشت</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if toast_danger %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            toastr.error('{{ toast_danger }}');
+        });
+    {% endif %}
+</script>
+{% endblock %}

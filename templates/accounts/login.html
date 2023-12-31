@@ -1,0 +1,82 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div id="loader" class="page-loader" hidden>
+		<div class="spinner-border"></div>
+	</div>
+    <div class="form-wrapper" style="opacity: 0.85;">
+
+        <!-- logo -->
+        <div class="logo">
+            <img class="rounded-circle" src="{% static 'admin-panel/custom/yekjamodir-logo1.png' %}" alt="image" width="128" height="128">
+        </div>
+        <!-- ./ logo -->
+
+        <h5>ورود</h5>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'password_login' %} active  {% endif %}" id="login-with-password" data-toggle="tab" href="#home" role="tab" aria-controls="home" {% if active_tab == 'password_login' %} aria-selected="true" {% else %} aria-selected="false" {% endif %}>ورود با رمز</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab != 'password_login' %} active  {% endif %}" id="login-with-phon-number" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" {% if active_tab == 'password_login' %} aria-selected="true" {% else %} aria-selected="false" {% endif %}>ورود با شماره همراه</a>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="myTabContent">
+            <div class="tab-pane fade {% if active_tab == 'password_login' %} show active{% endif %}" id="home" role="tabpanel" aria-labelledby="login-with-password">
+                <form action="{% url 'accounts:login' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="password_login">
+                    <div class="form-group">
+                        <input type="text" class="form-control text-left" id="username" name="username" placeholder="شماره همراه به عنوان نام کاربری"
+                               dir="ltr" required autofocus
+                        oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                        oninput="setCustomValidity('')">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control text-left" id="password" name="password" placeholder="رمز عبور" dir="ltr" required
+                        oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                        oninput="setCustomValidity('')">
+                    </div>
+                    <div class="form-group d-sm-flex justify-content-between text-left mb-4">
+                        <a class="d-block mt-2 mt-sm-0 line-height-28 text-primary" href="#">بازنشانی رمز عبور</a>
+                    </div>
+                    <div style="margin-bottom: 65px">
+                        {{ form }}
+                    </div>
+                    {% if err %}
+                        <div class="form-group">
+                            <strong class="form-control-plaintext" style="color: red">{{ err }}</strong>
+                        </div>
+                    {% endif %}
+                    <button class="btn btn-primary btn-block" type="submit">ورود</button>
+                </form>
+            </div>
+            <div class="tab-pane fade {% if active_tab != 'password_login' %} show active{% endif %}" id="profile" role="tabpanel" aria-labelledby="login-with-phon-number">
+                <form action="{% url 'accounts:login' %}" method="post">
+                    <input type="hidden" name="form_type" value="sms_login">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" class="form-control text-left" id="phone_number" name="phone_number" placeholder="شماره همراه"
+                               dir="ltr" required autofocus
+                        oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                        oninput="setCustomValidity('')">
+                    </div>
+                    <div style="margin-bottom: 65px">
+                        {{ form }}
+                    </div>
+                    {% if sms_err %}
+                        <div class="form-group">
+                            <strong class="form-control-plaintext" style="color: red">{{ sms_err }}</strong>
+                        </div>
+                    {% endif %}
+                    <button class="btn btn-primary btn-block" type="submit">دریافت کد ورود</button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        <p class="text-muted">حسابی ندارید؟</p>
+        <a href="{% url 'accounts:signup' %}" class="btn btn-outline-light btn-sm">هم اکنون ثبت نام کنید!</a>
+    </div>
+{% endblock %}

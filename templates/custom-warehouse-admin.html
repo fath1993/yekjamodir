@@ -1,0 +1,17 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+    {% if original.images %}
+    <div style="text-align: center; align-content: center">
+        <strong>تصاویر محصول</strong>
+        <div id="custom-container">
+            {% for img in original.images.all %}
+                <a href="{{ img.file.url }}" target="_blank"><img style="height: 60px; width: 60px; object-fit: fill; margin: 25px" src="{{ img.file.url }}" alt="media-file"></a>
+            {% empty %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Datepicker -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/flatpickr/flatpickr.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">ساخت پوشه جدید</h6>
+                    <form action="{% url 'documents:folder-edit' folder_id=folder.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="folder-parent">پوشه مادر</label>
+                            <select class="form-control" id="folder-parent" name="folder-parent">
+                                {% if folder.parent %}
+                                    <option> - </option>
+                                    {% for fol in folders %}
+                                    <option value="{{ fol.id }}" {% if folder.parent.id == fol.id %}selected{% endif %}>{{ fol.title }} - {{ fol.id }}</option>
+                                    {% empty %}
+                                    {% endfor %}
+                                {% else %}
+                                    <option selected> - </option>
+                                    {% for fol in folders %}
+                                    <option value="{{ fol.id }}">{{ fol.title }} - {{ fol.id }}</option>
+                                    {% empty %}
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="folder-title">عنوان پوشه</label>
+                            <input type="text" class="form-control text-left" id="folder-title" name="folder-title"
+                                   aria-describedby="folder-title" placeholder="" dir="ltr" required
+                            value="{{ folder.title }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">ویرایش</button>
+                        <button type="submit" class="btn btn-primary"><a class="text-white" href="{% url 'documents:folder-delete' folder_id=folder.id %}">حذف</a></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Datepicker -->
+<script src="{% static 'admin-panel/vendors/jdate/jdate.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/flatpickr/l10n/fa.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/datepicker2.js' %}"></script>
+{% endblock %}

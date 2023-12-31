@@ -1,0 +1,94 @@
+{% extends 'blog/1/base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Content -->
+    <section id="content" style="direction: rtl" class="mt-1 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-12 col-lg-8">
+                <div class="px-3">
+                    <div class="row border justify-content-center">
+                        <div class="row py-2">
+                            <h6 class="font-iransans-medium" style="text-align: right">
+                                <span class="text-muted">خانه / آخرین اخبار / </span><span
+                                    class="text-black">{{ post.title }}</span>
+                            </h6>
+                        </div>
+                        <div class="row py-2">
+                            <h2 class="font-iransans-medium text-primary" style="text-align: right">{{ post.title }}</h2>
+                        </div>
+                        <div class="row py-2 justify-content-center">
+                            <img src="{{ post.feature_image.url }}" alt="{{ post.feature_image }}"
+                                 style="max-width: 600px; max-height: 600px; object-fit: contain">
+                        </div>
+                        <div class="row py-2">
+                            <nav class="nav">
+                                <a class="nav-link" href="javascript:void('null')">
+                                    <i class="fa fa-solid fa-user"></i> {{ post.created_by.username }}
+                                </a>
+                                <a class="nav-link" href="javascript:void('null')">
+                                    <i class="fa fa-solid fa-calendar"></i> {{ post.created_at|date:'Y/m/d' }}
+                                </a>
+                                <a class="nav-link" href="javascript:void('null')">
+                                    <i class="fa fa-solid fa-clock"></i> {{ post.created_at|date:'H:i' }}
+                                </a>
+                                <a class="nav-link" href="javascript:void('null')">
+                                    <i class="fa fa-solid fa-comment"></i> بدون نظر
+                                </a>
+                            </nav>
+                        </div>
+                        <div class="row py-2" style="text-align: right">
+                            <hr>
+                            {{ post.content|safe }}
+                        </div>
+                        <div class="row py-2"></div>
+                        <div class="row py-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-12 col-lg-4">
+                <div class="px-3">
+                    <div class="row border justify-content-center">
+                        <div class="row justify-content-center">
+                            <img src="{% static 'blog-theme-1/new-design/img/sidebar-logo.jpg' %}" alt="sidebar-logo"
+                                 style="max-width: 300px; max-height: 231px;">
+                        </div>
+                        {% if featured_posts.count != 0 %}
+                        <div class="row mt-2"
+                             style="background-image: url({% static 'blog-theme-1/new-design/img/sidebar-logo2.jpg' %});
+                                     background-repeat: no-repeat;
+                                     background-size: cover;
+                                     background-position: center center">
+                            <h5 class="font-iransans-medium mt-2 text-white">اخبار برگزیده</h5>
+                        </div>
+                        <div class="row">
+                            <nav class="nav flex-column px-0">
+                                {% for featured_post in featured_posts %}
+                                <a class="btn btn-outline-primary shadow my-1" href="{% url 'website:blog-front-post-detail-with-post-id' blog_post_id=featured_post.post.id %}" style="text-align: right">{{ featured_post.post.title }}</a>
+                                {% endfor %}
+                            </nav>
+                        </div>
+                        {% endif %}
+                        {% if most_viewed_posts.count != 0 %}
+                        <div class="row mt-2"
+                             style="background-image: url({% static 'blog-theme-1/new-design/img/sidebar-logo2.jpg' %});
+                                     background-repeat: no-repeat;
+                                     background-size: cover;
+                                     background-position: center center">
+                            <h5 class="font-iransans-medium mt-2 text-white">اخبار پر بازدید</h5>
+                        </div>
+                        <div class="row">
+                            <nav class="nav flex-column px-0">
+                                {% for most_viewed_post in most_viewed_posts %}
+                                <a class="btn btn-outline-primary my-1" href="{% url 'website:blog-front-post-detail-with-post-id' blog_post_id=most_viewed_post.post.id %}" style="text-align: right">{{ most_viewed_post.post.title }}</a>
+                                {% endfor %}
+                            </nav>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Content -->
+{% endblock %}

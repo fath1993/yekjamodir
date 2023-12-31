@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="description" content="یکجامدیر - پورتال مدیریت آسان شبکه های شخصی و سازمانی">
+    <meta name="author" content="امیرحسین فتح اللهی">
+    <meta name="keyword" content="یکجامدیر - پورتال مدیریت آسان شبکه های شخصی و سازمانی">
+    <title>{{ page_title }}</title>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="{% static 'admin-panel/custom/favicon/favicon_128_128.png' %}">
+
+	<!-- Theme Color -->
+	<meta name="theme-color" content="#5867dd">
+
+	<!-- Plugin styles -->
+	<link rel="stylesheet" href="{% static 'admin-panel/vendors/bundle.css' %}" type="text/css">
+
+	<!-- App styles -->
+	<link rel="stylesheet" href="{% static 'admin-panel/assets/css/app.css' %}" type="text/css">
+</head>
+
+<body class="form-membership">
+
+	<!-- begin::page loader-->
+	<div class="page-loader">
+		<div class="spinner-border"></div>
+	</div>
+	<!-- end::page loader -->
+
+	{% block content %}{% endblock %}
+
+	<!-- Plugin scripts -->
+	<script src="{% static 'admin-panel/vendors/bundle.js' %}"></script>
+
+	<!-- App scripts -->
+	<script src="{% static 'admin-panel/assets/js/app.js' %}"></script>
+</body>
+
+</html>

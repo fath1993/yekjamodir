@@ -1,0 +1,497 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% load gallery_custom_tag %}
+
+{% block extra_css %}
+    <!-- DataTable -->
+    <link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}"
+          type="text/css">
+
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="card">
+            <div class="card-body">
+                <div class="row justify-content-center">
+                        <div class="col-sm-12 col-md-9 col-lg-10 mb-3">
+                            <form action="{% url 'file-gallery:files-list' %}" method="get">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <button type="submit" class="input-group-text" style="cursor: pointer"><i class="fa fa-magnifying-glass"></i></button>
+                                    </div>
+                                    <label for="searched_word" hidden>جست و جو</label>
+                                    <input type="text" class="form-control text-left" id="searched_word" name="searched_word"
+                                           placeholder="جست و جو" aria-describedby="searched_word" dir="rtl">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-2 mb-3">
+                            <button type="button" class="btn btn-primary text-center" data-toggle="modal" data-target="#addNewFileModal"><i class="fa fa-plus-circle mr-2"></i> افزودن</button>
+                            <div id="addNewFileModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="gridModalLabel">بارگذاری فایل</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+												<i class="ti-close"></i>
+											</button>
+										</div>
+                                        <form id="upload-file-form" action="#" method="post" enctype="multipart/form-data">
+                                            <div class="modal-body">
+                                                <div class="container-fluid bd-example-row">
+                                                        {% csrf_token %}
+                                                        <div class="form-group">
+                                                            <label for="file_alt">نام</label>
+                                                            <input type="text" class="form-control text-left" id="file_alt"
+                                                                   name="file_alt"
+                                                                   aria-describedby="file_alt" placeholder="" dir="rtl"
+                                                                   required
+                                                                   oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+                                                                   oninput="setCustomValidity('')">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="file">فایل ضمیمه</label>
+                                                            <input type="file" onchange="upload_file_btn_refresh(); check_file_is_image()" class="form-control-file" id="file" name="file">
+                                                        </div>
+                                                        <div id="image-compressor-checkbox" class="form-group form-check" disabled="true" hidden>
+                                                            <input type="checkbox" class="form-check-input" id="imageCompressor" onchange="image_compressor(this)">
+                                                            <label class="form-check-label" for="imageCompressor">فشرده سازی تصویر</label>
+                                                        </div>
+                                                        <div id="image-compress-size" class="form-group" disabled="true" hidden>
+                                                            <label for="image_compress_size">فشرده سازی تا</label>
+                                                            <input type="number" class="form-control text-left" id="image_compress_size" name="image_compress_size" placeholder="کیلوبایت" dir="ltr">
+                                                            <small class="text-muted">بر اساس کیلوبایت</small>
+                                                        </div>
+                                                        <div class="form-group" hidden>
+                                                            <span id="upload-file-alert" class="form-control-plaintext text-danger"></span>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="uploadPermission()">تایید</button>
+                                            </div>
+                                        </form>
+									    <script>
+                                                function isImage(file) {
+                                                    return file.type.startsWith('image');
+                                                }
+                                                function check_file_is_image() {
+                                                    const fileInput = document.getElementById('file'); // Assuming you have a file input element
+                                                    const file = fileInput.files[0]; // Get the first file (assuming it's the one you want to check)
+
+                                                    if (isImage(file)) {
+                                                        const image_compressor_checkbox = document.getElementById('image-compressor-checkbox')
+                                                        const image_compressor = document.getElementById('imageCompressor')
+                                                        image_compressor_checkbox.hidden=false
+                                                        {% if not request.user.profile_user|check_user_is_vip %}
+                                                            image_compressor.setAttribute('disabled', 'true')
+                                                            image_compressor.setAttribute('readonly', 'true')
+                                                            if (document.getElementById('upgrade-plan') === null) {
+                                                                image_compressor_checkbox.innerHTML += `
+                                                                <a id="upgrade-plan" href="javascript:void(0)" target="_blank"><span class="form-control-plaintext text-info">کاربر ویژه نیستید؟ ارتقا دهید!</span></a>
+                                                                `
+                                                            }
+                                                        {% else %}
+
+                                                        {% endif %}
+                                                    } else {
+                                                        document.getElementById('imageCompressor').checked=false
+                                                        document.getElementById('image-compressor-checkbox').hidden=true
+                                                        document.getElementById('image-compressor-checkbox').setAttribute('disabled', 'true')
+                                                        document.getElementById('image-compress-size').hidden=true
+                                                        document.getElementById('image-compress-size').setAttribute('disabled', 'true')
+                                                    }
+                                                }
+                                                function image_compressor(check_box) {
+                                                    console.log(this)
+                                                    if (check_box.checked) {
+                                                        document.getElementById('image-compress-size').hidden=false
+                                                        document.getElementById('image-compress-size').setAttribute('disabled', 'false')
+                                                    } else {
+                                                        document.getElementById('image-compress-size').hidden=true
+                                                        document.getElementById('image-compress-size').setAttribute('disabled', 'true')
+                                                    }
+                                                }
+                                                function remove_file(file_id) {
+                                                    document.getElementById('file-col-' + file_id).hidden=true
+                                                    $.ajax({
+                                                        type: "post",
+                                                        url: "{% url 'file-gallery:ajax-file-remove' %}",
+                                                        data: {
+                                                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                            file_id: file_id,
+                                                        },
+                                                        success: function (response) {
+                                                            document.getElementById('file-col-' + file_id).remove()
+                                                            toastr.success('با موفقیت انجام شد');
+                                                            user_storage_analyzer()
+                                                        },
+                                                        error: function (xhr, errmsg, err) {
+                                                            toastr.error('خطایی رخ داد');
+                                                        }
+                                                    });
+                                                }
+                                                function upload_file_btn_refresh() {
+                                                    const upload_file_btn = document.getElementById('upload-file-btn')
+                                                    const upload_file_btn_parent = upload_file_btn.parentElement
+                                                    upload_file_btn.remove()
+                                                    upload_file_btn_parent.innerHTML += `
+                                                    <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="uploadPermission()">تایید</button>
+                                                    `
+                                                    const upload_file_alert = document.getElementById('upload-file-alert')
+                                                    upload_file_alert.innerText=''
+                                                    upload_file_alert.parentElement.hidden=true
+                                                }
+                                                function startSpinner() {
+                                                    const upload_file_btn = document.getElementById('upload-file-btn')
+                                                    const upload_file_btn_parent = upload_file_btn.parentElement
+                                                    upload_file_btn.remove()
+                                                    upload_file_btn_parent.innerHTML += `
+                                                    <button id="upload-file-btn" class="btn btn-primary" type="button" disabled>
+                                                        <span class="spinner-border spinner-border-sm m-r-5" role="status" aria-hidden="true"></span>
+                                                                در حال بررسی ...
+                                                    </button>
+                                                    `
+
+
+                                                }
+                                                function stopSpinnerAndUploadFile() {
+                                                    const upload_file_btn = document.getElementById('upload-file-btn')
+                                                    const upload_file_btn_parent = upload_file_btn.parentElement
+                                                    upload_file_btn.remove()
+                                                    upload_file_btn_parent.innerHTML += `
+                                                    <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="uploadFiles()">تایید</button>
+                                                    `
+                                                }
+                                                function stopSpinnerAndPromotePlan() {
+                                                    const upload_file_btn = document.getElementById('upload-file-btn')
+                                                    const upload_file_btn_parent = upload_file_btn.parentElement
+                                                    upload_file_btn.remove()
+                                                    upload_file_btn_parent.innerHTML += `
+                                                    <button id="upload-file-btn" type="button" class="btn btn-primary" onclick="{% url 'dashboard:dashboard' %}">خرید اشتراک ویژه</button>
+                                                    `
+                                                }
+                                                function uploadPermission() {
+                                                    const upload_file_alert = document.getElementById('upload-file-alert')
+                                                    const textValue = document.getElementById('file_alt').value;
+                                                    const fileValue = document.getElementById('file').files;
+                                                    if (textValue.trim() !== '' && fileValue.length > 0) {
+                                                        const file = fileValue[0]
+                                                        const fileSize = file.size;
+                                                        const formData = new FormData();
+                                                        formData.append('fileSize', fileSize);
+                                                        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+
+                                                        startSpinner()
+
+                                                        fetch('{% url 'file-gallery:upload-permission' %}', {
+                                                            method: 'POST',
+                                                            body: formData
+                                                        })
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data['message'] !== 'allowed') {
+                                                                stopSpinnerAndPromotePlan()
+                                                                upload_file_alert.innerText=data['message']
+                                                                upload_file_alert.parentElement.hidden=false
+                                                            } else {
+                                                                uploadFiles()
+                                                            }
+
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Error:', error);
+                                                            upload_file_btn_refresh()
+                                                            upload_file_alert.innerText=error
+                                                            upload_file_alert.parentElement.hidden=false
+                                                        });
+                                                    } else {
+                                                        if (textValue.trim() === '') {
+                                                            upload_file_alert.innerText='نام وارد نشده است'
+                                                            upload_file_alert.parentElement.hidden=false
+                                                        } else if (fileValue.length === 0) {
+                                                            upload_file_alert.innerText='فایل وارد نشده است'
+                                                            upload_file_alert.parentElement.hidden=false
+                                                        }
+
+                                                    }
+
+                                                }
+                                                function uploadFiles() {
+                                                    const upload_file_alert = document.getElementById('upload-file-alert')
+                                                    const form = document.getElementById('upload-file-form');
+                                                    const formData = new FormData(form);
+
+                                                    fetch('{% url 'file-gallery:upload-files' %}', {
+                                                        method: 'POST',
+                                                        body: formData
+                                                    })
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        if (data['message'] === 'succeed') {
+                                                            upload_file_btn_refresh()
+                                                            upload_file_alert.innerText = ''
+                                                            upload_file_alert.parentElement.hidden = true
+                                                            document.getElementById('file_alt').value=''
+                                                            document.getElementById('file').value=''
+                                                            document.getElementById('imageCompressor').checked=false
+                                                            document.getElementById('imageCompressor').hidden=true
+                                                            document.getElementById('image_compress_size').value=''
+                                                            document.getElementById('image-compress-size').hidden=true
+                                                            try {
+                                                                document.getElementById('upgrade-plan').remove()
+                                                            } catch (err){}
+                                                            window.location.reload()
+                                                        } else {
+                                                            upload_file_btn_refresh()
+                                                            upload_file_alert.innerText=data['message']
+                                                            upload_file_alert.parentElement.hidden=false
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error:', error);
+                                                        upload_file_alert.innerText=error
+                                                        upload_file_alert.parentElement.hidden=false
+                                                    });
+                                                }
+                                        </script>
+                                    </div>
+								</div>
+							</div>
+                        </div>
+                    </div>
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <div class="row justify-content-center">
+                                {% for file in page_obj %}
+                                <div id="file-col-{{ file.id }}" class=" col-sm-6 col-md-4 col-lg-3 col-xl-2 my-3 mx-3 border rounded">
+                                    <div class="file-man-box">
+                                        <a href="javascript:void(0)" class="file-close" data-toggle="modal" data-target="#gridSystemModal_{{ forloop.counter }}"><i class="fa fa-times-circle fa-lg my-3"></i></a>
+                                        <div class="text-center">
+                                            <div id="gridSystemModal_{{ forloop.counter }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="gridModalLabel_{{ forloop.counter }}">پیام</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                                                                <i class="ti-close"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="container-fluid bd-example-row">
+                                                                <div class="row">
+                                                                    <span>آیا از حذف این مورد مطمئن هستید؟</span>
+                                                                </div>
+                                                                <div class="row" dir="ltr">
+                                                                    <h4 class="text-warning">{{ file.alt }}</h4>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                            <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="remove_file('{{ file.id }}')">بله</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex file-img-box justify-content-center">
+                                        <!-- Your code for handling image files -->
+                                            {% if file.file.path|file_ext_tag == '.png' %}
+                                                <img src="{{ file.file.url }}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.jpg' %}
+                                                <img src="{{ file.file.url }}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.jpeg' %}
+                                                <img src="{{ file.file.url }}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.gif' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/gif-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.bmp' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/bmp.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.tiff' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/tif-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.webp' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.psd' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/psd.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            <!-- Your code for handling video files -->
+                                            {% elif file.file.path|file_ext_tag == '.mp4' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/mp4-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.avi' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/avi.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.mov' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/mov-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.mkv' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.wmv' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.flv' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/flv-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.webm' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.m4v' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.mpg' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.mpeg' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.3gp' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+
+                                            <!-- Your code for handling document -->
+                                            {% elif file.file.path|file_ext_tag == '.pdf' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/pdf.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.txt' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/txt.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.doc' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/doc-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.docx' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/doc-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.xls' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/xsl-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.xlsx' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/xsl-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.ppt' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/ppt-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.pptx' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/ppt-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.odt' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.ods' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.odp' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+
+                                                <!-- Your code for handling system file -->
+                                            {% elif file.file.path|file_ext_tag == '.exe' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/exe-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.zip' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/zip.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.rar' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/rar-icon.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.dll' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/dll.svg' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.sys' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.app' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% elif file.file.path|file_ext_tag == '.bat' %}
+                                                <img src="{% static 'admin-panel/custom/file-manager/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+
+                                            {% else %}
+                                                <img src="{% static 'admin-panel/custom/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
+                                            {% endif %}
+                                        </div>
+                                        <a href="{{ file.file.url }}" target="_blank" class="file-download"><i class="fa fa-download fa-lg my-3"></i></a>
+                                        <div class="file-man-title">
+                                            <h5 class="mb-0 text-overflow" data-toggle="tooltip" data-placement="top" data-original-title="{{ file.alt }}">{{ file.alt|truncatechars:20 }}</h5>
+                                            {% if 0 < file.file.size and file.file.size <= 1024 %}
+                                            <p class="mb-0"><small>{{ file.file.size }} بایت</small></p>
+                                            {% elif 1024 < file.file.size and file.file.size <= 1048576 %}
+                                            <p class="mb-0"><small>{{ file.file.size|divide:1024 }} کیلوبایت</small></p>
+                                            {% elif 1048576 < file.file.size and file.file.size <= 1073741824 %}
+                                            <p class="mb-0"><small>{{ file.file.size|divide:1048576 }} مگابایت</small></p>
+                                            {% elif 1073741824 < file.file.size and file.file.size <= 1099511627776 %}
+                                            <p class="mb-0"><small>{{ file.file.size|divide:1073741824 }} گیگابایت</small></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                    <strong>بدون فایل</strong>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
+                <nav aria-label="Page navigation example mb-3">
+                    <nav aria-label="Page navigation example" class="mb-3">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">ابتدا</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">قبلی</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="javascript:void(0)" tabindex="-1" aria-disabled="true">ابتدا</a>
+                            </li>
+                            {% endif %}
+
+
+                            {% if page_obj.previous_page_number >= 2 %}
+                            <li class="page-item">
+                                <a class="page-link" href="javascript:void(0)">...</a>
+                            </li>
+                            {% endif %}
+
+                            {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+                            {% endif %}
+                            <li class="page-item"><a class="page-link" href="javascript:void('0')">{{ page_obj.number }}</a></li>
+                            {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+                            {% endif %}
+
+                            {% if page_obj.next_page_number|add:2 < page_obj.paginator.num_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="javascript:void(0)">...</a>
+                            </li>
+                            {% endif %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">بعدی</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">انتها</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="javascript:void(0)" aria-disabled="true">انتها</a>
+                            </li>
+                            {% endif %}
+
+                        </ul>
+                    </nav>
+                </nav>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- DataTable -->
+    <script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'admin-panel/vendors/dataTable/dataTables.responsive.min.js' %}"></script>
+
+    <script>
+        {% if toast %}
+            'use strict';
+            $(document).ready(function () {
+                toastr.options = {
+                    timeOut: 3000,
+                    progressBar: true,
+                    showMethod: "slideDown",
+                    hideMethod: "slideUp",
+                    showDuration: 200,
+                    hideDuration: 200
+                };
+                if ('{{ toast }}' === '1') {
+                    toastr.success('با موفقیت انجام شد');
+                } else {
+                    toastr.error('خطایی رخ داد');
+                }
+            });
+        {% endif %}
+    </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+    {% if original.attachments %}
+    <div style="text-align: center; align-content: center">
+        <strong>تصاویر فیش ها</strong>
+        <div id="custom-container">
+            {% for attachment in original.attachments.all %}
+                <a href="{{ attachment.file.url }}" target="_blank"><img style="height: 60px; width: 60px; object-fit: fill; margin: 25px" src="{{ attachment.file.url }}" alt="media-file"></a>
+            {% empty %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% load static %}
+
+<section>
+    <header style="direction: rtl; background-image: url({% static 'blog-theme-1/new-design/img/header-back-1.png' %});
+            background-size: cover; background-repeat: no-repeat">
+        <nav class="navbar navbar-expand-lg" data-bs-theme="dark"
+             style="background-image: url({% static 'blog-theme-1/new-design/img/header-back-2.png' %});
+            background-size: 40% auto; background-repeat: no-repeat; background-position: center center">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'dashboard:dashboard' %}">
+                    <img src="{% static 'blog-theme-1/new-design/img/logo.png' %}" alt="logo" width="120">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mx-auto mb-lg-0" style="margin-top: 8rem">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'dashboard:dashboard' %}">صفحه اصلی</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'website:blog-front-post-list' %}">اخبار</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="javascript:void('null')">آموزش و توانمند سازی</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                دبیر خانه های تخصصی
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="javascript:void('null')">دبیرخانه 1</a></li>
+                                <li><a class="dropdown-item" href="javascript:void('null')">دبیرخانه 2</a></li>
+                                <li><a class="dropdown-item" href="javascript:void('null')">دبیرخانه 3</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                محصولات
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="javascript:void('null')">محصول 1</a></li>
+                                <li><a class="dropdown-item" href="javascript:void('null')">محصول 2</a></li>
+                                <li><a class="dropdown-item" href="javascript:void('null')">محصول 3</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'website:blog-front-about-us' %}">درباره مجمع</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'website:blog-front-contact-us' %}">تماس با ما</a>
+                        </li>
+                    </ul>
+                    <nav class="nav justify-content-center">
+                        <a href="https://eitaa.com/populationir" class="bg-white rounded-circle mx-2" style="width: 40px; height: 40px">
+                            <img class="my-1" src="{% static 'blog-theme-1/new-design/img/eitaa-icon.png' %}" alt="logo" width="30" height="30">
+                        </a>
+                        <a href="https://www.aparat.com/namayejavani" class="bg-white rounded-circle mx-2" style="width: 40px; height: 40px">
+                            <img class="my-1" src="{% static 'blog-theme-1/new-design/img/icon-aparat.svg' %}" alt="logo" width="30" height="30">
+                        </a>
+                        <a href="https://splus.ir/populationir" class="bg-white rounded-circle mx-2" style="width: 40px; height: 40px">
+                            <img class="my-1" src="{% static 'blog-theme-1/new-design/img/icon-bale.svg' %}" alt="logo" width="30" height="30">
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </nav>
+    </header>
+</section>

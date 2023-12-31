@@ -1,0 +1,61 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="form-wrapper">
+    <!-- logo -->
+    <div class="logo">
+        <img class="rounded-circle" src="{% static 'admin-panel/custom/yekjamodir-logo1.png' %}" alt="image" width="128" height="128">
+    </div>
+    <!-- ./ logo -->
+
+    <!-- form -->
+    <form action="{% url 'accounts:signup' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <input type="text" class="form-control" name="full_name" placeholder="نام و نام خانوادگی" required
+            oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+            oninput="setCustomValidity('')">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control text-left" name="phone_number" placeholder="شماره همراه" dir="ltr" required
+            oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+            oninput="setCustomValidity('')">
+        </div>
+        <div class="form-group">
+            <input type="email" class="form-control text-left" name="email" placeholder="ایمیل" dir="ltr" required
+            oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+            oninput="setCustomValidity('')">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control text-left" name="landline" placeholder="شماره ثابت" dir="ltr">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control text-left" name="address" placeholder="آدرس" dir="ltr">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control text-left" name="password_1" placeholder="رمز عبور" dir="ltr" required
+            oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+            oninput="setCustomValidity('')" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control text-left" name="password_2" placeholder="تکرار رمز عبور" dir="ltr" required
+            oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
+            oninput="setCustomValidity('')" autocomplete="new-password">
+        </div>
+        <div style="margin-bottom: 65px">
+            {{ form }}
+        </div>
+        {% if err %}
+            <div class="form-group">
+                <strong class="form-control-plaintext" style="color: red">{{ err }}</strong>
+            </div>
+        {% endif %}
+        <button class="btn btn-primary btn-block" type="submit">ثبت نام</button>
+        <hr>
+        <p class="text-muted">حساب کاربری دارید؟</p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-sm">وارد شوید!</a>
+    </form>
+    <!-- ./ form -->
+</div>
+{% endblock %}
