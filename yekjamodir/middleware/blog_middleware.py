@@ -24,14 +24,17 @@ class BlogMiddleware:
         request.x_blog_subdomain = False
         if requested_url_host != '127.0.0.1:8000':  # make sure we are not at dev situation
             if requested_url_host != panel_domain_host:  # means it is blog
-                request.x_blog = True
-                if str(requested_url_host).find(f'.{panel_domain_host}') != -1:
-                    request.x_blog_subdomain = True
+                if requested_url_host == 'panel.yekjamodir.ir':
+                    pass
                 else:
-                    request.x_blog_subdomain = False
-                if not requested_url_path in allowed_path_list:
-                    if requested_url_path.find('blog-front-post-detail&id') != -1:
-                        pass
+                    request.x_blog = True
+                    if str(requested_url_host).find(f'.{panel_domain_host}') != -1:
+                        request.x_blog_subdomain = True
                     else:
-                        return render(request, 'blog-theme-1/new-design/img/.html')
+                        request.x_blog_subdomain = False
+                    if not requested_url_path in allowed_path_list:
+                        if requested_url_path.find('blog-front-post-detail&id') != -1:
+                            pass
+                        else:
+                            return render(request, 'blog-theme-1/new-design/img/.html')
         return self.get_response(request)

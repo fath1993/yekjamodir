@@ -22,6 +22,3 @@ urlpatterns = [
     path('invoice&id=<int:invoice_id>/', InvoiceView.as_view(), name='invoice-with-id'),
     path('invoices-list/', InvoiceList.as_view(), name='invoices-list'),
 ]
-
-
-

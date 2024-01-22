@@ -25,6 +25,7 @@ urlpatterns = [
     path('tasks/', include('task_manager.urls')),
     path('blog/', include('blog.urls')),
     path('auto-robots/', include('auto_robots.urls')),
+    path('wp-api-processor/', include('wp_api_processor.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

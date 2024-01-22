@@ -25,6 +25,15 @@ DATABASES['log_db'] = {
     'PORT': '5432',
 }
 
+DATABASES['wp_db'] = {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'yekjamodir_wp_db',
+    'USER': 'yekjamodir_wp_db_admin',
+    'PASSWORD': '54%jj#$5f4dJGKLK',
+    'HOST': '188.253.2.195',
+    'PORT': '5432',
+}
+
 CRONJOBS = [
     ('* * * * *', 'auto_robots.cron_jobs.cron_jobs',),
     ('* * * * *', 'event_manager.event_reminder.event_reminder',)

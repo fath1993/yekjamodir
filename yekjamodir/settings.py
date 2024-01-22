@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.humanize',
+    'rest_framework',
+    "corsheaders",
     'django.forms',
     'captcha',
     'django_jalali',
@@ -36,6 +38,7 @@ INSTALLED_APPS = [
     'task_manager',
     'blog',
     'website',
+    'wp_api_processor',
 ]
 
 # django simple captcha settings. more data at: https://django-simple-captcha.readthedocs.io/en/latest/advanced.html
@@ -82,7 +85,8 @@ TINYMCE_DEFAULT_CONFIG = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -90,14 +94,14 @@ MIDDLEWARE = [
     'yekjamodir.middleware.blog_middleware.BlogMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://yekjamodir.ir",
+]
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
 }
 
 ROOT_URLCONF = 'yekjamodir.urls'
@@ -162,11 +166,13 @@ STATICFILES_DIRS = [
 
 CSRF_TRUSTED_ORIGINS = ['https://yekjamodir.ir', 'https://*.yekjamodir.ir']
 
-BASE_URL = 'https://yekjamodir.ir'
-BASE_CONTENT_URL = 'https://yekjamodir.ir'
+BASE_URL = 'https://panel.yekjamodir.ir'
+BASE_CONTENT_URL = 'https://panel.yekjamodir.ir'
 
 # get data from .env
 SMS_PANEL_USERNAME = env('SMS_PANEL_USERNAME')
 SMS_PANEL_PASSWORD = env('SMS_PANEL_PASSWORD')
 STORAGE_QUOTA_LIMIT = int(env('STORAGE_QUOTA_LIMIT'))
 ARVAN_CLOUD_API_KEY = env('ARVAN_CLOUD_API_KEY')
+
+WP_DATA_DECRYPTING_KEY = env('WP_DATA_DECRYPTING_KEY')
