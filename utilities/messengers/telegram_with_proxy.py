@@ -6,7 +6,7 @@ import io
 
 from bs4 import BeautifulSoup
 
-from auto_robots.models import TelegramBotHistory
+from auto_robots.models import MetapostHistory
 from yekjamodir.settings import BASE_URL
 
 
@@ -70,7 +70,7 @@ class TelegramHttpSendMessageThread(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=message_id)
         return
@@ -123,7 +123,7 @@ class TelegramEditMessageTextThread(threading.Thread):
             response_message = response.text
         except Exception as e:
             response_message = str(e)
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=self.metapost.message_id)
         return
@@ -174,7 +174,7 @@ class TelegramEditMessageCaptionThread(threading.Thread):
             response_message = response.text
         except Exception as e:
             response_message = str(e)
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=self.metapost.message_id)
         return
@@ -220,7 +220,7 @@ class TelegramEditMessageMediaThread(threading.Thread):
             response_message = response.text
         except Exception as e:
             response_message = str(e)
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=self.metapost.message_id)
         return
@@ -297,7 +297,7 @@ class TelegramHttpSendMediaThread(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=message_id)
         return
@@ -342,7 +342,7 @@ class TelegramDeleteMessageThread(threading.Thread):
         print(response_message)
         self.metapost.message_id = message_id
         self.metapost.save()
-        TelegramBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                           chat_id=self.chat_id,
                                           message_id=message_id)
         return

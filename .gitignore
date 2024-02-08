@@ -1,7 +1,11 @@
 /default.sqlite3
 /logs.sqlite3
+/.gitignore
 /.idea/
 /backups/
 /media/
 /static/
+/statics/
 /venv/
+/yekjamodir/.env
+/yekjamodir/c_settings

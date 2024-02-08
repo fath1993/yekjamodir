@@ -18,18 +18,30 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row mb-1">
-                            <h4 class="card-title">{{ broker.broker_name }}
+                            <h4 class="card-title mx-3">{{ broker.broker_name }}
                                 <div class="btn-group m-r-5 mr-2">
+                                    {% if request.user.profile_user.user_financial_default_broker_id == broker.id %}
+                                    <button class="btn btn-outline-success mx-2" disabled type="button">
+                                        پیش فرض است
+                                    </button>
+                                    {% else %}
+                                    <button id="set_default_broker_btn" class="btn btn-outline-warning mx-2" onclick="start_set_default_broker('{{ broker.id }}')" type="button">
+                                        تبدیل به پیش فرض
+                                    </button>
+                                    {% endif %}
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         تغییر حساب
                                     </button>
                                     <div class="dropdown-menu" x-placement="bottom-end"
-                                         style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-66px, 26px, 0px);">
+                                         style="direction: rtl; position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-66px, 26px, 0px);">
                                         {% for broker in brokers %}
                                             <a class="dropdown-item"
-                                               href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=broker.id %}"><i
-                                                    class="ti-arrow-left mr-2"></i>{{ broker.broker_name }}</a>
+                                               href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=broker.id %}">
+                                                <span class="justify-content-center align-content-center">
+                                                    {{ forloop.counter }}.&nbsp;{{ broker.broker_name }}{% if request.user.profile_user.user_financial_default_broker_id == broker.id %}<span class="badge badge-success ml-2">پیش فرض</span>{% endif %}
+                                                </span>
+                                            </a>
                                         {% empty %}
                                             <a class="dropdown-item" href="#">بدون حساب</a>
                                         {% endfor %}
@@ -326,4 +338,46 @@
         });
     });
 </script>
+    <script>
+        function start_set_default_broker(broker_id) {
+            const set_default_broker_btn = document.getElementById('set_default_broker_btn')
+            set_default_broker_btn.innerHTML = ``
+            set_default_broker_btn.innerHTML += `
+            <span class="spinner-border spinner-border-sm m-r-5" role="status" aria-hidden="true"></span>
+                    در حال اجرا ...
+            `
+            set_default_broker(broker_id)
+        }
+        function set_default_broker(broker_id) {
+            const formData = new FormData();
+            formData.append('default_broker_id', broker_id)
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+
+            fetch('{% url 'financial:ajax-set-default-broker' %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data['message'] === 'done') {
+                    const set_default_broker_btn = document.getElementById('set_default_broker_btn')
+                    set_default_broker_btn.innerHTML = `پیش فرض است`
+                    set_default_broker_btn.className = 'btn btn-outline-success mx-2'
+                    set_default_broker_btn.onclick = ``
+                    toastr.success('با موفقیت انجام شد');
+                } else {
+                    const set_default_broker_btn = document.getElementById('set_default_broker_btn')
+                    set_default_broker_btn.innerHTML = `تبدیل به پیش فرض`
+                    set_default_broker_btn.className = 'btn btn-outline-warning mx-2'
+                    toastr.error(data['message']);
+                }
+            })
+            .catch(error => {
+                const set_default_broker_btn = document.getElementById('set_default_broker_btn')
+                set_default_broker_btn.innerHTML = `تبدیل به پیش فرض`
+                set_default_broker_btn.className = 'btn btn-outline-warning mx-2'
+                toastr.error(data['message']);
+            });
+        }
+    </script>
 {% endblock %}

@@ -40,7 +40,7 @@
                 <div>
                     <ul class="list-inline text-center">
                         <li class="list-inline-item my-2">
-                            <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=0 %}" class="text-success d-inline-block">
+                            <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}" class="text-success d-inline-block">
                                 <h2 class="font-weight-bold mb-2 primary-font line-height-36">{{ all_time_transaction_records }}</h2>
                                 <span>صورت حساب</span>
                             </a>

@@ -2,11 +2,12 @@ import json
 import threading
 import requests
 from bs4 import BeautifulSoup
-from auto_robots.models import BaleBotHistory
+from auto_robots.models import MetapostHistory
 from yekjamodir.settings import BASE_URL
 
 
-def bale_http_send_message_via_post_method(metapost, bot_token, chat_id, text, reply_to_message_id=None, reply_markup=None):
+def bale_http_send_message_via_post_method(metapost, bot_token, chat_id, text, reply_to_message_id=None,
+                                           reply_markup=None):
     BaleHttpSendMessageViaPostMethodThread(metapost=metapost, bot_token=bot_token, chat_id=chat_id, text=text,
                                            reply_to_message_id=reply_to_message_id, reply_markup=reply_markup).start()
 
@@ -38,8 +39,8 @@ class BaleHttpSendMessageViaPostMethodThread(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        BaleBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
-                                      chat_id=self.chat_id, message_id=message_id)
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
+                                       chat_id=self.chat_id, message_id=message_id)
         return print(response_message)
 
 
@@ -70,9 +71,9 @@ class BaleHttpUpdateMessageViaPostMethod(threading.Thread):
             response_message = response.text
         except Exception as e:
             response_message = str(e)
-        BaleBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
-                                      chat_id=self.chat_id,
-                                      message_id=self.metapost.message_id)
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
+                                       chat_id=self.chat_id,
+                                       message_id=self.metapost.message_id)
         return print(response_message)
 
 
@@ -100,13 +101,14 @@ class BaleHttpDeleteMessageViaPostMethod(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = 0
         self.metapost.save()
-        BaleBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
-                                      chat_id=self.chat_id,
-                                      message_id=self.metapost.message_id)
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
+                                       chat_id=self.chat_id,
+                                       message_id=self.metapost.message_id)
         return print(response_message)
 
 
-def bale_http_send_media_via_post_method(metapost, bot_token, chat_id, media_type, media_url, caption, reply_to_message_id=None):
+def bale_http_send_media_via_post_method(metapost, bot_token, chat_id, media_type, media_url, caption,
+                                         reply_to_message_id=None):
     BaleHttpSendMediaViaPostMethod(metapost=metapost, bot_token=bot_token, chat_id=chat_id, media_type=media_type,
                                    media_url=media_url, caption=caption,
                                    reply_to_message_id=reply_to_message_id).start()
@@ -140,9 +142,9 @@ class BaleHttpSendMediaViaPostMethod(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        BaleBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
-                                      chat_id=self.chat_id,
-                                      message_id=message_id)
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
+                                       chat_id=self.chat_id,
+                                       message_id=message_id)
         return print(response_message)
 
 
@@ -206,7 +208,6 @@ def bale_message_handler(metapost):
         elif metapost.action == 'delete':
             bale_http_delete_message_via_post_method(metapost=metapost, bot_token=metapost.bot.bot_token,
                                                      chat_id=channel)
-
 
 
 '''  samples

@@ -1,4 +1,5 @@
 import jdatetime
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
@@ -186,7 +187,7 @@ class MetaPostList(View):
             if auto_robot_id == 0:
                 metaposts = MetaPost.objects.filter(created_by=request.user)
                 self.context['metaposts'] = metaposts
-                metaposts_summary = get_metaposts_summery('0', request.user)
+                metaposts_summary = get_metaposts_summery(metaposts)
                 self.context['metaposts_summary'] = metaposts_summary
                 return render(request, 'auto-robots/metapost-list.html', self.context)
             try:
@@ -198,7 +199,7 @@ class MetaPostList(View):
             metaposts = MetaPost.objects.filter(bot=bot, created_by=request.user)
             self.context['metaposts'] = metaposts
 
-            metaposts_summary = get_metaposts_summery(bot, request.user)
+            metaposts_summary = get_metaposts_summery(metaposts)
             self.context['metaposts_summary'] = metaposts_summary
 
             return render(request, 'auto-robots/metapost-list.html', self.context)
@@ -207,7 +208,59 @@ class MetaPostList(View):
 
     def post(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
-            return render(request, '404.html')
+            bots = Bot.objects.filter(created_by=request.user)
+            self.context['bots'] = bots
+            if bots.count() == 0:
+                return redirect('auto_robots:auto-robots-new')
+            date_from = fetch_data_from_http_post(request, 'date_from', self.context)
+            date_to = fetch_data_from_http_post(request, 'date_to', self.context)
+            metapost_send_at_type = fetch_data_from_http_post(request, 'metapost_send_at_type', self.context)
+            metapost_message_status = fetch_data_from_http_post(request, 'metapost_message_status', self.context)
+
+            if date_from:
+                self.context['date_from'] = date_from
+                date_from = str(date_from).split('/')
+                date_from = jdatetime.datetime(year=int(date_from[0]), month=int(date_from[1]), day=int(date_from[2]))
+            if date_to:
+                self.context['date_to'] = date_to
+                date_to = str(date_to).split('/')
+                date_to = jdatetime.datetime(year=int(date_to[0]), month=int(date_to[1]), day=int(date_to[2]))
+            q = Q()
+            if date_from and date_to:
+                q &= Q(created_at__range=[date_from, date_to])
+            elif date_from and not date_to:
+                q &= Q(created_at__gte=date_from)
+            elif not date_from and date_to:
+                q &= Q(created_at__lte=date_to)
+            else:
+                pass
+            if metapost_send_at_type:
+                self.context['metapost_send_at_type'] = metapost_send_at_type
+                if metapost_send_at_type != 'nothing':
+                    q &= Q(send_at_type=metapost_send_at_type)
+            if metapost_message_status:
+                self.context['metapost_message_status'] = metapost_message_status
+                if metapost_message_status != 'nothing':
+                    q &= Q(message_status=metapost_message_status)
+            q &= Q(created_by=request.user)
+
+            if auto_robot_id == 0:
+                metaposts = MetaPost.objects.filter(q)
+                self.context['metaposts'] = metaposts
+                metaposts_summary = get_metaposts_summery(metaposts)
+                self.context['metaposts_summary'] = metaposts_summary
+                return render(request, 'auto-robots/metapost-list.html', self.context)
+            try:
+                bot = Bot.objects.get(id=auto_robot_id, created_by=request.user)
+                self.context['bot'] = bot
+                q &= Q(bot=bot)
+                metaposts = MetaPost.objects.filter(q)
+                self.context['metaposts'] = metaposts
+                metaposts_summary = get_metaposts_summery(metaposts)
+                self.context['metaposts_summary'] = metaposts_summary
+                return render(request, 'auto-robots/metapost-list.html', self.context)
+            except:
+                return render(request, '404.html')
         else:
             return redirect('accounts:login')
 
@@ -248,9 +301,6 @@ class MetaPostNew(View):
                                                                      self.context)
             event_remind_me_at_once_time = fetch_data_from_http_post(request, 'event_remind_me_at_once_time',
                                                                      self.context)
-            event_hourly_remind_me_at = fetch_data_from_http_post(request, 'event_hourly_remind_me_at', self.context)
-            event_hourly_remind_me_at_number = fetch_data_from_http_post(request, 'event_hourly_remind_me_at_number',
-                                                                         self.context)
             event_daily_remind_me_at = fetch_data_from_http_post(request, 'event_daily_remind_me_at', self.context)
             event_daily_remind_me_at_time = fetch_data_from_http_post(request, 'event_daily_remind_me_at_time',
                                                                       self.context)
@@ -274,7 +324,7 @@ class MetaPostNew(View):
             metapost_content = fetch_data_from_http_post(request, 'metapost_content', self.context)
             metapost_view_type = fetch_data_from_http_post(request, 'metapost_view_type', self.context)
 
-            is_send_hourly_at_active = False
+            is_remind_me_at_once_active = False
             is_send_daily_at_active = False
             is_send_monthly_at_active = False
             is_send_yearly_at_active = False
@@ -288,24 +338,16 @@ class MetaPostNew(View):
                 return render(request, 'auto-robots/metapost-new.html', self.context)
             else:
                 if message_action_situation == '':
-                    pass
+                    self.context['alert'] = 'محوه عملیات ارسال بدرستی ارسال نشده است'
+                    return render(request, 'auto-robots/metapost-new.html', self.context)
                 else:
                     if event_remind_me_at_once:
+                        is_remind_me_at_once_active = True
                         if not event_remind_me_at_once_date:
                             self.context['alert'] = 'تاریخ وارد نشده است'
                             return render(request, 'auto-robots/metapost-new.html', self.context)
                         if not event_remind_me_at_once_time:
                             self.context['alert'] = 'زمان وارد نشده است'
-                            return render(request, 'auto-robots/metapost-new.html', self.context)
-                    if event_hourly_remind_me_at:
-                        is_send_hourly_at_active = True
-                        if not event_hourly_remind_me_at_number:
-                            self.context['alert'] = 'دقیقه یاداوری وارد نشده است'
-                            return render(request, 'auto-robots/metapost-new.html', self.context)
-                        try:
-                            event_hourly_remind_me_at_number = int(event_hourly_remind_me_at_number)
-                        except:
-                            self.context['alert'] = 'دقیقه یاداوری بدرستی وارد نشده است'
                             return render(request, 'auto-robots/metapost-new.html', self.context)
                     if event_daily_remind_me_at:
                         is_send_daily_at_active = True
@@ -338,39 +380,100 @@ class MetaPostNew(View):
             for bot_id in publish_with_bots:
                 try:
                     bot = Bot.objects.get(id=bot_id, created_by=request.user)
-
                     if message_action_situation == 'just_in_time':
-                        message_status = 'sent'
-                    else:
-                        message_status = 'queued'
-
-                    new_metapost = MetaPost(
-                        bot=bot,
-                        action='new_send',
-                        send_at=date_string_to_date_format(f'{event_remind_me_at_once_date}/{event_remind_me_at_once_time}'),
-                        send_hourly_at=event_hourly_remind_me_at_number,
-                        is_send_hourly_at_active=is_send_hourly_at_active,
-                        send_daily_at=date_string_to_date_format(f'1402/01/01/{event_daily_remind_me_at_time}'),
-                        is_send_daily_at_active=is_send_daily_at_active,
-                        send_monthly_at=date_string_to_date_format(f'1402/01/{event_monthly_remind_me_at_day}/{event_monthly_remind_me_at_time}'),
-                        is_send_monthly_at_active=is_send_monthly_at_active,
-                        send_yearly_at=date_string_to_date_format(f'1402/{event_yearly_remind_me_at_month}/{event_yearly_remind_me_at_day}/{event_yearly_remind_me_at_time}'),
-                        is_send_yearly_at_active=is_send_yearly_at_active,
-                        title=metapost_title,
-                        sub_title=metapost_sub_title,
-                        categories=metapost_categories,
-                        keywords=metapost_keywords,
-                        attached_file_link=metapost_attached_file_link,
-                        content=metapost_content,
-                        metapost_view_type=metapost_view_type,
-                        message_status=message_status,
-                        created_by=request.user,
-                        updated_by=request.user,
-                    )
-                    new_metapost.save()
-
-                    if message_action_situation == 'just_in_time':
+                        new_metapost = MetaPost(
+                            bot=bot,
+                            action='new_send',
+                            send_at_type='در لحظه یکباره',
+                            send_at_date_time=jdatetime.datetime.now(),
+                            title=metapost_title,
+                            sub_title=metapost_sub_title,
+                            categories=metapost_categories,
+                            keywords=metapost_keywords,
+                            attached_file_link=metapost_attached_file_link,
+                            content=metapost_content,
+                            metapost_view_type=metapost_view_type,
+                            message_status='sent',
+                            created_by=request.user,
+                            updated_by=request.user,
+                        )
+                        new_metapost.save()
                         messenger(new_metapost)
+                    else:
+                        if is_remind_me_at_once_active:
+                            new_metapost = MetaPost(
+                                bot=bot,
+                                action='new_send',
+                                send_at_type='زمانبندی شده یکباره',
+                                send_at_date_time=date_string_to_date_format(f'{event_remind_me_at_once_date}/{event_remind_me_at_once_time}'),
+                                title=metapost_title,
+                                sub_title=metapost_sub_title,
+                                categories=metapost_categories,
+                                keywords=metapost_keywords,
+                                attached_file_link=metapost_attached_file_link,
+                                content=metapost_content,
+                                metapost_view_type=metapost_view_type,
+                                message_status='queued',
+                                created_by=request.user,
+                                updated_by=request.user,
+                            )
+                            new_metapost.save()
+                        if is_send_daily_at_active:
+                            new_metapost = MetaPost(
+                                bot=bot,
+                                action='new_send',
+                                send_at_type='روزانه',
+                                send_at_date_time=date_string_to_date_format(f'1402/01/01/{event_daily_remind_me_at_time}'),
+                                title=metapost_title,
+                                sub_title=metapost_sub_title,
+                                categories=metapost_categories,
+                                keywords=metapost_keywords,
+                                attached_file_link=metapost_attached_file_link,
+                                content=metapost_content,
+                                metapost_view_type=metapost_view_type,
+                                message_status='queued',
+                                created_by=request.user,
+                                updated_by=request.user,
+                            )
+                            new_metapost.save()
+                        if is_send_monthly_at_active:
+                            new_metapost = MetaPost(
+                                bot=bot,
+                                action='new_send',
+                                send_at_type='ماهانه',
+                                send_at_date_time=date_string_to_date_format(
+                                    f'1402/01/{event_monthly_remind_me_at_day}/{event_monthly_remind_me_at_time}'),
+                                title=metapost_title,
+                                sub_title=metapost_sub_title,
+                                categories=metapost_categories,
+                                keywords=metapost_keywords,
+                                attached_file_link=metapost_attached_file_link,
+                                content=metapost_content,
+                                metapost_view_type=metapost_view_type,
+                                message_status='queued',
+                                created_by=request.user,
+                                updated_by=request.user,
+                            )
+                            new_metapost.save()
+                        if is_send_yearly_at_active:
+                            new_metapost = MetaPost(
+                                bot=bot,
+                                action='new_send',
+                                send_at_type='سالانه',
+                                send_at_date_time=date_string_to_date_format(
+                                    f'1402/{event_yearly_remind_me_at_month}/{event_yearly_remind_me_at_day}/{event_yearly_remind_me_at_time}'),
+                                title=metapost_title,
+                                sub_title=metapost_sub_title,
+                                categories=metapost_categories,
+                                keywords=metapost_keywords,
+                                attached_file_link=metapost_attached_file_link,
+                                content=metapost_content,
+                                metapost_view_type=metapost_view_type,
+                                message_status='queued',
+                                created_by=request.user,
+                                updated_by=request.user,
+                            )
+                            new_metapost.save()
                 except Exception as e:
                     print(str(e))
 
@@ -411,150 +514,13 @@ class MetaPostEdit(View):
                 self.context['metapost'] = metapost
             except Exception as e:
                 return render(request, '404.html')
-
             new_action = fetch_data_from_http_post(request, 'new_action', self.context)
-            message_action_situation = fetch_data_from_http_post(request, 'message_action_situation', self.context)
-            event_remind_me_at_once = fetch_data_from_http_post(request, 'event_remind_me_at_once', self.context)
-            event_remind_me_at_once_date = fetch_data_from_http_post(request, 'event_remind_me_at_once_date',
-                                                                     self.context)
-            event_remind_me_at_once_time = fetch_data_from_http_post(request, 'event_remind_me_at_once_time',
-                                                                     self.context)
-            event_hourly_remind_me_at = fetch_data_from_http_post(request, 'event_hourly_remind_me_at', self.context)
-            event_hourly_remind_me_at_number = fetch_data_from_http_post(request, 'event_hourly_remind_me_at_number',
-                                                                         self.context)
-            event_daily_remind_me_at = fetch_data_from_http_post(request, 'event_daily_remind_me_at', self.context)
-            event_daily_remind_me_at_time = fetch_data_from_http_post(request, 'event_daily_remind_me_at_time',
-                                                                      self.context)
-            event_monthly_remind_me_at = fetch_data_from_http_post(request, 'event_monthly_remind_me_at', self.context)
-            event_monthly_remind_me_at_day = fetch_data_from_http_post(request, 'event_monthly_remind_me_at_day',
-                                                                       self.context)
-            event_monthly_remind_me_at_time = fetch_data_from_http_post(request, 'event_monthly_remind_me_at_time',
-                                                                        self.context)
-            event_yearly_remind_me_at = fetch_data_from_http_post(request, 'event_yearly_remind_me_at', self.context)
-            event_yearly_remind_me_at_month = fetch_data_from_http_post(request, 'event_yearly_remind_me_at_month',
-                                                                        self.context)
-            event_yearly_remind_me_at_day = fetch_data_from_http_post(request, 'event_yearly_remind_me_at_day',
-                                                                      self.context)
-            event_yearly_remind_me_at_time = fetch_data_from_http_post(request, 'event_yearly_remind_me_at_time',
-                                                                       self.context)
-            metapost_title = fetch_data_from_http_post(request, 'metapost_title', self.context)
-            metapost_sub_title = fetch_data_from_http_post(request, 'metapost_sub_title', self.context)
-            metapost_categories = fetch_data_from_http_post(request, 'metapost_categories', self.context)
-            metapost_keywords = fetch_data_from_http_post(request, 'metapost_keywords', self.context)
-            metapost_attached_file_link = fetch_data_from_http_post(request, 'metapost_attached_file_link',
-                                                                    self.context)
-            metapost_content = fetch_data_from_http_post(request, 'metapost_content', self.context)
-            metapost_view_type = fetch_data_from_http_post(request, 'metapost_view_type', self.context)
-
-            is_send_hourly_at_active = False
-            is_send_daily_at_active = False
-            is_send_monthly_at_active = False
-            is_send_yearly_at_active = False
-
-            if event_remind_me_at_once:
-                if not event_remind_me_at_once_date:
-                    self.context['alert'] = 'تاریخ وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-                if not event_remind_me_at_once_time:
-                    self.context['alert'] = 'زمان وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-            if event_hourly_remind_me_at:
-                is_send_hourly_at_active = True
-                if not event_hourly_remind_me_at_number:
-                    self.context['alert'] = 'دقیقه یاداوری وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-                try:
-                    event_hourly_remind_me_at_number = int(event_hourly_remind_me_at_number)
-                except:
-                    self.context['alert'] = 'دقیقه یاداوری بدرستی وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-            if event_daily_remind_me_at:
-                is_send_daily_at_active = True
-                if not event_daily_remind_me_at_time:
-                    self.context['alert'] = 'زمان یاداوری روزانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-            if event_monthly_remind_me_at:
-                is_send_monthly_at_active = True
-                if not event_monthly_remind_me_at_day:
-                    self.context['alert'] = 'روز یاداوری ماهانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-                if not event_monthly_remind_me_at_time:
-                    self.context['alert'] = 'زمان یاداوری ماهانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-            if event_yearly_remind_me_at:
-                is_send_yearly_at_active = True
-                if not event_yearly_remind_me_at_month:
-                    self.context['alert'] = 'ماه یاداوری سالانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-                if not event_yearly_remind_me_at_day:
-                    self.context['alert'] = 'روز یاداوری سالانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-                if not event_yearly_remind_me_at_time:
-                    self.context['alert'] = 'زمان یاداوری سالانه وارد نشده است'
-                    return render(request, 'auto-robots/metapost-new.html', self.context)
-
-
-            if metapost_title is None:
-                self.context['alert'] = 'عنوان متا انتخاب نشده است'
-                return render(request, 'auto-robots/metapost-new.html', self.context)
-
-            try:
-                if new_action != 'nothing':
-                    metapost.action = new_action
-                    if message_action_situation == 'just_in_time':
-                        if new_action == 'new_send':
-                            metapost.message_status = 'sent'
-                        elif new_action == 'delete':
-                            metapost.message_status = 'deleted'
-                        elif new_action == 'revise':
-                            metapost.message_status = 'revised'
-                        elif new_action == 'republish':
-                            metapost.message_status = 'republished'
-                    else:
-                        metapost.message_status = 'queued'
-
-                if event_remind_me_at_once_date and event_remind_me_at_once_time:
-                    metapost.send_at = date_string_to_date_format(
-                        f'{event_remind_me_at_once_date}/{event_remind_me_at_once_time}')
-                if event_hourly_remind_me_at_number:
-                    metapost.send_hourly_at = event_hourly_remind_me_at_number
-                if is_send_hourly_at_active:
-                    metapost.is_send_hourly_at_active = is_send_hourly_at_active,
-                if is_send_daily_at_active:
-                    metapost.is_send_daily_at_active = is_send_daily_at_active,
-                if is_send_monthly_at_active:
-                    metapost.is_send_monthly_at_active = is_send_monthly_at_active,
-                if is_send_yearly_at_active:
-                    metapost.is_send_yearly_at_active = is_send_yearly_at_active,
-                if event_daily_remind_me_at_time:
-                    metapost.send_daily_at = date_string_to_date_format(f'1402/01/01/{event_daily_remind_me_at_time}')
-                if event_monthly_remind_me_at_day and event_monthly_remind_me_at_time:
-                    metapost.send_monthly_at = date_string_to_date_format(f'1402/01/{event_monthly_remind_me_at_day}/{event_monthly_remind_me_at_time}')
-                if event_yearly_remind_me_at_month and event_yearly_remind_me_at_day and event_yearly_remind_me_at_time:
-                    metapost.send_yearly_at = date_string_to_date_format(f'1402/{event_yearly_remind_me_at_month}/{event_yearly_remind_me_at_day}/{event_yearly_remind_me_at_time}')
-                if metapost_title:
-                    metapost.title = metapost_title
-                if metapost_sub_title:
-                    metapost.sub_title = metapost_sub_title
-                if metapost_categories:
-                    metapost.categories = metapost_categories
-                if metapost_keywords:
-                    metapost.keywords = metapost_keywords
-                if metapost_content:
-                    metapost.content = metapost_content
-                metapost.attached_file_link = metapost_attached_file_link
-                if metapost_view_type:
-                    metapost.metapost_view_type = metapost_view_type
-                metapost.created_by = request.user
-                metapost.updated_by = request.user
-                metapost.save()
-
-                if new_action != 'nothing':
-                    if message_action_situation == 'just_in_time':
-                        messenger(metapost)
-
-            except Exception as e:
-                print(str(e))
+            if metapost.message_status == 'sent':
+                if new_action == 'delete':
+                    metapost.action = 'delete'
+                    metapost.message_status = 'deleted'
+                    metapost.save()
+                    messenger(metapost)
 
             return redirect('auto_robots:metapost-edit-with-metapost-id', metapost_id=metapost.id)
 
@@ -613,11 +579,7 @@ class MetaPostRemoveAllRelated(View):
             return redirect('accounts:login')
 
 
-def get_metaposts_summery(auto_robot, user):
-    if auto_robot == '0':
-        metaposts = MetaPost.objects.filter(created_by=user)
-    else:
-        metaposts = MetaPost.objects.filter(bot=auto_robot, created_by=user)
+def get_metaposts_summery(metaposts):
     sent_metaposts = metaposts.filter(message_status='sent')
     queued_metaposts = metaposts.filter(message_status='queued')
     total_metapost = metaposts.count()

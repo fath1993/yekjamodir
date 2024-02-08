@@ -3,6 +3,8 @@
 {% load static %}
 
 {% block extra_css %}
+<!-- Select2 -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">    
 <!-- DataTable -->
 <link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}" type="text/css">
 <link rel="stylesheet" href="{% static 'admin-panel/custom/persian-date-picker/jalalidatepicker.css' %}"/>
@@ -17,15 +19,15 @@
 				<div class="card">
 					<div class="card-body">
                         <div class="row mb-1">
-                            <h4 class="card-title">{% if bot %}<span>متا های </span><a href="{% url 'auto_robots:auto-robots-edit-with-id' auto_robot_id=bot.id %}" class="text-info bold">{{ bot.bot_name }} </a>{% else %}همه متا ها{% endif %}
+                            <h4 class="card-title mx-3">{% if bot %}<span>متا های </span><a href="{% url 'auto_robots:auto-robots-edit-with-id' auto_robot_id=bot.id %}" class="text-info bold">{{ bot.bot_name }} </a>{% else %}همه{% endif %}
                                 <div class="btn-group m-r-5 mr-2">
                                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         تغییر ربات
                                     </button>
-                                    <div class="dropdown-menu" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-66px, 26px, 0px);">
-                                        <a class="dropdown-item" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="ti-arrow-left mr-2"></i>همه متا ها</a>
+                                    <div class="dropdown-menu" x-placement="bottom-end" style="direction: rtl; position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-66px, 26px, 0px);">
+                                        <a class="dropdown-item" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="ti-menu mr-2"></i>همه</a>
                                         {% for bot in bots|slice:9 %}
-                                            <a class="dropdown-item" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=bot.id %}"><i class="ti-arrow-left mr-2"></i>{{ bot.bot_name }}</a>
+                                            <a class="dropdown-item justify-content-center align-content-center" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=bot.id %}">{{ forloop.counter }}.&nbsp;{{ bot.bot_name }}</a>
                                         {% empty %}
                                         <a class="dropdown-item" href="#">بدون ربات</a>
                                         {% endfor %}
@@ -43,20 +45,39 @@
                                     <div class="form-group">
                                         <label for="date_from">از تاریخ</label>
                                         <input type="text" data-jdp id="date_from" name="date_from" class="form-control text-left" dir="ltr"
-                                         required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')" oninput="setCustomValidity('')"
-                                        value="{{ date_from }}">
+                                         value="{{ date_from|default:'' }}">
                                     </div>
                                 </div>
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label for="date_to">تا تاریخ</label>
                                         <input type="text" data-jdp id="date_to" name="date_to" class="form-control text-left" dir="ltr"
-                                        required oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')" oninput="setCustomValidity('')"
-                                        value="{{ date_to }}">
+                                        value="{{ date_to|default:'' }}">
                                     </div>
                                 </div>
                                 <div class="col-sm-6"></div>
                             </div>
+                            <div class="form-group">
+                                <label for="metapost_send_at_type">نوع ارسال</label>
+                                <select class="js-example-basic-single" id="metapost_send_at_type"
+                                        name="metapost_send_at_type">
+                                    <option {% if metapost_send_at_type == 'nothing' or not metapost_send_at_type %} selected {% endif %} value="nothing">انتخاب</option>
+                                    <option {% if metapost_send_at_type == 'در لحظه یکباره' %} selected {% endif %} value="در لحظه یکباره">در لحظه یکباره</option>
+                                    <option {% if metapost_send_at_type == 'زمانبندی شده یکباره' %} selected {% endif %} value="زمانبندی شده یکباره">زمانبندی شده یکباره</option>
+                                    <option {% if metapost_send_at_type == 'روزانه' %} selected {% endif %} value="روزانه">روزانه</option>
+                                    <option {% if metapost_send_at_type == 'ماهانه' %} selected {% endif %} value="ماهانه">ماهانه</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="metapost_message_status">وضعیت ارسال</label>
+                                <select class="js-example-basic-single" id="metapost_message_status"
+                                        name="metapost_message_status">
+                                    <option {% if metapost_message_status == 'nothing' or not metapost_message_status %} selected {% endif %} value="nothing">انتخاب</option>
+                                    <option {% if metapost_message_status == 'sent' %} selected {% endif %} value="sent">ارسال شده</option>
+                                    <option {% if metapost_message_status == 'queued' %} selected {% endif %} value="queued">زمانبندی شده</option>
+                                    <option {% if metapost_message_status == 'deleted' %} selected {% endif %} value="deleted">حذف شده</option>
+                                </select>
+                            </div> 
                             <div class="row mb-5">
                                 <div class="col-sm-3">
                                     <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
@@ -72,7 +93,7 @@
 										<i class="fa fa-calculator"></i>
 									</div>
 									<div>
-										<h6 class="font-size-13 primary-font">کل ارسالی ها</h6>
+										<h6 class="font-size-13 primary-font">تعداد کل</h6>
 										<h4 class="m-b-0 primary-font line-height-28">{{ metaposts_summary.0 }}</h4>
 									</div>
 								</div>
@@ -95,7 +116,7 @@
 									</div>
 									<div>
 										<h6 class="font-size-13 primary-font">ارسال شده</h6>
-                                        <h4 class="m-b-0 primary-font line-height-28" style="color: green">{{ metaposts_summary.2 }}</h4>
+                                        <h4 class="m-b-0 primary-font line-height-28" style="color: green">{{ metaposts_summary.1 }}</h4>
 									</div>
 								</div>
 							</div>
@@ -119,9 +140,8 @@
                         <th>ارسال به</th>
                         <th>نوع ارسال</th>
                         <th>وضعیت</th>
-                        <th>تاریخ اقدام</th>
-                        <th>تاربخ اخرین تغییرات</th>
-                        <th>توسط</th>
+                        <th>نوع ارسال</th>
+                        <th>تاریخ اخرین تغییرات</th>
                         <th>عملیات</th>
                     </tr>
                     </thead>
@@ -149,20 +169,12 @@
                                 <td><span class="badge badge-success">ارسال شده</span></td>
                             {% elif metapost.message_status == 'deleted' %}
                                 <td><span class="badge badge-dark">حذف شده</span></td>
-                            {% elif metapost.message_status == 'republished' %}
-                                <td><span class="badge badge-secondary">مجدد منتشر شده</span></td>
-                            {% elif metapost.message_status == 'revised' %}
-                                <td><span class="badge badge-info">بازبینی شده</span></td>
-                            {% elif metapost.message_status == 'queued' %}
-                                <td><span class="badge badge-warning">در صف ارسال</span></td>
-                            {% elif metapost.message_status == 'failed' %}
-                                <td><span class="badge badge-danger">انتشار ناموفق</span></td>
+                            {% else %}
+                                <td><span class="badge badge-warning">زمانبندی شده</span></td>
                             {% endif %}
 
-
-                            <td>{{ metapost.date_of_action|date:'Y/m/d H:i'|default:'در لحظه' }}</td>
+                            <td>{{ metapost.send_at_type }}</td>
                             <td>{{ metapost.updated_at|date:'Y/m/d H:i' }}</td>
-                            <td>{{ metapost.created_by.username }}</td>
                             <td>
                                 <div class="btn-group" role="group">
                                     <button id="btnGroupDrop1" type="button"
@@ -216,7 +228,6 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -227,6 +238,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Select2 -->
+<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
 <!-- DataTable -->
 <script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>

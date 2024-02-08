@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from auto_robots.models import Bot, TelegramBotHistory, EitaaBotHistory, MetaPost, BaleBotHistory
+from auto_robots.models import Bot, MetaPost, MetapostHistory
 
 
 @admin.register(Bot)
@@ -56,7 +56,6 @@ class MetaPostAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
-        # 'message_status',
         'message_id',
         'created_at',
         'updated_at',
@@ -64,18 +63,21 @@ class MetaPostAdmin(admin.ModelAdmin):
         'updated_by',
     )
 
+    search_fields = (
+        'title',
+        'created_by__username',
+    )
+
+    list_filter = (
+        'send_at_type',
+        'message_status',
+    )
+
     fields = (
         'bot',
         'message_status',
-        'send_at',
-        'send_hourly_at',
-        'is_send_hourly_at_active',
-        'send_daily_at',
-        'is_send_daily_at_active',
-        'send_monthly_at',
-        'is_send_monthly_at_active',
-        'send_yearly_at',
-        'is_send_yearly_at_active',
+        'send_at_type',
+        'send_at_date_time',
         'title',
         'sub_title',
         'categories',
@@ -104,6 +106,17 @@ class MetaPostAdmin(admin.ModelAdmin):
         return instance
 
 
-admin.site.register(TelegramBotHistory)
-admin.site.register(EitaaBotHistory)
-admin.site.register(BaleBotHistory)
+@admin.register(MetapostHistory)
+class MetapostHistoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'metapost',
+        'chat_id',
+        'message_id',
+    )
+
+    fields = (
+        'metapost',
+        'response_message',
+        'chat_id',
+        'message_id',
+    )

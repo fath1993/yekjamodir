@@ -1,3 +1,4 @@
+import json
 import os
 
 from openpyxl import Workbook
@@ -348,7 +349,6 @@ class FinancialTransactionRecordEdit(View):
                     self.context['alert'] = 'مقدار ریالی فاکتور بدرستی وارد نشده است'
                     return render(request, 'financial/financial-transaction-record-edit.html', self.context)
 
-
             transaction.transaction_type = transaction_type
             transaction.amount = transaction_amount
             transaction.title = transaction_title
@@ -382,6 +382,7 @@ class FinancialTransactionRecordList(View):
 
     def get(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            profile = request.user.profile_user
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             if brokers.count() == 0:
@@ -570,3 +571,19 @@ def ajax_export_transaction_to_excel(request):
         response['Content-Disposition'] = f'attachment; filename={now}-transaction-records.xlsx'
 
         return response
+
+
+def ajax_set_default_broker(request):
+    context = {}
+    if request.user.is_authenticated:
+        default_broker_id = fetch_data_from_http_post(request, 'default_broker_id', context)
+        profile = request.user.profile_user
+        try:
+            financial_broker = FinancialBroker.objects.get(id=default_broker_id, created_by=request.user)
+            profile.user_financial_default_broker_id = default_broker_id
+            profile.save()
+            return JsonResponse({'message': 'done'})
+        except:
+            return JsonResponse({'message': 'broker not found or not belong to current user'})
+    else:
+        return JsonResponse({'message': 'not allowed'})

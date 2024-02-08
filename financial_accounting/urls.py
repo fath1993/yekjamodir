@@ -2,7 +2,7 @@ from django.urls import path
 
 from financial_accounting.views import FinancialBrokerNew, FinancialBrokerList, FinancialTransactionRecordNew, \
     FinancialTransactionRecordList, FinancialBrokerEdit, FinancialTransactionRecordEdit, \
-    ajax_export_transaction_to_excel, FinancialBrokerRemove, FinancialTransactionRecordRemove
+    ajax_export_transaction_to_excel, FinancialBrokerRemove, FinancialTransactionRecordRemove, ajax_set_default_broker
 
 app_name = 'financial'
 
@@ -28,7 +28,7 @@ urlpatterns = [
 
     # Ajax
     path('ajax-export-transaction-to-excel/', ajax_export_transaction_to_excel, name='ajax-export-transaction-to-excel'),
-
+    path('ajax-set-default-broker/', ajax_set_default_broker, name='ajax-set-default-broker'),
 ]
 
 

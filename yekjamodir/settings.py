@@ -21,8 +21,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rest_framework',
     "corsheaders",
-    'django.forms',
-    'captcha',
     'django_jalali',
     'robots',
     'tinymce',
@@ -40,13 +38,6 @@ INSTALLED_APPS = [
     'website',
     'wp_api_processor',
 ]
-
-# django simple captcha settings. more data at: https://django-simple-captcha.readthedocs.io/en/latest/advanced.html
-CAPTCHA_IMAGE_SIZE = (600, 40)
-CAPTCHA_FONT_SIZE = 42
-CAPTCHA_LENGTH = 6
-
-FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 SITE_ID = 1
 

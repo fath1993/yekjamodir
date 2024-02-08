@@ -8,7 +8,6 @@ app_name = 'yekjamodir'
 urlpatterns = [
     # admin
     path('admin/', admin.site.urls),
-    path('captcha/', include('captcha.urls')),
 
     # from library
     path('tinymce/', include('tinymce.urls')),

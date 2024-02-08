@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from django.contrib.sites.models import Site
 from django.core.files.base import ContentFile
 
-from auto_robots.models import EitaaBotHistory
+from auto_robots.models import MetapostHistory
 from yekjamodir.settings import BASE_URL
 
 
@@ -40,7 +40,7 @@ class EitaaSendSimpleTextThread(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        EitaaBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                        chat_id=self.chat_id,
                                        message_id=message_id)
         return print(response_message)
@@ -90,7 +90,7 @@ class EitaaSendTextWithFileThread(threading.Thread):
             response_message = str(e)
         self.metapost.message_id = message_id
         self.metapost.save()
-        EitaaBotHistory.objects.create(metapost=self.metapost, response_message=response_message,
+        MetapostHistory.objects.create(metapost=self.metapost, response_message=response_message,
                                        chat_id=self.chat_id,
                                        message_id=message_id)
         return print(response_message)

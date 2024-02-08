@@ -23,6 +23,7 @@ class ProfileAdmin(admin.ModelAdmin):
         'extra_storage_expiry_date',
         'metapost_daily_sent',
         'metapost_last_send_date',
+        'user_financial_default_broker_id',
     )
 
 

@@ -122,16 +122,6 @@
                                             <div class="col-sm-4 col-md-3 col-lg-2">
                                                 <div class="form-group form-check">
                                                     <input type="checkbox" class="form-check-input"
-                                                           id="event_hourly_remind_me_at"
-                                                           name="event_hourly_remind_me_at"
-                                                           onchange="change_visibility(this, 'event_hourly_remind_me_at_number_section')">
-                                                    <label class="form-check-label" for="event_hourly_remind_me_at">ارسال
-                                                        هر ساعت</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4 col-md-3 col-lg-2">
-                                                <div class="form-group form-check">
-                                                    <input type="checkbox" class="form-check-input"
                                                            id="event_daily_remind_me_at" name="event_daily_remind_me_at"
                                                            onchange="change_visibility(this, 'event_daily_remind_me_at_section')">
                                                     <label class="form-check-label" for="event_daily_remind_me_at">ارسال
@@ -148,19 +138,8 @@
                                                         هر ماه</label>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-4 col-md-3 col-lg-2">
-                                                <div class="form-group form-check">
-                                                    <input type="checkbox" class="form-check-input"
-                                                           id="event_yearly_remind_me_at"
-                                                           name="event_yearly_remind_me_at"
-                                                           onchange="change_visibility(this, 'event_yearly_remind_me_at_section')">
-                                                    <label class="form-check-label" for="event_yearly_remind_me_at">ارسال
-                                                        هر سال</label>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
-
                                     <div class="form-group row mb-3"
                                          id="event_remind_me_at_once_section" hidden>
                                         <div class="col-sm-5">
@@ -236,20 +215,20 @@
                                                oninput="setCustomValidity('')"
                                                value="{{ metapost_title }}">
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" hidden>
                                         <label for="metapost_sub_title">زیر عنوان</label>
                                         <input type="text" class="form-control text-left" id="metapost_sub_title"
                                                name="metapost_sub_title"
                                                aria-describedby="metapost_sub_title" placeholder="" dir="rtl"
                                                value="{{ metapost_sub_title|default:'' }}">
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" hidden>
                                         <label for="metapost_categories">دسته ها</label>
                                         <input type="text" id="metapost_categories" name="metapost_categories"
                                                class="form-control tagsinput"
                                                placeholder="دسته ها" value="{{ metapost_categories|default:'' }}">
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group" hidden>
                                         <label for="metapost_keywords">کلمات کلیدی</label>
                                         <input type="text" id="metapost_keywords" name="metapost_keywords"
                                                class="form-control tagsinput"
@@ -258,11 +237,15 @@
                                     <div class="form-group">
                                         <label for="metapost_attached_file_link">فایل ضمیمه</label>
                                         <div class="row justify-content-center">
-                                            <div class="col-sm-12 col-md-2 col-lg-2">
-                                                <button type="button" class="btn btn-primary text-center"
-                                                        data-toggle="modal" data-target="#addNewFileModal"><i
-                                                        class="fa fa-plus-circle mr-2"></i> آپلود فایل
+                                            <div class="col-sm-12 col-md-4 col-lg-4 pr-0 justify-content-between">
+                                                <button type="button" class="btn btn-primary text-center mr-2"
+                                                    data-toggle="modal" data-target="#addNewFileModal"><i
+                                                    class="fa fa-plus-circle mr-2"></i> آپلود فایل
                                                 </button>
+                                                <a href="{% url 'file-gallery:files-list' %}" target="_blank"
+                                                   class="btn btn-outline-primary text-center mr-2">
+                                                    مدیر فایل
+                                                </a>
                                                 <div id="addNewFileModal" class="modal fade" tabindex="-1" role="dialog"
                                                      aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
@@ -324,10 +307,6 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <a href="{% url 'file-gallery:files-list' %}"
-                                                                       type="button" class="btn btn-success"
-                                                                    >مدیر فایل
-                                                                    </a>
                                                                     <button type="button" class="btn btn-secondary"
                                                                             data-dismiss="modal"
                                                                             id="inner_upload_file_form_close_btn">بستن
@@ -549,7 +528,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12 col-md-10 col-lg-10">
+                                            <div class="col-sm-12 col-md-8 col-lg-8">
                                                 <input type="text" class="form-control text-right"
                                                        id="metapost_attached_file_link"
                                                        name="metapost_attached_file_link"

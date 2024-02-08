@@ -68,7 +68,7 @@
                 <a href="{% url 'auto_robots:metapost-new' %}">متاپست</a>
             </li>
             <li>
-                <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=0 %}">حسابداری</a>
+                <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}">حسابداری</a>
             </li>
             <li>
                 <a href="{% url 'calendar_event:calendar' %}">تقویم</a>
@@ -132,7 +132,7 @@
                 <a id="financial" href="#">حسابداری</a>
                 <ul>
                     <li><a id="financial-broker-list" href="{% url 'financial:financial-broker-list' %}">کارگزاران مالی </a></li>
-                    <li><a id="financial-transaction-record-list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id='0' %}">صورت حساب های من </a></li>
+                    <li><a id="financial-transaction-record-list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}">صورت حساب های من </a></li>
                 </ul>
             </li>
 {#            <li>#}

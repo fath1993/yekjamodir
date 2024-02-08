@@ -42,9 +42,6 @@
                     <div class="form-group d-sm-flex justify-content-between text-left mb-4">
                         <a class="d-block mt-2 mt-sm-0 line-height-28 text-primary" href="#">بازنشانی رمز عبور</a>
                     </div>
-                    <div style="margin-bottom: 65px">
-                        {{ form }}
-                    </div>
                     {% if err %}
                         <div class="form-group">
                             <strong class="form-control-plaintext" style="color: red">{{ err }}</strong>
@@ -62,9 +59,6 @@
                                dir="ltr" required autofocus
                         oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
                         oninput="setCustomValidity('')">
-                    </div>
-                    <div style="margin-bottom: 65px">
-                        {{ form }}
                     </div>
                     {% if sms_err %}
                         <div class="form-group">

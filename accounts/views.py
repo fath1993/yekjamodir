@@ -8,7 +8,6 @@ from django.shortcuts import render, redirect
 from django.views import View
 import re
 
-from accounts.forms import CaptchaForm
 from accounts.models import SMSAuthCode, VIPPlan
 from auto_robots.models import MetaPost
 from blog.models import BlogPost
@@ -22,16 +21,10 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('panel:panel-dashboard')
     else:
-        form = CaptchaForm()
-        context['form'] = form
         if request.method == 'POST':
             form_type = fetch_data_from_http_post(request, 'form_type', context)
             if form_type == 'password_login':
                 context['active_tab'] = 'password_login'
-                form = CaptchaForm(request.POST)
-                if not form.is_valid():
-                    context['err'] = 'کپچا صحیح نمی باشد'
-                    return render(request, 'accounts/login.html', context)
                 try:
                     username = request.POST['username']
                     if username == '':
@@ -68,10 +61,6 @@ def login_view(request):
                         return render(request, 'accounts/login.html', context)
             else:
                 context['active_tab'] = 'sms_login'
-                form = CaptchaForm(request.POST)
-                if not form.is_valid():
-                    context['sms_err'] = 'کپچا صحیح نمی باشد'
-                    return render(request, 'accounts/login.html', context)
                 phone_number = fetch_data_from_http_post(request, 'phone_number', context)
                 try:
                     user = User.objects.get(username=phone_number)
@@ -113,13 +102,7 @@ def signup_view(request):
     if request.user.is_authenticated:
         return redirect('panel:panel-dashboard')
     else:
-        form = CaptchaForm()
-        context['form'] = form
         if request.method == 'POST':
-            form = CaptchaForm(request.POST)
-            if not form.is_valid():
-                context['err'] = 'کپچا صحیح نمی باشد'
-                return render(request, 'accounts/signup.html', context)
             full_name = fetch_data_from_http_post(request, 'full_name', context)
             if full_name is None:
                 context['err'] = 'نام و نام خانوادگی بدرستی وارد نشده است'

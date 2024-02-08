@@ -43,9 +43,6 @@
             oninvalid="this.setCustomValidity('پر کردن این بخش ضروری است')"
             oninput="setCustomValidity('')" autocomplete="new-password">
         </div>
-        <div style="margin-bottom: 65px">
-            {{ form }}
-        </div>
         {% if err %}
             <div class="form-group">
                 <strong class="form-control-plaintext" style="color: red">{{ err }}</strong>

@@ -386,7 +386,7 @@
                                                 <img src="{% static 'admin-panel/custom/' %}" alt="{{ file.alt }}" style="height: 150px; max-width: 90%; object-fit: cover">
                                             {% endif %}
                                         </div>
-                                        <a href="{{ file.file.url }}" target="_blank" class="file-download"><i class="fa fa-download fa-lg my-3"></i></a>
+                                        <a {% if file.file %} href="{{ file.file.url }}" target="_blank" {% else %} href="javascript:void(0)" {% endif %} class="file-download"><i class="fa fa-download fa-lg my-3"></i></a>
                                         <div class="file-man-title">
                                             <h5 class="mb-0 text-overflow" data-toggle="tooltip" data-placement="top" data-original-title="{{ file.alt }}">{{ file.alt|truncatechars:20 }}</h5>
                                             {% if 0 < file.file.size and file.file.size <= 1024 %}

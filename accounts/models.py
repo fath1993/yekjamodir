@@ -75,6 +75,8 @@ class Profile(models.Model):
                                                       verbose_name='تعداد متاپست ارسالی اخرین روز')
     metapost_last_send_date = jmodel.jDateTimeField(null=True, blank=True, verbose_name='تاریخ آخرین ارسال متاپست')
 
+    user_financial_default_broker_id = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='صندوق  مالی پیشفرض')
+
     def __str__(self):
         return self.user.username
 
