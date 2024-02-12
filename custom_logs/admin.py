@@ -37,3 +37,11 @@ class CustomLogAdmin(admin.ModelAdmin):
     def description_display(self, obj):
         description_summary = str(obj.description[:150])
         return description_summary
+
+    @admin.action(description='حذف تمامی لاگ ها')
+    def delete_all_logs(self):
+        CustomLog.objects.all().delete()
+
+    actions = (
+        'delete_all_logs',
+    )

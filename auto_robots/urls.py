@@ -1,16 +1,11 @@
 from django.urls import path, include
 
-from auto_robots.tasks import StartTaskView
 from auto_robots.views import AutoRobotNew, AutoRobotList, AutoRobotEdit, gap_new_message_view, \
     AutoRobotRemove, MetaPostNew, MetaPostList, MetaPostEdit, MetaPostRemoveSingle, MetaPostRemoveAllRelated
 
 app_name = 'auto_robots'
 
 urlpatterns = [
-    # start tasks cron jobs
-    path('start-tasks/', StartTaskView.as_view(), name='start-tasks'),
-
-
     # auto robot
     path('auto-robots-new/', AutoRobotNew.as_view(), name='auto-robots-new'),
     path('auto-robots-list/', AutoRobotList.as_view(), name='auto-robots-list'),

@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'task_manager',
     'blog',
     'website',
-    'wp_api_processor',
+    'automation',
 ]
 
 SITE_ID = 1
@@ -165,5 +165,3 @@ SMS_PANEL_USERNAME = env('SMS_PANEL_USERNAME')
 SMS_PANEL_PASSWORD = env('SMS_PANEL_PASSWORD')
 STORAGE_QUOTA_LIMIT = int(env('STORAGE_QUOTA_LIMIT'))
 ARVAN_CLOUD_API_KEY = env('ARVAN_CLOUD_API_KEY')
-
-WP_DATA_DECRYPTING_KEY = env('WP_DATA_DECRYPTING_KEY')
