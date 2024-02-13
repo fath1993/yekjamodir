@@ -55,13 +55,13 @@ class OnceMessengerThread(threading.Thread):
             metapost_unhandled_list = []
             for metapost_one_time in metaposts_one_time:
                 metapost_unhandled_list.append(metapost_one_time)
-
-            handled_list = []
             while True:
+                handled_list = []
                 now = jdatetime.datetime.now()
                 now_plus_15_seconds = now + jdatetime.timedelta(seconds=15)
+                now_minus_15_seconds = now - jdatetime.timedelta(seconds=15)
                 for unhandled_metapost in metapost_unhandled_list:
-                    if now < unhandled_metapost.send_at_date_time < now_plus_15_seconds:
+                    if now_minus_15_seconds < unhandled_metapost.send_at_date_time < now_plus_15_seconds:
                         if unhandled_metapost.action == 'new_send':
                             unhandled_metapost.message_status = 'sent'
                         elif unhandled_metapost.action == 'delete':
@@ -77,8 +77,8 @@ class OnceMessengerThread(threading.Thread):
                     metapost_unhandled_list.remove(handled_metapost)
                 if len(metapost_unhandled_list) == 0:
                     break
-            custom_log('once_messenger_thread has been finished. we are waiting for 15 minute')
-            time.sleep(15 * 30)
+                time.sleep(1)
+            custom_log('once_messenger_thread has been finished.')
         except Exception as e:
             custom_log(f'{e}')
         return
@@ -151,8 +151,7 @@ class DailyMessengerThread(threading.Thread):
                                                       send_at_date_time__minute=now.minute)
             for metapost_daily in metaposts_daily:
                 EachMessengerThread(str(uuid.uuid4()), metapost_daily).start()
-            custom_log('daily_messenger_thread has been finished. we are waiting for 15 minute')
-            time.sleep(15 * 30)
+            custom_log('daily_messenger_thread has been finished.')
         except Exception as e:
             custom_log(f'{e}')
         return
@@ -174,8 +173,7 @@ class MonthlyMessengerThread(threading.Thread):
                                                         send_at_date_time__minute=now.minute)
             for metapost_monthly in metaposts_monthly:
                 EachMessengerThread(str(uuid.uuid4()), metapost_monthly).start()
-            custom_log('monthly_messenger_thread has been finished. we are waiting for 15 minute')
-            time.sleep(15 * 30)
+            custom_log('monthly_messenger_thread has been finished.')
         except Exception as e:
             custom_log(f'{e}')
         return

@@ -339,7 +339,6 @@ def user_all_file_size_in_mb(user):
 
 
 def user_maximum_quote_size_in_mb(user):
-    custom_log(f'user_maximum_quote_size_in_mb user: {user}')
     try:
         today = jdatetime.datetime.now()
         user_maximum_quota = user.profile_user.default_maximum_storage_quota
