@@ -1,9 +1,6 @@
 import json
 import random
 import uuid
-
-from django.http import JsonResponse
-from django.views import View
 from custom_logs.models import custom_log
 import threading
 import time
@@ -23,9 +20,7 @@ def start_task_thread():
 
     if not 'once_messenger_thread' in threads_name_list:
         custom_log("general_functions: start OnceMessengerThread", "d")
-        once_message_thread = OnceMessengerThread(name='once_messenger_thread')
-        once_message_thread.start()
-        custom_log(f'once_messenger_thread: {once_message_thread}')
+        OnceMessengerThread(name='once_messenger_thread').start()
         time.sleep(1)
 
     # if not 'weekly_messenger_thread' in threads_name_list:
@@ -35,14 +30,12 @@ def start_task_thread():
 
     if not 'daily_messenger_thread' in threads_name_list:
         custom_log("general_functions: start DailyMessengerThread", "d")
-        daily_messenger_thread = DailyMessengerThread(name='daily_messenger_thread')
-        daily_messenger_thread.start()
+        DailyMessengerThread(name='daily_messenger_thread').start()
         time.sleep(1)
 
     if not 'monthly_messenger_thread' in threads_name_list:
         custom_log("general_functions: start MonthlyMessengerThread", "d")
-        monthly_messenger_thread = MonthlyMessengerThread(name='monthly_messenger_thread')
-        monthly_messenger_thread.start()
+        MonthlyMessengerThread(name='monthly_messenger_thread').start()
         time.sleep(1)
 
 
@@ -55,22 +48,35 @@ class OnceMessengerThread(threading.Thread):
         try:
             custom_log('once_messenger_thread has been started')
             now = jdatetime.datetime.now()
-            now_plus_30_minute = now + jdatetime.timedelta(minutes=30)
-            custom_log(f'time: {now.strftime("%Y/%m/%d %H:%M")} to {now_plus_30_minute.strftime("%Y/%m/%d %H:%M")}')
+            now_plus_15_minute = now + jdatetime.timedelta(minutes=15)
+            custom_log(f'time: {now.strftime("%Y/%m/%d %H:%M")} to {now_plus_15_minute.strftime("%Y/%m/%d %H:%M")}')
             metaposts_one_time = MetaPost.objects.filter(send_at_type='زمانبندی شده یکباره', message_status='queued',
-                                                         send_at_date_time__range=[now, now_plus_30_minute])
+                                                         send_at_date_time__range=[now, now_plus_15_minute])
+            metapost_unhandled_list = []
             for metapost_one_time in metaposts_one_time:
-                if not metapost_one_time.is_send_hourly_at_active and not metapost_one_time.is_send_daily_at_active and not metapost_one_time.is_send_monthly_at_active and not metapost_one_time.is_send_yearly_at_active:
-                    if metapost_one_time.action == 'new_send':
-                        metapost_one_time.message_status = 'sent'
-                    elif metapost_one_time.action == 'delete':
-                        metapost_one_time.message_status = 'deleted'
-                    elif metapost_one_time.action == 'revise':
-                        metapost_one_time.message_status = 'revised'
-                    elif metapost_one_time.action == 'republish':
-                        metapost_one_time.message_status = 'republished'
-                    metapost_one_time.save()
-                EachMessengerThread(str(uuid.uuid4()), metapost_one_time).start()
+                metapost_unhandled_list.append(metapost_one_time)
+
+            handled_list = []
+            while True:
+                now = jdatetime.datetime.now()
+                now_plus_15_seconds = now + jdatetime.timedelta(seconds=15)
+                for unhandled_metapost in metapost_unhandled_list:
+                    if now < unhandled_metapost.send_at_date_time < now_plus_15_seconds:
+                        if unhandled_metapost.action == 'new_send':
+                            unhandled_metapost.message_status = 'sent'
+                        elif unhandled_metapost.action == 'delete':
+                            unhandled_metapost.message_status = 'deleted'
+                        elif unhandled_metapost.action == 'revise':
+                            unhandled_metapost.message_status = 'revised'
+                        elif unhandled_metapost.action == 'republish':
+                            unhandled_metapost.message_status = 'republished'
+                        unhandled_metapost.save()
+                        EachMessengerThread(str(uuid.uuid4()), unhandled_metapost).start()
+                        handled_list.append(unhandled_metapost)
+                for handled_metapost in handled_list:
+                    metapost_unhandled_list.remove(handled_metapost)
+                if len(metapost_unhandled_list) == 0:
+                    break
             custom_log('once_messenger_thread has been finished. we are waiting for 15 minute')
             time.sleep(15 * 30)
         except Exception as e:
