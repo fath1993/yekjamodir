@@ -56,7 +56,18 @@ class Profile(models.Model):
     mobile_phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='شماره همراه')
     landline = models.CharField(max_length=255, null=True, blank=True, verbose_name='شماره ثابت')
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name='آدرس')
-    profile_pic = models.ImageField(blank=True, verbose_name='عکس پروفایل')
+    profile_pic = models.ImageField(upload_to='profile-pic/', blank=True, verbose_name='عکس پروفایل')
+
+
+
+
+
+
+
+
+
+
+
     default_maximum_storage_quota = models.PositiveIntegerField(default=100, null=False, blank=False,
                                                                 verbose_name='حداکثر فضای ذخیره سازی',
                                                                 help_text='مگابایت')

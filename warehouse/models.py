@@ -27,9 +27,10 @@ class Property(models.Model):
     condition = models.CharField(max_length=255, default='آکبند', choices=PROPERTY_CONDITION, blank=True, verbose_name='شرایط عمومی کالا')
     images = models.ManyToManyField(FileGallery, blank=True, verbose_name='فیلم و تصویر از کالا')
     registration_code = models.CharField(max_length=255, null=False, blank=False, verbose_name='کد ثبت کالا', help_text='در صورت تغییر کد مشخصات کاربر تغییر دهنده ذخیره می گردد')  ## must be tracked anonymously if changed
-    property_assigned_to = models.ForeignKey(Profile, limit_choices_to={'is_employee': True}, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کالا تحویل شده به')
+    property_assigned_to = models.ForeignKey(Profile, limit_choices_to={'user__is_superuser': True}, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='کالا تحویل شده به')
     date_of_assignment = jmodels.jDateTimeField(null=True, blank=True, verbose_name='تاریخ تحویل')
     date_of_return = jmodels.jDateTimeField(null=True, blank=True, verbose_name='تاریخ بازگشت')
+    location = models.CharField(max_length=255, null=False, blank=False, verbose_name='محل قرار گیری')
     created_at = jmodels.jDateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
     updated_at = jmodels.jDateTimeField(auto_now=True, verbose_name='تاریخ بروز رسانی')
     created_by = models.ForeignKey(User, related_name='%(app_label)s_%(class)s_property_created_by', on_delete=models.SET_NULL, null=True, editable=False, verbose_name='ساخته شده توسط')

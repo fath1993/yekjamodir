@@ -424,12 +424,18 @@ def telegram_message_handler(metapost):
 
     for channel in channels:
         if metapost.action == 'new_send':
-            telegram_send_media(metapost=metapost, chat_id=channel, media_type=metapost.metapost_view_type,
-                                media_url=metapost.attached_file_link, caption=content, parse_mode='HTML')
+            if metapost.metapost_view_type == 'simple_text':
+                telegram_send_message(metapost, chat_id=channel, text=content, parse_mode='HTML')
+            else:
+                telegram_send_media(metapost=metapost, chat_id=channel, media_type=metapost.metapost_view_type,
+                                    media_url=metapost.attached_file_link, caption=content, parse_mode='HTML')
         elif metapost.action == 'republish':
             telegram_delete_message(metapost=metapost, chat_id=channel)
-            telegram_send_media(metapost=metapost, chat_id=channel, media_type=metapost.metapost_view_type,
-                                media_url=metapost.attached_file_link, caption=content, parse_mode='HTML')
+            if metapost.metapost_view_type == 'simple_text':
+                telegram_send_message(metapost, chat_id=channel, text=content, parse_mode='HTML')
+            else:
+                telegram_send_media(metapost=metapost, chat_id=channel, media_type=metapost.metapost_view_type,
+                                    media_url=metapost.attached_file_link, caption=content, parse_mode='HTML')
         elif metapost.action == 'revise':
             if metapost.metapost_view_type == 'simple_text':
                 telegram_edit_message_text(metapost=metapost, chat_id=channel, text=content, parse_mode='HTML')

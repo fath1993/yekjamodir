@@ -20,6 +20,7 @@ class DigitalPropertyAdmin(admin.ModelAdmin):
         'title',
         'registration_code',
         'images_link_display',
+        'location',
     )
     list_filter = (
         'digital_property_type',
@@ -59,6 +60,7 @@ class DigitalPropertyAdmin(admin.ModelAdmin):
         'property_assigned_to',
         'date_of_assignment',
         'date_of_return',
+        'location',
 
     )
 
@@ -116,6 +118,7 @@ class HousePropertyAdmin(admin.ModelAdmin):
         'title',
         'registration_code',
         'images_link_display',
+        'location',
     )
     list_filter = (
         'house_property_type',
@@ -149,6 +152,7 @@ class HousePropertyAdmin(admin.ModelAdmin):
         'property_assigned_to',
         'date_of_assignment',
         'date_of_return',
+        'location',
 
     )
 

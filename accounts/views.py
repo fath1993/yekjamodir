@@ -367,8 +367,8 @@ class InvoiceView(View):
 class InvoiceList(View):
     def __init__(self):
         super().__init__()
-        self.context = {'page_title': 'صورت حساب های خرید',
-                        'navigation_icon_menu_id': 'accounts_invoices_list',
+        self.context = {'page_title': 'سوابق خرید',
+                        'navigation_icon_menu_id': 'invoices-list',
                         'navigation_menu_body_id': 'navigationSubscription',
                         'breadcrumb_1': 'خانه',
                         'breadcrumb_2': 'مالی',

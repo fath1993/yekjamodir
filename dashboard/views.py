@@ -75,11 +75,38 @@ class Dashboard(View):
             return redirect('accounts:login')
 
 
-class PricingView(View):
+class BuyLicenceView(View):
     def __init__(self):
         super().__init__()
-        self.context = {'page_title': 'اشتراک ها و قیمت ها',
-                        'navigation_icon_menu_id': 'pricing',
+        self.context = {'page_title': 'خرید لایسنس',
+                        'navigation_icon_menu_id': 'buy-licence',
+                        'navigation_menu_body_id': 'navigationSubscription',
+                        'breadcrumb_1': 'خانه',
+                        'breadcrumb_2': 'مالی',
+                        }
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            vip_plans = VIPPlan.objects.filter()
+            self.context['vip_plans'] = vip_plans
+            storage_plans = ExtraStoragePlan.objects.filter()
+            self.context['storage_plans'] = storage_plans
+            return render(request, 'accounts/vip-subscription/pricing.html', self.context)
+        else:
+            return redirect('accounts:login')
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return render(request, '404.html')
+        else:
+            return redirect('accounts:login')
+
+
+class ChargeAccountView(View):
+    def __init__(self):
+        super().__init__()
+        self.context = {'page_title': 'سارژ اعتبار حساب',
+                        'navigation_icon_menu_id': 'charge-account',
                         'navigation_menu_body_id': 'navigationSubscription',
                         'breadcrumb_1': 'خانه',
                         'breadcrumb_2': 'مالی',
