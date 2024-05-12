@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from accounts.views import login_view, logout_view, signup_view, two_step_verification_view, \
-    ajax_two_step_verification_retry_send, ProfileView, ProfileEdit, InvoiceView, InvoiceList
+    ajax_two_step_verification_retry_send, ProfileView, ProfileEdit
 
 app_name = 'accounts'
 
@@ -16,9 +16,4 @@ urlpatterns = [
     # profile
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile-edit/', ProfileEdit.as_view(), name='profile-edit'),
-
-    # subscription
-    path('invoice/', InvoiceView.as_view(), name='invoice'),
-    path('invoice&id=<int:invoice_id>/', InvoiceView.as_view(), name='invoice-with-id'),
-    path('invoices-list/', InvoiceList.as_view(), name='invoices-list'),
 ]

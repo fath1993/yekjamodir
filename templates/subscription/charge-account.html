@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load gallery_custom_tag %}
+{% load subscription_tag %}
+
+{% block extra_css %}
+    <!-- Select2 -->
+	<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>شارژ اعتبار حساب</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'subscription:charge-wallet' %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group mb-1">
+                                <label for="charge_amount">مقدار شارژ</label>
+                                <select class="js-example-basic-single" id="charge_amount"
+                                        name="charge_amount" onchange="change_amount_value(this.value)">
+                                    <option></option>
+                                    <option {% if not charge_amount %}selected{% elif charge_amount == '55000' %}selected{% endif %} value="55000">50 هزار تومان</option>
+                                    <option {% if charge_amount == '110000' %}selected{% endif %} value="110000">100 هزار تومان</option>
+                                    <option {% if charge_amount == '220000' %}selected{% endif %} value="220000">200 هزار تومان</option>
+                                    <option {% if charge_amount == '330000' %}selected{% endif %} value="330000">300 هزار تومان</option>
+                                    <option {% if charge_amount == '550000' %}selected{% endif %} value="550000">500 هزار تومان</option>
+                                    <option {% if charge_amount == '1100000' %}selected{% endif %} value="1100000">1 میلیون تومان</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+								<span class="text-warning">.به تمامی مبالغ فوق 10 % مالیات بر ارزش افزوده تعلق خواهد گرفت</span>
+							</div>
+                            {% if error %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endif %}
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyConfirmModal">خرید</button>
+                            <div id="buyConfirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="gridModalLabel">تایید خرید</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+												<i class="ti-close"></i>
+											</button>
+										</div>
+										<div class="modal-body">
+											<div class="container-fluid bd-example-row">
+												<div class="row">
+                                                    <h2 id="x1" class="col-sm-12 col-md-12 col-lg-12">شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.</h2>
+                                                </div>
+                                                <div class="row">
+                                                    <h3 id="x2" class="col-sm-12 col-md-12 col-lg-12">محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان</h3>
+                                                </div>
+                                                <div class="row">
+                                                    <h3 id="x3" class="col-sm-12 col-md-12 col-lg-12">پرداختی نهایی: 55 هزار تومان</h3>
+                                                </div>
+											</div>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+											<button type="submit" class="btn btn-primary">ادامه</button>
+										</div>
+									</div>
+								</div>
+							</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Select2 -->
+	<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+	<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+    <script>
+        function change_amount_value(value) {
+            if(value === '55000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 55 هزار تومان'
+            }else if(value === '110000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 100 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 10 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 110 هزار تومان'
+            }else if(value === '220000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 200 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 20 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 220 هزار تومان'
+            }else if(value === '330000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 300 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 30 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 330 هزار تومان'
+            }else if(value === '550000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 500 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 50 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 550 هزار تومان'
+            }else if(value === '1100000') {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 1 میلیون تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 100 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 1 میلیون و 100 هزار تومان'
+            }else {
+                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.'
+                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان'
+                document.getElementById('x3').innerText = 'پرداختی نهایی: 55 هزار تومان'
+            }
+        }
+    </script>
+    <script>
+        {% if alert %}
+            'use strict';
+            $(document).ready(function () {
+                toastr.options = {
+                    timeOut: 3000,
+                    progressBar: true,
+                    showMethod: "slideDown",
+                    hideMethod: "slideUp",
+                    showDuration: 200,
+                    hideDuration: 200
+                };
+            });
+        {% endif %}
+    </script>
+{% endblock %}

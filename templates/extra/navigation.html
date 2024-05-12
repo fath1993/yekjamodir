@@ -49,31 +49,25 @@
         <ul id="navigationDashboard">
             <li class="navigation-divider"><span class="font-size-18 text-primary">دسترسی سریع</span></li>
             <li>
-                <a {% if request.path == '/' %}class="active"{% endif %} href="{% url 'dashboard:dashboard' %}">صفحه اصلی</a>
+                <a id="navigationDashboard_main_page" href="{% url 'dashboard:dashboard' %}">صفحه اصلی</a>
             </li>
             <li>
-                <a href="{% url 'dashboard:buy-licence' %}">اشتراک</a>
+                <a id="navigationDashboard_wallet_charge" href="{% url 'subscription:charge-wallet' %}">شارژ اعتبار حساب</a>
             </li>
             <li>
-                <a href="{% url 'auto_robots:metapost-new' %}">متاپست</a>
+                <a id="navigationDashboard_social" href="{% url 'auto_robots:metapost-new' %}">شبکه های اجتماعی</a>
             </li>
             <li>
-                <a href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}">حسابداری</a>
-            </li>
-            <li>
-                <a href="{% url 'calendar_event:calendar' %}">تقویم</a>
+                <a id="navigationDashboard_financial" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}">حسابداری</a>
             </li>
         </ul>
         <ul id="navigationSubscription">
             <li class="navigation-divider"><span class="font-size-18 text-primary">اشتراک</span></li>
             <li>
-                <a {% if request.path == 'buy-licence/' %}class="active"{% endif %} id="buy-licence" href="{% url 'dashboard:buy-licence' %}">خرید لایسنس</a>
+                <a id="navigationSubscription_wallet_charge" href="{% url 'subscription:charge-wallet' %}">شارژ اعتبار حساب</a>
             </li>
             <li>
-                <a {% if request.path == 'charge-account/' %}class="active"{% endif %} id="charge-account" href="{% url 'dashboard:charge-account' %}">شارژ حساب</a>
-            </li>
-            <li>
-                <a {% if request.path == 'accounts/invoices-list/' %}class="active"{% endif %} id="invoices-list" href="{% url 'accounts:invoices-list' %}">سوابق خرید</a>
+                <a id="navigationSubscription_invoices_list" href="{% url 'subscription:invoices-list' %}">لیست صورت حساب ها</a>
             </li>
         </ul>
         <ul id="navigationService">
@@ -93,10 +87,10 @@
 {#                </ul>#}
 {#            </li>#}
             <li>
-                <a id="metapost" href="#"><i class="fa fa-telegram-plane mr-2"></i>ارسال پیشرفته</a>
+                <a id="navigationService_metapost" href="#"><i class="fa fa-telegram-plane mr-2"></i>ارسال پیشرفته</a>
                 <ul>
-                    <li><a id="auto-robot-list" href="{% url 'auto_robots:auto-robots-list' %}"><i class="fa fa-android mr-2"></i>ربات های من</a></li>
-                    <li><a id="metapost-list" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="fa fa-instagram mr-2"></i>متا های من</a></li>
+                    <li><a id="navigationService_auto_robot_list" href="{% url 'auto_robots:auto-robots-list' %}"><i class="fa fa-android mr-2"></i>ربات های من</a></li>
+                    <li><a id="navigationService_metapost_list" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="fa fa-instagram mr-2"></i>متا های من</a></li>
                 </ul>
             </li>
             <li>
@@ -125,16 +119,16 @@
 {#                </ul>#}
 {#            </li>#}
             <li>
-                <a id="financial" href="#"><i class="fa fa-money mr-2"></i>حسابداری</a>
+                <a id="navigationService_financial" href="#"><i class="fa fa-money mr-2"></i>حسابداری</a>
                 <ul>
-                    <li><a id="financial-broker-list" href="{% url 'financial:financial-broker-list' %}"><i class="fa fa-people-group mr-2"></i>کارگزاران مالی</a></li>
-                    <li><a id="financial-transaction-record-list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}"><i class="fa fa-money-bill mr-2"></i>صورت حساب</a></li>
+                    <li><a id="navigationService_financial_broker_list" href="{% url 'financial:financial-broker-list' %}"><i class="fa fa-people-group mr-2"></i>کارگزاران مالی</a></li>
+                    <li><a id="navigationService_financial_transaction_record_list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}"><i class="fa fa-money-bill mr-2"></i>صورت حساب</a></li>
                 </ul>
             </li>
             <li>
-                <a id="file-manager" href="#"><i class="fa fa-paperclip mr-2"></i>مدیریت فایل ها</a>
+                <a id="navigationService_file_manager" href="#"><i class="fa fa-paperclip mr-2"></i>مدیریت فایل ها</a>
                 <ul>
-                    <li><a id="files-list" href="{% url 'file-gallery:files-list' %}"><i class="fa fa-files-o mr-2"></i>فایل های من</a></li>
+                    <li><a id="navigationService_files_list" href="{% url 'file-gallery:files-list' %}"><i class="fa fa-files-o mr-2"></i>فایل های من</a></li>
                 </ul>
             </li>
 {#            <li>#}
@@ -176,11 +170,4 @@
         </ul>
     </div>
 </div>
-<script>
-    try {
-        document.getElementById('{{ navigation_icon_menu_id }}').className += 'active'
-        document.getElementById('{{ navigation_menu_body_id }}').className += 'navigation-active'
-        document.getElementById('{{ navigation_menu_body_main_item_id }}').parentElement.className += 'open'
-        document.getElementById('{{ navigation_menu_body_sub_item_id }}').className += 'active'
-    } catch (err){}
-</script>
+<script src="{% static 'admin-panel/custom/menu-controller.js' %}"></script>

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'blog',
     'website',
     'automation',
+    'subscription',
 ]
 
 SITE_ID = 1
@@ -165,3 +166,5 @@ SMS_PANEL_USERNAME = env('SMS_PANEL_USERNAME')
 SMS_PANEL_PASSWORD = env('SMS_PANEL_PASSWORD')
 STORAGE_QUOTA_LIMIT = int(env('STORAGE_QUOTA_LIMIT'))
 ARVAN_CLOUD_API_KEY = env('ARVAN_CLOUD_API_KEY')
+
+ZARINPAL_API_KEY = env('ZARINPAL_API_KEY')

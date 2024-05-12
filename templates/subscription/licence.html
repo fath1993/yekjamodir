@@ -16,38 +16,38 @@
                         <div class="pricing-table m-b-20">
                             <h6 class="m-b-20 font-size-13 text-center">برای شروع</h6>
                             <h1 class="font-weight-bold text-center font-size-35 primary-font">
-                                رایگان
+                                رایگان (3 روز)
                             </h1>
                             <ul class="m-b-30 m-t-30 list-group list-group-flush">
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    10 ارسال متا روزانه
+                                    ارسال پیشرفته
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    100 مگابایت فضا
+                                    اتوماسیون
                                 </li>
                                 <li class="list-group-item">
-									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
-										<i class="fa fa-close"></i>
+									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
+										<i class="fa fa-check"></i>
 									</span>
-                                    کارمند
+                                    حسابداری
                                 </li>
                                 <li class="list-group-item">
-									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
-										<i class="fa fa-close"></i>
+									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
+										<i class="fa fa-check"></i>
 									</span>
-                                    کارگزار مالی
+                                    مدیریت فایل(100 مگ)
                                 </li>
                                 <li class="list-group-item">
-									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
-										<i class="fa fa-close"></i>
+									<span class="icon-block m-r-5 bg-warning icon-block-xs icon-block-floating">
+										<i class="fa fa-minus"></i>
 									</span>
-                                    لایسنس کامل خدمات
+                                    لایسنس محدود خدمات
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
@@ -58,10 +58,10 @@
                             </ul>
                         </div>
                         <div class="text-center">
-                            {% if request.user.profile_user|check_user_is_vip %}
-                            <button class="btn btn-primary btn-lg" disabled>غیر فعال</button>
+                            {% if request|demo_used_once %}
+                            <button class="btn btn-primary btn-lg" disabled>استفاده شده</button>
                             {% else %}
-                            <button class="btn btn-success btn-lg" disabled>فعال</button>
+                            <button class="btn btn-success btn-lg">فعال سازی</button>
                             {% endif %}
                         </div>
                     </div>
@@ -69,7 +69,7 @@
             </div>
             {% for vip_plan in vip_plans %}
             <div class="col-md-3">
-                <div class="card" {% if vip_plan.card_background_color == 'gold' %} style="background-color: #FCDF6C" {% elif vip_plan.card_background_color == 'silver' %} style="background-color: #c0c0c0" {% elif vip_plan.card_background_color == 'bronze' %} style="background-color: #CD7F32" {% else %}{% endif %}>
+                <div class="card" {% if vip_plan.card_background_color == 'gold' %} style="background-color: #FCDF6C" {% elif vip_plan.card_background_color == 'silver' %} style="background-color: #c0c0c0" {% elif vip_plan.card_background_color == 'bronze' %} style="background-color: #e7cfae" {% else %}{% endif %}>
                     <div class="card-body">
                         <div class="pricing-table m-b-20">
                             <h6 class="m-b-20 font-size-13 text-center">{{ vip_plan.title }}</h6>
@@ -86,66 +86,66 @@
                                 </sup>
                             </h1>
                             <ul class="m-b-30 m-t-30 list-group list-group-flush">
+                            {% for licence in request|all_available_licence %}
+                                {% if licence in vip_plan.has_access_to_licence.all %}
+                                    <li class="list-group-item bg-none">
+                                        <span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                        {{ licence.title }}
+                                    </li> 
+                                {% else %}
+                                    <li class="list-group-item bg-none">
+                                        <span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
+                                            <i class="fa fa-multiply"></i>
+                                        </span>
+                                        {{ licence.title }}
+                                    </li> 
+                                {% endif %}
+                            {% endfor %}
                                 <li class="list-group-item bg-none">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    {{ vip_plan.metapost_daily_send_limit }} ارسال متا روزانه
+                                    مدیریت فایل ({{ vip_plan.max_storage_quote }}) مگ
                                 </li>
                                 <li class="list-group-item bg-none">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    {{ vip_plan.maximum_storage_quota }} مگابایت فضا
+                                    لایسنس کامل خدمات
                                 </li>
                                 <li class="list-group-item bg-none">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    {{ vip_plan.numbers_of_assistant }} کارمند
-                                </li>
-                                <li class="list-group-item bg-none">
-									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
-										<i class="fa fa-check"></i>
-									</span>
-                                    {{ vip_plan.financial_broker_limit }} کارگزار مالی
-                                </li>
-                                <li class="list-group-item bg-none">
-									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
-										<i class="fa fa-check"></i>
-									</span>
-                                    {% if vip_plan.full_support %}پشتیبانی کامل 7/24 ساعته{% else %}پشتیبانی پایه{% endif %}
-                                </li>
-                                <li class="list-group-item bg-none">
-									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
-										<i class="fa fa-check"></i>
-									</span>
-                                    {% if vip_plan.all_licence_activate %}لایسنس کامل خدمات{% else %}لایسنس محدود خدمات{% endif %}
+                                    پشتیبانی
                                 </li>
                             </ul>
                         </div>
                         <div class="text-center">
-                            {% if request.user.profile_user|check_user_is_vip %}
-                                {% if request.user.profile_user.vip_plan == vip_plan %}
-                                <button class="btn btn-success btn-lg" disabled>فعال</button>
-                                {% else %}
-                                    {% if request.user.profile_user.vip_plan|vip_plan_check_if_better:vip_plan %}
-                                    <form action="{% url 'accounts:invoice' %}" method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="upgrade_to" value="true">
-                                        <input type="hidden" name="vip_plan_id" value="{{ vip_plan.id }}">
-                                        <button type="submit" class="btn btn-primary btn-lg" data-toggle="tooltip" data-placement="top" title="پلن فعلی حذف شده و معادل زمان باقیمانده از آن هزینه محاسبه و از مبلغ قابل پرداخت جدید کسر می شود">ارتقا</button>
-                                    </form>
-                                    {% else %}
-                                    <button class="btn btn-primary btn-lg" disabled>غیر فعال</button>
-                                    {% endif %}
-                                {% endif %}
-                            {% else %}
-                            <form action="{% url 'accounts:invoice' %}" method="post">
+                            {% if not request|user_vip_plan %}
+                            <form action="{% url 'subscription:invoice' %}" method="post">
                                 {% csrf_token %}
                                 <input type="hidden" name="vip_plan_id" value="{{ vip_plan.id }}">
                                 <button type="submit" class="btn btn-primary btn-lg">خرید</button>
                             </form>
+                            {% else %}
+                                {% if request.user.profile_user.vip_plan|vip_plan_check_if_current_is_better:vip_plan %}
+                                <button class="btn btn-primary btn-lg" disabled>غیر فعال</button>
+                                {% else %}
+                                <form action="{% url 'subscription:invoice' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="vip_plan_id" value="{{ vip_plan.id }}">
+                                    {% if not request.user.profile_user.vip_plan %}  
+                                    <button type="submit" class="btn btn-primary btn-lg">خرید</button>
+                                    {% elif request.user.profile_user.vip_plan == vip_plan %}     
+                                    <button type="submit" class="btn btn-primary btn-lg">تمدید</button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-primary btn-lg">ارتقا</button>    
+                                    {% endif %}    
+                                </form>
+                                {% endif %}    
                             {% endif %}
                         </div>
                     </div>

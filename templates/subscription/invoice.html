@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+
+		<div class="card">
+			<div class="card-body p-50">
+				<div class="invoice">
+					<div class="d-md-flex justify-content-between align-items-center">
+						<h2 class="d-flex align-items-center">
+							<img class="m-r-20" src="{% static 'admin-panel/assets/media/image/logo-sm.png' %}" alt="image">
+						</h2>
+						<h3 class="text-xs-left m-b-0">صورتحساب #{{ invoice.id }}</h3>
+					</div>
+					<hr class="m-t-b-50">
+					<div class="row">
+						<div class="col-md-6">
+							<p>
+								<b>{{ invoice.vip_plan.title}}</b>
+							</p>
+{#							<p>استان آذربایجان شرقی<br>شهر تبریز<br>فلکه دانشگاه، برج بلور، طبقه 567</p>#}
+						</div>
+						<div class="col-md-6">
+							<p class="text-right">
+								<b>صورتحساب متعلق به کاربر</b>
+							</p>
+							<p class="text-right">{{ request.user.username }}</p>
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table class="table m-t-b-50">
+							<thead>
+								<tr class="bg-dark text-white">
+									<th>توضیحات</th>
+									<th class="text-right">تعداد روز</th>
+									<th class="text-right">قیمت</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="text-right">
+									<td class="text-left">{{ invoice.vip_plan.title }}</td>
+									<td>{{ invoice.vip_plan.expiry_days }}</td>
+									<td id="invoice-amount">{{ invoice.amount }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="text-right">
+						<p>جمع مبالغ: <span id="calculated-price">{{ invoice.amount }}</span> تومان</p>
+						<p>مالیات ({{ invoice.vip_plan.tax }}%): <span id="tax-price"></span> تومان</p>
+						<h4 class="primary-font">جمع: <span id="price-with-tax"></span> تومان</h4>
+					</div>
+					<p class="text-center small text-muted  m-t-50">
+						<span class="row">
+							<span class="col-md-6 offset-md-3">
+								یکجامدیر پلتفرم جامع مدیریت امورات شخصی و سازمانی
+							</span>
+						</span>
+					</p>
+				</div>
+				<div class="text-right d-print-none">
+					<hr class="m-t-b-50">
+                    {% if invoice.status == 'پرداخت نشده' %}
+					<form action="{% url 'subscription:request-pay' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                        <button type="submit" class="btn btn-primary btn-lg">پرداخت</button>    
+                    </form>
+                    {% else %}
+                    <button class="btn btn-success" disabled>پرداخت شده</button>
+                    {% endif %}
+				</div>
+			</div>
+		</div>
+
+	</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function calculate_tax_price() {
+        var tax_price = document.getElementById('tax-price')
+        tax_price.innerText = String(parseInt('{{ invoice.amount }}') * parseInt('{{ invoice.vip_plan.tax }}') / 100)
+        return tax_price
+    }
+    calculate_tax_price()
+    function calculate_price_with_tax() {
+        var price_with_tax = document.getElementById('price-with-tax')
+        price_with_tax.innerText = String(parseInt(calculate_tax_price().innerText) + parseInt('{{ invoice.amount }}'))
+        return price_with_tax
+    }
+    calculate_price_with_tax()
+    amount_human_Readable('tax-price')
+    amount_human_Readable('price-with-tax')
+    amount_human_Readable('calculated-price')
+    amount_human_Readable('invoice-amount')
+    function amount_human_Readable(content_id) {
+        var content = document.getElementById(content_id)
+        // Remove non-numeric characters and commas
+        let numericValue = content.innerText.replace(/[^\d.]/g, '').replace(/,/g, '');
+
+        // Use parseFloat to handle decimal numbers, default to 0 if NaN
+        let formattedValue = parseFloat(numericValue);
+        content.innerText = isNaN(formattedValue) ? 0 : formattedValue.toLocaleString('en-US');
+    }
+</script>    
+<script>
+    {% if alert %}
+        'use strict';
+        $(document).ready(function () {
+            toastr.options = {
+                timeOut: 3000,
+                progressBar: true,
+                showMethod: "slideDown",
+                hideMethod: "slideUp",
+                showDuration: 200,
+                hideDuration: 200
+            };
+            toastr.error('{{ alert }}');
+        });
+    {% endif %}
+</script>
+{% endblock %}

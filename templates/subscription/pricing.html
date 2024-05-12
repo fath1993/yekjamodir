@@ -16,38 +16,38 @@
                         <div class="pricing-table m-b-20">
                             <h6 class="m-b-20 font-size-13 text-center">برای شروع</h6>
                             <h1 class="font-weight-bold text-center font-size-35 primary-font">
-                                رایگان (3 روز)
+                                رایگان
                             </h1>
                             <ul class="m-b-30 m-t-30 list-group list-group-flush">
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    ارسال پیشرفته
+                                    10 ارسال متا روزانه
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-success icon-block-xs icon-block-floating">
 										<i class="fa fa-check"></i>
 									</span>
-                                    اتوماسیون
+                                    100 مگابایت فضا
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
 										<i class="fa fa-close"></i>
 									</span>
-                                    حسابداری
+                                    کارمند
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
 										<i class="fa fa-close"></i>
 									</span>
-                                    مدیریت فایل
+                                    کارگزار مالی
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
 										<i class="fa fa-close"></i>
 									</span>
-                                    لایسنس محدود خدمات
+                                    لایسنس کامل خدمات
                                 </li>
                                 <li class="list-group-item">
 									<span class="icon-block m-r-5 bg-danger icon-block-xs icon-block-floating">
@@ -130,7 +130,7 @@
                                 <button class="btn btn-success btn-lg" disabled>فعال</button>
                                 {% else %}
                                     {% if request.user.profile_user.vip_plan|vip_plan_check_if_better:vip_plan %}
-                                    <form action="{% url 'accounts:invoice' %}" method="post">
+                                    <form action="{% url 'subscription:invoice' %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" name="upgrade_to" value="true">
                                         <input type="hidden" name="vip_plan_id" value="{{ vip_plan.id }}">
@@ -141,7 +141,7 @@
                                     {% endif %}
                                 {% endif %}
                             {% else %}
-                            <form action="{% url 'accounts:invoice' %}" method="post">
+                            <form action="{% url 'subscription:invoice' %}" method="post">
                                 {% csrf_token %}
                                 <input type="hidden" name="vip_plan_id" value="{{ vip_plan.id }}">
                                 <button type="submit" class="btn btn-primary btn-lg">خرید</button>

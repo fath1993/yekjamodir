@@ -5,6 +5,8 @@ from django.dispatch import receiver
 from django_jalali.db import models as jmodel
 
 CARD_BG_COLOR = (('gold', 'gold'), ('silver', 'silver'), ('bronze', 'bronze'), ('none', 'none'))
+TRANSACTION_STATUS = (('پرداخت نشده', 'پرداخت نشده'), ('پرداخت شده', 'پرداخت شده'))
+INVOICE_TYPE = (('واریز به حساب', 'واریز به حساب'), ('برداشت از حساب', 'برداشت از حساب'))
 
 
 class ExtraStoragePlan(models.Model):
@@ -23,23 +25,31 @@ class ExtraStoragePlan(models.Model):
         verbose_name_plural = 'پلن های افزایش حجم'
 
 
+class Licence(models.Model):
+    title = models.CharField(max_length=255, null=False, blank=False, verbose_name='عنوان')
+    order = models.PositiveSmallIntegerField(default=0, null=False, blank=False, verbose_name='ترتیب')
+
+    def __str__(self):
+        return f"{self.title}"
+
+    class Meta:
+        ordering = ['order', ]
+        verbose_name = 'لایسنس'
+        verbose_name_plural = 'لایسنس ها'
+
+
 class VIPPlan(models.Model):
     title = models.CharField(max_length=255, null=False, blank=False, verbose_name='عنوان')
     price = models.PositiveIntegerField(null=False, blank=False, verbose_name='قیمت - تومان')
+    tax = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='درصد مالیات')
     expiry_days = models.PositiveSmallIntegerField(null=False, blank=False,
                                                    verbose_name='تعداد روز انقضا پس از فعالسازی')
-    maximum_storage_quota = models.PositiveSmallIntegerField(default=500, null=False, blank=False,
-                                                             verbose_name='حداکثر فضای ذخیره سازی', help_text='مگابایت')
-    metapost_daily_send_limit = models.PositiveSmallIntegerField(null=False, blank=False,
-                                                                 verbose_name='تعداد محدودیت روزانه ارسال پیام')
-    financial_broker_limit = models.PositiveSmallIntegerField(null=False, blank=False,
-                                                              verbose_name='تعداد محدودیت ساخت کارگزار مالی')
-    numbers_of_assistant = models.PositiveSmallIntegerField(default=0, null=False, blank=False,
-                                                            verbose_name='تعداد کامندان')
-    all_licence_activate = models.BooleanField(default=False, verbose_name='لایسنس تمامی خدمات')
-    full_support = models.BooleanField(default=False, verbose_name='پشتیبانی کامل')
+    has_access_to_licence = models.ManyToManyField(Licence, blank=True, verbose_name='لایسنس')
+    max_storage_quote = models.PositiveSmallIntegerField(default=100, null=False, blank=False,
+                                                         verbose_name='حداکثر فضای ذخیره سازی')
     card_background_color = models.CharField(default='none', choices=CARD_BG_COLOR, max_length=255, null=False,
                                              blank=False, verbose_name='عنوان')
+
 
     def __str__(self):
         return f"{self.title} | {self.price}"
@@ -57,16 +67,11 @@ class Profile(models.Model):
     landline = models.CharField(max_length=255, null=True, blank=True, verbose_name='شماره ثابت')
     address = models.CharField(max_length=255, null=True, blank=True, verbose_name='آدرس')
     profile_pic = models.ImageField(upload_to='profile-pic/', blank=True, verbose_name='عکس پروفایل')
+    wallet_balance = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='اعتبار حساب')
 
 
-
-
-
-
-
-
-
-
+    # Licence related
+    demo_used_once = models.BooleanField(default=False, verbose_name='استفاده از دمو')
 
     default_maximum_storage_quota = models.PositiveIntegerField(default=100, null=False, blank=False,
                                                                 verbose_name='حداکثر فضای ذخیره سازی',
@@ -86,7 +91,8 @@ class Profile(models.Model):
                                                       verbose_name='تعداد متاپست ارسالی اخرین روز')
     metapost_last_send_date = jmodel.jDateTimeField(null=True, blank=True, verbose_name='تاریخ آخرین ارسال متاپست')
 
-    user_financial_default_broker_id = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='صندوق  مالی پیشفرض')
+    user_financial_default_broker_id = models.PositiveIntegerField(default=0, null=False, blank=False,
+                                                                   verbose_name='صندوق  مالی پیشفرض')
 
     def __str__(self):
         return self.user.username
@@ -118,29 +124,21 @@ class SMSAuthCode(models.Model):
 
 
 class Invoice(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, verbose_name='کاربر')
+    invoice_type = models.CharField(max_length=255, choices=INVOICE_TYPE, default='برداشت', null=False,
+                              blank=False, verbose_name='نوع صورت حساب')
+    user = models.ForeignKey(User, related_name='invoice_user', on_delete=models.CASCADE, null=False, blank=False, verbose_name='کاربر')
+    amount = models.PositiveIntegerField(null=False, blank=False, verbose_name='مبلغ - تومان')
+    description = models.CharField(max_length=255, null=True, blank=True, verbose_name='توضیحات')
 
-    vip_plan_title = models.CharField(max_length=255, null=True, blank=True, verbose_name='عنوان پلن اشتراک')
-    vip_plan_price = models.PositiveIntegerField(null=True, blank=True, verbose_name='قیمت - ریال')
-    vip_plan_expiry_days = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                            verbose_name='تعداد روز انقضا پس از فعالسازی')
-    vip_plan_maximum_storage_quota = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                                      verbose_name='حداکثر فضای ذخیره سازی مگابایت')
-    vip_plan_metapost_daily_send_limit = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                                          verbose_name='تعداد محدودیت روزانه ارسال پیام')
-    vip_plan_financial_broker_limit = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                                       verbose_name='تعداد محدودیت ساخت کارگزار مالی')
-    vip_plan_numbers_of_assistant = models.PositiveSmallIntegerField(default=0, null=True, blank=True,
-                                                                     verbose_name='تعداد کامندان')
-
-    storage_plan_title = models.CharField(max_length=255, null=True, blank=True, verbose_name='عنوان پلن افزایش حجم')
-    storage_plan_price = models.PositiveIntegerField(null=True, blank=True, verbose_name='قیمت - تومان')
-    storage_plan_expiry_days = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                                verbose_name='تعداد روز انقضا پس از فعالسازی')
-    storage_plan_storage = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                            verbose_name='افزایش فضای ذخیره - مگابایت')
+    authority = models.CharField(max_length=255, null=True, blank=True)
+    ref_id = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, choices=TRANSACTION_STATUS, default='pending', null=False,
+                              blank=False, verbose_name='وضعیت')
 
     created_at = jmodel.jDateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_at = jmodel.jDateTimeField(auto_now=True, verbose_name='تاریخ بروز رسانی')
+    created_by = models.ForeignKey(User, related_name='invoice_created_by', on_delete=models.CASCADE, null=False, blank=False,
+                                   editable=False, verbose_name='ساخته شده توسط')
 
     def __str__(self):
         return f'{self.user.username} | {self.pk}'

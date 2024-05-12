@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounts.models import Profile, SMSAuthCode, ExtraStoragePlan, VIPPlan
+from accounts.models import Profile, SMSAuthCode, ExtraStoragePlan, VIPPlan, Licence, Invoice
 
 
 @admin.register(Profile)
@@ -14,6 +14,10 @@ class ProfileAdmin(admin.ModelAdmin):
         'landline',
         'address',
         'profile_pic',
+        'wallet_balance',
+
+
+        'demo_used_once',
         'default_maximum_storage_quota',
         'default_metapost_daily_send_limit',
         'default_financial_broker_limit',
@@ -27,26 +31,39 @@ class ProfileAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(SMSAuthCode)
-class SMSAuthCodeAdmin(admin.ModelAdmin):
+# @admin.register(SMSAuthCode)
+# class SMSAuthCodeAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'phone_number',
+#         'pass_code',
+#         'created_at',
+#     )
+#     readonly_fields = (
+#         'phone_number',
+#         'pass_code',
+#         'created_at',
+#     )
+#     fields = (
+#         'phone_number',
+#         'pass_code',
+#         'created_at',
+#     )
+#
+#     def has_add_permission(self, request):
+#         return False
+
+
+@admin.register(Licence)
+class LicenceAdmin(admin.ModelAdmin):
     list_display = (
-        'phone_number',
-        'pass_code',
-        'created_at',
-    )
-    readonly_fields = (
-        'phone_number',
-        'pass_code',
-        'created_at',
-    )
-    fields = (
-        'phone_number',
-        'pass_code',
-        'created_at',
+        'title',
+        'order',
     )
 
-    def has_add_permission(self, request):
-        return False
+    fields = (
+        'title',
+        'order',
+    )
 
 
 @admin.register(ExtraStoragePlan)
@@ -72,21 +89,51 @@ class VIPPlanAdmin(admin.ModelAdmin):
         'title',
         'price',
         'expiry_days',
-        'maximum_storage_quota',
-        'metapost_daily_send_limit',
-        'financial_broker_limit',
+        'max_storage_quote',
     )
 
     fields = (
         'title',
         'price',
+        'tax',
         'expiry_days',
-        'maximum_storage_quota',
-        'metapost_daily_send_limit',
-        'financial_broker_limit',
-        'numbers_of_assistant',
-        'all_licence_activate',
-        'full_support',
-
+        'has_access_to_licence',
+        'max_storage_quote',
         'card_background_color',
+    )
+
+
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = (
+        'invoice_type',
+        'user',
+        'amount',
+        'authority',
+        'ref_id',
+        'status',
+    )
+
+    list_filter = (
+        'invoice_type',
+        'status',
+    )
+
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'created_by',
+    )
+
+    fields = (
+        'invoice_type',
+        'user',
+        'amount',
+        'description',
+        'authority',
+        'ref_id',
+        'status',
+        'created_at',
+        'updated_at',
+        'created_by',
     )

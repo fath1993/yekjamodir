@@ -36,34 +36,6 @@ class Dashboard(View):
                 return render(request, '404.html')
 
         if request.user.is_authenticated:
-            today = jdatetime.datetime.now()
-            metas = MetaPost.objects.filter(created_by=request.user)
-            self.context['latest_metas'] = metas[:6]
-            all_time_metas = metas
-            has_queued_metas = metas.filter(message_status='queued')
-            today_has_sent_metas = request.user.profile_user.metapost_daily_sent
-            all_time_has_sent_metas = metas.filter(message_status='sent')
-            self.context['all_time_metas'] = all_time_metas.count()
-            self.context['has_queued_metas'] = has_queued_metas.count()
-            self.context['today_has_sent_metas'] = today_has_sent_metas
-            self.context['all_time_has_sent_metas'] = all_time_has_sent_metas.count()
-            if metas.count() != 0:
-                self.context['first_meta'] = metas[0].created_at
-            if has_queued_metas.count() != 0:
-                self.context['last_queued_meta'] = has_queued_metas.latest('id').created_at
-
-            user_all_file_size = user_all_file_size_in_mb(request.user)
-            all_files_size_with_ext = number_with_ext(user_all_file_size)
-            self.context['all_files_size_with_ext'] = all_files_size_with_ext
-            all_files_percentage = int((user_all_file_size / user_maximum_quote_size_in_mb(request.user)) * 100)
-            self.context['all_files_percentage'] = all_files_percentage
-
-            metapost_daily_limit = request.user.profile_user.default_metapost_daily_send_limit
-            if request.user.profile_user.vip_plan_expiry_date:
-                if request.user.profile_user.vip_plan_expiry_date > today:
-                    metapost_daily_limit = request.user.profile_user.vip_plan.metapost_daily_send_limit
-            self.context['metapost_daily_limit'] = metapost_daily_limit
-            self.context['metapost_daily_percentage'] = int((request.user.profile_user.metapost_daily_sent / metapost_daily_limit) * 100)
             return render(request, 'dashboard/dashboard.html', self.context)
         else:
             return redirect('accounts:login')
@@ -75,55 +47,3 @@ class Dashboard(View):
             return redirect('accounts:login')
 
 
-class BuyLicenceView(View):
-    def __init__(self):
-        super().__init__()
-        self.context = {'page_title': 'خرید لایسنس',
-                        'navigation_icon_menu_id': 'buy-licence',
-                        'navigation_menu_body_id': 'navigationSubscription',
-                        'breadcrumb_1': 'خانه',
-                        'breadcrumb_2': 'مالی',
-                        }
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            vip_plans = VIPPlan.objects.filter()
-            self.context['vip_plans'] = vip_plans
-            storage_plans = ExtraStoragePlan.objects.filter()
-            self.context['storage_plans'] = storage_plans
-            return render(request, 'accounts/vip-subscription/pricing.html', self.context)
-        else:
-            return redirect('accounts:login')
-
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return render(request, '404.html')
-        else:
-            return redirect('accounts:login')
-
-
-class ChargeAccountView(View):
-    def __init__(self):
-        super().__init__()
-        self.context = {'page_title': 'سارژ اعتبار حساب',
-                        'navigation_icon_menu_id': 'charge-account',
-                        'navigation_menu_body_id': 'navigationSubscription',
-                        'breadcrumb_1': 'خانه',
-                        'breadcrumb_2': 'مالی',
-                        }
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            vip_plans = VIPPlan.objects.filter()
-            self.context['vip_plans'] = vip_plans
-            storage_plans = ExtraStoragePlan.objects.filter()
-            self.context['storage_plans'] = storage_plans
-            return render(request, 'accounts/vip-subscription/pricing.html', self.context)
-        else:
-            return redirect('accounts:login')
-
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return render(request, '404.html')
-        else:
-            return redirect('accounts:login')

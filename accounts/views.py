@@ -1,6 +1,8 @@
+import json
 import random
 
 import jdatetime
+import requests
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -8,12 +10,13 @@ from django.shortcuts import render, redirect
 from django.views import View
 import re
 
-from accounts.models import SMSAuthCode, VIPPlan
+from accounts.models import SMSAuthCode, VIPPlan, Invoice
 from auto_robots.models import MetaPost
 from blog.models import BlogPost
 from financial_accounting.models import TransactionRecord
 from utilities.http_metod import fetch_data_from_http_post, fetch_single_file_from_http_file
 from utilities.send_sms import SendVerificationSMSThread
+from yekjamodir.settings import ZARINPAL_API_KEY, BASE_URL
 
 
 def login_view(request):
@@ -332,56 +335,3 @@ class ProfileEdit(View):
             return redirect('accounts:login')
 
 
-class InvoiceView(View):
-    def __init__(self):
-        super().__init__()
-        self.context = {'page_title': 'صورت حساب',
-                        'navigation_icon_menu_id': 'pricing',
-                        'navigation_menu_body_id': 'navigationSubscription',
-                        'breadcrumb_1': 'خانه',
-                        'breadcrumb_2': 'مالی',
-                        }
-
-    def get(self, request, invoice_id=None, *args, **kwargs):
-        if request.user.is_authenticated:
-            return render(request, 'accounts/vip-subscription/invoice.html', self.context)
-        else:
-            return redirect('accounts:login')
-
-    def post(self, request, invoice_id=None, *args, **kwargs):
-        if request.user.is_authenticated:
-            upgrade_to = fetch_data_from_http_post(request, 'upgrade_to', self.context)
-            vip_plan_id = fetch_data_from_http_post(request, 'vip_plan_id', self.context)
-
-            vip_plan = VIPPlan.objects.get(id=vip_plan_id)
-            if upgrade_to:
-                today = jdatetime.datetime.now()
-                user_current_plan = request.user.profile_user.vip_plan
-                user_current_plan_expiry_date = request.user.profile_user.vip_plan_expiry_date
-                # user_vipe
-            return render(request, '404.html')
-        else:
-            return redirect('accounts:login')
-
-
-class InvoiceList(View):
-    def __init__(self):
-        super().__init__()
-        self.context = {'page_title': 'سوابق خرید',
-                        'navigation_icon_menu_id': 'invoices-list',
-                        'navigation_menu_body_id': 'navigationSubscription',
-                        'breadcrumb_1': 'خانه',
-                        'breadcrumb_2': 'مالی',
-                        }
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return render(request, 'accounts/vip-subscription/invoice.html', self.context)
-        else:
-            return redirect('accounts:login')
-
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return render(request, '404.html')
-        else:
-            return redirect('accounts:login')
