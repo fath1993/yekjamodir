@@ -1,3 +1,4 @@
+{% load subscription_tag %}
 {% load static %}
 
 <div class="header">
@@ -54,7 +55,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item dropdown badge badge-success p-2">
                     <div class="nav-link" data-toggle="dropdown" style="font-size: 18px; cursor: pointer">
-                        <span>موجودی حساب: </span><span>{{ request.user.profile_user.wallet_balance }}</span>
+                        <span>موجودی حساب: </span><span><span class="human-readable">{{ request|get_profile_wallet_balance }}</span> تومان</span>
                     </div>
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="row justify-content-center">
@@ -69,8 +70,8 @@
                     <a href="{% url 'accounts:profile' %}" class="nav-link bg-none" data-sidebar-open="#userProfile">
                         <div>
                             <figure class="avatar avatar-state-success avatar-sm">
-                                {% if request.user.profile.profile_pic %}
-                                <img src="{{ request.user.profile.profile_pic.url }}" class="rounded-circle" alt="image">
+                                {% if request.user.profile_user.profile_pic %}
+                                <img src="{{ request.user.profile_user.profile_pic.url }}" class="rounded-circle" alt="image">
                                 {% else %}
                                 <img src="{% static 'admin-panel/custom/profile.png' %}" class="rounded-circle" alt="image">
                                 {% endif %}

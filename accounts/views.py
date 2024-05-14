@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 import re
 
-from accounts.models import SMSAuthCode, VIPPlan, Invoice
+from accounts.models import SMSAuthCode, Invoice
 from auto_robots.models import MetaPost
 from blog.models import BlogPost
 from financial_accounting.models import TransactionRecord

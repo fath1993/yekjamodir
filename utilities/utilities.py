@@ -52,3 +52,4 @@ def decrypt_text(encrypted_text, decryption_password):
     decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
 
     return decrypted_data.decode('utf-8')
+

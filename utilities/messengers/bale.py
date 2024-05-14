@@ -3,6 +3,7 @@ import threading
 import requests
 from bs4 import BeautifulSoup
 from auto_robots.models import MetapostHistory
+from subscription.templatetags.subscription_tag import profile_withdraw_message_price
 from yekjamodir.settings import BASE_URL
 
 
@@ -172,6 +173,7 @@ def bale_message_handler(metapost):
 
     for channel in channels:
         if metapost.action == 'new_send':
+            profile_withdraw_message_price(metapost.created_by.profile_user)
             if metapost.metapost_view_type == 'simple_text':
                 bale_http_send_message_via_post_method(metapost=metapost, bot_token=metapost.bot.bot_token,
                                                        chat_id=channel, text=content)

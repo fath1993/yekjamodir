@@ -8,6 +8,7 @@ from django.contrib.sites.models import Site
 from django.core.files.base import ContentFile
 
 from auto_robots.models import MetapostHistory
+from subscription.templatetags.subscription_tag import profile_withdraw_message_price
 from yekjamodir.settings import BASE_URL
 
 
@@ -120,6 +121,7 @@ def eitaa_message_handler(metapost):
 
     for channel in channels:
         if metapost.action == 'new_send':
+            profile_withdraw_message_price(metapost.created_by.profile_user)
             if metapost.metapost_view_type == 'simple_text':
                 eitaa_send_simple_text(metapost=metapost, chat_id=channel, title=metapost.title, text=content)
             else:

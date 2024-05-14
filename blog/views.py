@@ -5,6 +5,7 @@ from django.views import View
 from django.db.models import Q
 from blog.models import MagicWord, BlogPost, Blog, BlogPostReply
 from auto_robots.models import Bot
+from subscription.templatetags.subscription_tag import has_user_active_licence
 from utilities.blog_post_view_counter import BlogPostViewCounterThread
 from utilities.http_metod import fetch_data_from_http_post, fetch_single_file_from_http_file, \
     fetch_datalist_from_http_post
@@ -36,6 +37,9 @@ class BlogNew(View):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             blog_name = fetch_data_from_http_post(request, 'blog_name', self.context)
             blog_description = fetch_data_from_http_post(request, 'blog_description', self.context)
             blog_keywords = fetch_data_from_http_post(request, 'blog_keywords', self.context)
@@ -92,6 +96,9 @@ class BlogEdit(View):
 
     def get(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog
@@ -103,6 +110,9 @@ class BlogEdit(View):
 
     def post(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog
@@ -148,6 +158,9 @@ class BlogRemove(View):
 
     def post(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     blog = Blog.objects.get(id=blog_id, created_by=request.user)
@@ -175,6 +188,9 @@ class BlogList(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             blogs = Blog.objects.filter(created_by=request.user)
             self.context['blogs'] = blogs
             return render(request, 'blog-admin/blog-list.html', self.context)
@@ -199,6 +215,9 @@ class BlogPostNew(View):
 
     def get(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog
@@ -214,6 +233,9 @@ class BlogPostNew(View):
 
     def post(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog
@@ -316,6 +338,9 @@ class BlogPostEdit(View):
 
     def get(self, request, blog_post_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog_post = BlogPost.objects.get(id=blog_post_id, created_by=request.user)
                 self.context['blog_post'] = blog_post
@@ -331,6 +356,9 @@ class BlogPostEdit(View):
 
     def post(self, request, blog_post_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             categories = MagicWord.objects.filter(word_type='category')
             self.context['categories'] = categories
             my_bots = Bot.objects.filter(created_by=request.user)
@@ -441,6 +469,9 @@ class BlogPostRemove(View):
 
     def post(self, request, blog_post_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     post = BlogPost.objects.get(id=blog_post_id, created_by=request.user)
@@ -464,6 +495,9 @@ class BlogPostList(View):
 
     def get(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog
@@ -479,6 +513,9 @@ class BlogPostList(View):
 
     def post(self, request, blog_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'blog_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 blog = Blog.objects.get(id=blog_id, created_by=request.user)
                 self.context['blog'] = blog

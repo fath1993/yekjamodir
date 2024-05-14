@@ -46,7 +46,4 @@ def user_maximum_quota_size_tag(user):
 @register.filter
 def check_user_is_vip(profile):
     today = jdatetime.datetime.now()
-    if profile.vip_plan_expiry_date:
-        if profile.vip_plan_expiry_date > today:
-            return True
-    return False
+    return True

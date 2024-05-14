@@ -131,6 +131,20 @@
             });
         }
     </script>
+    <script>
+        var human_readable = document.getElementsByClassName('human-readable')
+        for (var i=0; i < human_readable.length; i++) {
+            amount_human_Readable(human_readable[i])
+        }
+        function amount_human_Readable(content) {
+            // Remove non-numeric characters and commas
+            let numericValue = content.innerText.replace(/[^\d.]/g, '').replace(/,/g, '');
+
+            // Use parseFloat to handle decimal numbers, default to 0 if NaN
+            let formattedValue = parseFloat(numericValue);
+            content.innerText = isNaN(formattedValue) ? 0 : formattedValue.toLocaleString('en-US');
+        }
+    </script>
 </body>
 
 </html>

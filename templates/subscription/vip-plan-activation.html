@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load gallery_custom_tag %}
+{% load subscription_tag %}
+
+{% block extra_css %}
+    <!-- Select2 -->
+	<link rel="stylesheet" href="{% static 'admin-panel/vendors/select2/css/select2.min.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>فعالسازی لایسنس خدمات</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'subscription:change-vip-plan' %}" method="post">
+                            {% csrf_token %}
+                            {% if licence_setting.financial_licence_is_active %}
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-checkbox-success">
+                                    <input type="checkbox" class="custom-control-input" id="financial_licence" name="financial_licence"
+                                           {% if profile.financial_licence %}checked{% endif %}>
+                                    <label class="custom-control-label" for="financial_licence">لایسنس حسابداری (قیمت روزانه: <span class="human-readable text-success">{{ licence_setting.financial_licence_price }}</span> تومان)</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                            {% if licence_setting.warehouse_licence_is_active %}
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-checkbox-success">
+                                    <input type="checkbox" class="custom-control-input" id="warehouse_licence" name="warehouse_licence"
+                                           {% if profile.warehouse_licence %}checked{% endif %}>
+                                    <label class="custom-control-label" for="warehouse_licence">لایسنس انبار داری (قیمت روزانه: <span class="human-readable text-success">{{ licence_setting.warehouse_licence_price }}</span> تومان)</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                            {% if licence_setting.social_licence_is_active %}
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-checkbox-success">
+                                    <input type="checkbox" class="custom-control-input" id="social_licence" name="social_licence"
+                                           {% if profile.social_licence %}checked{% endif %}>
+                                    <label class="custom-control-label" for="social_licence">لایسنس شبکه های اجتماعی (قیمت روزانه: <span class="human-readable text-success">{{ licence_setting.social_licence_price }}</span> تومان)</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                            {% if licence_setting.blog_licence_is_active %}
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-checkbox-success">
+                                    <input type="checkbox" class="custom-control-input" id="blog_licence" name="blog_licence"
+                                           {% if profile.blog_licence %}checked{% endif %}>
+                                    <label class="custom-control-label" for="blog_licence">لایسنس بلاگ (قیمت روزانه: <span class="human-readable text-success">{{ licence_setting.blog_licence_price }}</span> تومان)</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                            {% if licence_setting.automation_licence_is_active %}
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox custom-checkbox-success">
+                                    <input type="checkbox" class="custom-control-input" id="automation_licence" name="automation_licence" 
+                                           {% if profile.automation_licence %}checked{% endif %}>
+                                    <label class="custom-control-label" for="automation_licence">لایسنس اتوماسیون (قیمت روزانه: <span class="human-readable text-success">{{ licence_setting.automation_licence_price }}</span> تومان)</label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        
+                            <div class="form-group mb-3">
+								<span class="text-info">- محاسبه مبلغ تمامی اشتراک ها بصورت روزانه است.</span><br>
+                                <span class="text-info">- پس از فعال سازی اشتراک اعتبار مورد نیاز یک روز سرویس بصورت کامل از حساب کسر می گردد.</span><br>
+                                <span class="text-info">- اعتبار کسر شده غیر قابل عودت می باشد.</span><br>
+                                <span class="text-info">- در صورت فعال سازی مجدد اشتراک طی یک روز کسر اعتبار حساب صورت نخواهد گرفت.</span><br>
+                                <span class="text-info">- اعتبار کسر شده ارسال پیام به ازای هر یک پیام محاسبه می گردد.</span><br>
+                                <span class="text-info">- سیکل روزانه محاسبه خدمات از ساعت 00 تا ساعت 24 می باشد.</span><br>
+							</div>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="policy_agreement" required name="policy_agreement"
+                                    oninvalid="this.setCustomValidity('موافقت با قوانین الزامی است')"
+                                    oninput="setCustomValidity('')">
+                                    <label class="custom-control-label" for="policy_agreement">با شرایط و قوانین فعالسازی اشتراک موافقم</label>
+                                </div>
+                            </div>
+                            {% if error %}
+                                <div class="form-group">
+                                    <span class="text-danger">{{ error }}</span>
+                                </div>
+                            {% endif %}
+                            {% if message %}
+                                <div class="form-group">
+                                    <span class="text-success">{{ message }}</span>
+                                </div>
+                            {% endif %}
+                            {% if message_2 %}
+                                <div class="form-group">
+                                    <span class="text-warning">{{ message_2 }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">اعمال</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 col-lg-6">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>کسر اعتبار روزانه</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-12 col-lg-4">
+                                        <h4>کسر شده امروز: </h4>
+                                        <span class="badge badge-pill badge-warning" style="font-size: 20px"><span class="human-readable">{{ request|today_subscription_detail:'0' }}</span> تومان</span>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-4">
+                                        <h4>خدمات درخواستی: </h4>
+                                        <span class="badge badge-pill badge-warning" style="font-size: 20px"><span class="human-readable">{{ request|calculate_subscription_daily_price }}</span> تومان</span>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-lg-4">
+                                        <h4>ارسال هر پیام: </h4>
+                                        <span class="badge badge-pill badge-warning" style="font-size: 20px"><span class="human-readable">{{ request|calculate_subscription_send_message_price }}</span> تومان</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>لایسنس های خریداری شده امروز</h2>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="text-info"> {{ request|today_subscription_detail:'1' }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Select2 -->
+	<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
+	<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
+{% endblock %}

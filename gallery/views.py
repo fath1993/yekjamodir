@@ -287,14 +287,14 @@ def ajax_user_storage_analyzer(request):
             today = jdatetime.datetime.now()
             user_maximum_quota = request.user.profile_user.default_maximum_storage_quota
             has_vip_plan = False
-            if request.user.profile_user.vip_plan_expiry_date:
-                if request.user.profile_user.vip_plan_expiry_date > today:
-                    has_vip_plan = True
-                    user_maximum_quota += request.user.profile_user.vip_plan.maximum_storage_quota
-            if request.user.profile_user.extra_storage_expiry_date:
-                if request.user.profile_user.extra_storage_expiry_date > today:
-                    has_vip_plan = True
-                    user_maximum_quota += request.user.profile_user.extra_storage.storage
+            # if request.user.profile_user.vip_plan_expiry_date:
+            #     if request.user.profile_user.vip_plan_expiry_date > today:
+            #         has_vip_plan = True
+            #         user_maximum_quota += request.user.profile_user.vip_plan.maximum_storage_quota
+            # if request.user.profile_user.extra_storage_expiry_date:
+            #     if request.user.profile_user.extra_storage_expiry_date > today:
+            #         has_vip_plan = True
+            #         user_maximum_quota += request.user.profile_user.extra_storage.storage
             if has_vip_plan:
                 user_maximum_quota -= request.user.profile_user.default_maximum_storage_quota
 
@@ -343,14 +343,14 @@ def user_maximum_quote_size_in_mb(user):
         today = jdatetime.datetime.now()
         user_maximum_quota = user.profile_user.default_maximum_storage_quota
         has_vip_plan = False
-        if user.profile_user.vip_plan_expiry_date:
-            if user.profile_user.vip_plan_expiry_date > today:
-                has_vip_plan = True
-                user_maximum_quota += user.profile_user.vip_plan.maximum_storage_quota
-        if user.profile_user.extra_storage_expiry_date:
-            if user.profile_user.extra_storage_expiry_date > today:
-                has_vip_plan = True
-                user_maximum_quota += user.profile_user.extra_storage.storage
+        # if user.profile_user.vip_plan_expiry_date:
+        #     if user.profile_user.vip_plan_expiry_date > today:
+        #         has_vip_plan = True
+        #         user_maximum_quota += user.profile_user.vip_plan.maximum_storage_quota
+        # if user.profile_user.extra_storage_expiry_date:
+        #     if user.profile_user.extra_storage_expiry_date > today:
+        #         has_vip_plan = True
+        #         user_maximum_quota += user.profile_user.extra_storage.storage
         if has_vip_plan:
             user_maximum_quota -= user.profile_user.default_maximum_storage_quota
         return user_maximum_quota

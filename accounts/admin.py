@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounts.models import Profile, SMSAuthCode, ExtraStoragePlan, VIPPlan, Licence, Invoice
+from accounts.models import Profile, SMSAuthCode, Invoice
 
 
 @admin.register(Profile)
@@ -16,15 +16,13 @@ class ProfileAdmin(admin.ModelAdmin):
         'profile_pic',
         'wallet_balance',
 
+        'financial_licence',
+        'warehouse_licence',
+        'social_licence',
+        'blog_licence',
+        'automation_licence',
 
-        'demo_used_once',
         'default_maximum_storage_quota',
-        'default_metapost_daily_send_limit',
-        'default_financial_broker_limit',
-        'vip_plan',
-        'vip_plan_expiry_date',
-        'extra_storage',
-        'extra_storage_expiry_date',
         'metapost_daily_sent',
         'metapost_last_send_date',
         'user_financial_default_broker_id',
@@ -53,62 +51,13 @@ class ProfileAdmin(admin.ModelAdmin):
 #         return False
 
 
-@admin.register(Licence)
-class LicenceAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-        'order',
-    )
-
-    fields = (
-        'title',
-        'order',
-    )
-
-
-@admin.register(ExtraStoragePlan)
-class ExtraStoragePlanAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-        'price',
-        'expiry_days',
-        'storage',
-    )
-
-    fields = (
-        'title',
-        'price',
-        'expiry_days',
-        'storage',
-    )
-
-
-@admin.register(VIPPlan)
-class VIPPlanAdmin(admin.ModelAdmin):
-    list_display = (
-        'title',
-        'price',
-        'expiry_days',
-        'max_storage_quote',
-    )
-
-    fields = (
-        'title',
-        'price',
-        'tax',
-        'expiry_days',
-        'has_access_to_licence',
-        'max_storage_quote',
-        'card_background_color',
-    )
-
-
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = (
         'invoice_type',
         'user',
         'amount',
+        'tax',
         'authority',
         'ref_id',
         'status',
@@ -129,6 +78,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'invoice_type',
         'user',
         'amount',
+        'tax',
         'description',
         'authority',
         'ref_id',

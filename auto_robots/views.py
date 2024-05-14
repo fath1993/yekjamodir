@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from auto_robots.models import Bot, MetaPost
 from calendar_event.views import date_string_to_date_format
+from subscription.templatetags.subscription_tag import has_user_active_licence
 from utilities.http_metod import fetch_data_from_http_post, fetch_datalist_from_http_post
 from utilities.messengers.messenger import messenger
 
@@ -23,6 +24,9 @@ class AutoRobotList(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             bots = Bot.objects.filter(created_by=request.user)
             self.context['bots'] = bots
             return render(request, 'auto-robots/auto-robot-list.html', self.context)
@@ -50,12 +54,17 @@ class AutoRobotNew(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
             return render(request, 'auto-robots/auto-robot-new.html', self.context)
         else:
             return redirect('accounts:login')
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             auto_robot_type = fetch_data_from_http_post(request, 'auto_robot_type',  self.context)
             auto_robot_name = fetch_data_from_http_post(request, 'auto_robot_name', self.context)
             auto_robot_token = fetch_data_from_http_post(request, 'auto_robot_token', self.context)
@@ -96,6 +105,9 @@ class AutoRobotEdit(View):
 
     def get(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 bot = Bot.objects.get(id=auto_robot_id, created_by=request.user)
                 self.context['page_title'] = f'ویرایش ربات {bot.bot_name}'
@@ -109,6 +121,9 @@ class AutoRobotEdit(View):
 
     def post(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 bot = Bot.objects.get(id=auto_robot_id, created_by=request.user)
                 self.context['bot'] = bot
@@ -155,6 +170,9 @@ class AutoRobotRemove(View):
 
     def post(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     bot = Bot.objects.get(id=auto_robot_id, created_by=request.user)
@@ -180,6 +198,9 @@ class MetaPostList(View):
 
     def get(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             bots = Bot.objects.filter(created_by=request.user)
             self.context['bots'] = bots
             if bots.count() == 0:
@@ -208,6 +229,9 @@ class MetaPostList(View):
 
     def post(self, request, auto_robot_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             bots = Bot.objects.filter(created_by=request.user)
             self.context['bots'] = bots
             if bots.count() == 0:
@@ -279,6 +303,9 @@ class MetaPostNew(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             bots = Bot.objects.filter(created_by=request.user)
             self.context['bots'] = bots
             if bots.count() == 0:
@@ -289,6 +316,9 @@ class MetaPostNew(View):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             bots = Bot.objects.filter(created_by=request.user)
             self.context['bots'] = bots
             if bots.count() == 0:
@@ -494,6 +524,9 @@ class MetaPostEdit(View):
 
     def get(self, request, metapost_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 metapost = MetaPost.objects.get(id=metapost_id, created_by=request.user)
                 self.context['page_title'] = f'ویرایش متا {metapost.title}'
@@ -507,6 +540,9 @@ class MetaPostEdit(View):
 
     def post(self, request, metapost_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 metapost = MetaPost.objects.get(id=metapost_id, created_by=request.user)
                 self.context['page_title'] = f'ویرایش متا {metapost.title}'
@@ -541,6 +577,9 @@ class MetaPostRemoveSingle(View):
 
     def post(self, request, metapost_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     metapost = MetaPost.objects.get(id=metapost_id, created_by=request.user)
@@ -566,6 +605,9 @@ class MetaPostRemoveAllRelated(View):
 
     def post(self, request, metapost_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'social_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     metapost = MetaPost.objects.get(id=metapost_id, created_by=request.user)

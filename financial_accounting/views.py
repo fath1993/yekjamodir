@@ -14,6 +14,7 @@ from openpyxl.utils import get_column_letter
 from financial_accounting.models import TransactionRecord, FinancialBroker
 from gallery.models import FileGallery
 from gallery.views import file_processor, file_allowed_to_upload, user_quote_limit_exceed
+from subscription.templatetags.subscription_tag import has_user_active_licence
 from utilities.http_metod import fetch_data_from_http_post, fetch_multiple_files_from_http_file, \
     fetch_datalist_from_http_post
 
@@ -32,12 +33,18 @@ class FinancialBrokerNew(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             return render(request, 'financial/financial-broker-new.html', self.context)
         else:
             return redirect('accounts:login')
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             broker_name = fetch_data_from_http_post(request, 'broker-name', self.context)
             account_owner = fetch_data_from_http_post(request, 'account-owner', self.context)
             account_number = fetch_data_from_http_post(request, 'account-number', self.context)
@@ -89,6 +96,9 @@ class FinancialBrokerEdit(View):
 
     def get(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 broker = FinancialBroker.objects.get(id=broker_id, created_by=request.user)
                 self.context['broker'] = broker
@@ -100,6 +110,9 @@ class FinancialBrokerEdit(View):
 
     def post(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             try:
                 broker = FinancialBroker.objects.get(id=broker_id, created_by=request.user)
                 self.context['broker'] = broker
@@ -151,6 +164,9 @@ class FinancialBrokerList(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             print(brokers)
@@ -174,6 +190,9 @@ class FinancialBrokerRemove(View):
 
     def post(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     broker = FinancialBroker.objects.get(id=broker_id, created_by=request.user)
@@ -202,6 +221,9 @@ class FinancialTransactionRecordNew(View):
 
     def get(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             try:
@@ -215,6 +237,9 @@ class FinancialTransactionRecordNew(View):
 
     def post(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             try:
@@ -294,6 +319,9 @@ class FinancialTransactionRecordEdit(View):
 
     def get(self, request, transaction_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             try:
@@ -309,6 +337,9 @@ class FinancialTransactionRecordEdit(View):
 
     def post(self, request, transaction_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
             try:
@@ -382,6 +413,9 @@ class FinancialTransactionRecordList(View):
 
     def get(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             profile = request.user.profile_user
             brokers = FinancialBroker.objects.filter(created_by=request.user)
             self.context['brokers'] = brokers
@@ -407,6 +441,9 @@ class FinancialTransactionRecordList(View):
 
     def post(self, request, broker_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             date_from = fetch_data_from_http_post(request, 'date-from', self.context)
             date_to = fetch_data_from_http_post(request, 'date-to', self.context)
 
@@ -448,6 +485,9 @@ class FinancialTransactionRecordRemove(View):
 
     def post(self, request, transaction_id, *args, **kwargs):
         if request.user.is_authenticated:
+            if not has_user_active_licence(request, 'financial_licence'):
+                return redirect('subscription:change-vip-plan')
+
             if request.method == 'POST':
                 try:
                     transaction_record = TransactionRecord.objects.get(id=transaction_id, created_by=request.user)

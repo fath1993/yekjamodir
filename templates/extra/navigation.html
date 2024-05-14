@@ -1,3 +1,4 @@
+{% load subscription_tag %}
 {% load static %}
 
 <div class="navigation">
@@ -54,12 +55,20 @@
             <li>
                 <a id="navigationDashboard_wallet_charge" href="{% url 'subscription:charge-wallet' %}">شارژ اعتبار حساب</a>
             </li>
+            {% if request|has_user_active_licence:'social_licence' %}
             <li>
                 <a id="navigationDashboard_social" href="{% url 'auto_robots:metapost-new' %}">شبکه های اجتماعی</a>
             </li>
+            {% endif %}
+        
+            {% if request|has_user_active_licence:'financial_licence' %}
             <li>
                 <a id="navigationDashboard_financial" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}">حسابداری</a>
             </li>
+            {% endif %}
+        
+            <hr class="m-0">
+            {% include 'file-manager/storage-analyze.html' %}
         </ul>
         <ul id="navigationSubscription">
             <li class="navigation-divider"><span class="font-size-18 text-primary">اشتراک</span></li>
@@ -68,6 +77,9 @@
             </li>
             <li>
                 <a id="navigationSubscription_invoices_list" href="{% url 'subscription:invoices-list' %}">لیست صورت حساب ها</a>
+            </li>
+            <li>
+                <a id="navigationSubscription_change_vip_plan" href="{% url 'subscription:change-vip-plan' %}">تنظیم اشتراک</a>
             </li>
         </ul>
         <ul id="navigationService">
@@ -89,19 +101,27 @@
             <li>
                 <a id="navigationService_metapost" href="#"><i class="fa fa-telegram-plane mr-2"></i>ارسال پیشرفته</a>
                 <ul>
-                    <li><a id="navigationService_auto_robot_list" href="{% url 'auto_robots:auto-robots-list' %}"><i class="fa fa-android mr-2"></i>ربات های من</a></li>
-                    <li><a id="navigationService_metapost_list" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="fa fa-instagram mr-2"></i>متا های من</a></li>
+                    {% if request|has_user_active_licence:'social_licence' %}
+                        <li><a id="navigationService_auto_robot_list" href="{% url 'auto_robots:auto-robots-list' %}"><i class="fa fa-android mr-2"></i>ربات های من</a></li>
+                        <li><a id="navigationService_metapost_list" href="{% url 'auto_robots:metapost-list-with-bot-id' auto_robot_id=0 %}"><i class="fa fa-instagram mr-2"></i>متا های من</a></li>
+                    {% else %}
+                        <li><a href="{% url 'subscription:change-vip-plan' %}"><i class="fa fa-star mr-2"></i>خرید لایسنس</a></li>
+                    {% endif %}
                 </ul>
             </li>
             <li>
                 <a href="#"><i class="fa fa-plane mr-2"></i>اتوماسیون</a>
                 <ul>
-                    <li><a href="#"><i class="fa fa-pencil mr-2"></i>نقش ها و وظایف</a></li>
-                    <li><a href="#"><i class="fa fa-project-diagram mr-2"></i>پروژه های تعریفی</a></li>
-                    <li><a href="#"><i class="fa fa-diagram-project mr-2"></i>پروژه های مشارکتی</a></li>
-                    <li><a href="#"><i class="fa fa-envelope mr-2"></i>صندوق دریافت</a></li>
-                    <li><a href="#"><i class="fa fa-send mr-2"></i>صندوق ارسال</a></li>
-                    <li><a href="#"><i class="fa fa-message mr-2"></i>اعلانات</a></li>
+                    {% if request|has_user_active_licence:'automation_licence' %}
+                        <li><a href="#"><i class="fa fa-pencil mr-2"></i>نقش ها و وظایف</a></li>
+                        <li><a href="#"><i class="fa fa-project-diagram mr-2"></i>پروژه های تعریفی</a></li>
+                        <li><a href="#"><i class="fa fa-diagram-project mr-2"></i>پروژه های مشارکتی</a></li>
+                        <li><a href="#"><i class="fa fa-envelope mr-2"></i>صندوق دریافت</a></li>
+                        <li><a href="#"><i class="fa fa-send mr-2"></i>صندوق ارسال</a></li>
+                        <li><a href="#"><i class="fa fa-message mr-2"></i>اعلانات</a></li>
+                    {% else %}
+                        <li><a href="{% url 'subscription:change-vip-plan' %}"><i class="fa fa-star mr-2"></i>خرید لایسنس</a></li>
+                    {% endif %}
                 </ul>
             </li>
 {#            <li>#}
@@ -121,8 +141,12 @@
             <li>
                 <a id="navigationService_financial" href="#"><i class="fa fa-money mr-2"></i>حسابداری</a>
                 <ul>
-                    <li><a id="navigationService_financial_broker_list" href="{% url 'financial:financial-broker-list' %}"><i class="fa fa-people-group mr-2"></i>کارگزاران مالی</a></li>
-                    <li><a id="navigationService_financial_transaction_record_list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}"><i class="fa fa-money-bill mr-2"></i>صورت حساب</a></li>
+                    {% if request|has_user_active_licence:'financial_licence' %}
+                        <li><a id="navigationService_financial_broker_list" href="{% url 'financial:financial-broker-list' %}"><i class="fa fa-people-group mr-2"></i>کارگزاران مالی</a></li>
+                        <li><a id="navigationService_financial_transaction_record_list" href="{% url 'financial:financial-transaction-record-list-with-broker-id' broker_id=request.user.profile_user.user_financial_default_broker_id %}"><i class="fa fa-money-bill mr-2"></i>صورت حساب</a></li>
+                    {% else %}
+                        <li><a href="{% url 'subscription:change-vip-plan' %}"><i class="fa fa-star mr-2"></i>خرید لایسنس</a></li>
+                    {% endif %}
                 </ul>
             </li>
             <li>

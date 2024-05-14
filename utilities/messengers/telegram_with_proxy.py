@@ -7,6 +7,7 @@ import io
 from bs4 import BeautifulSoup
 
 from auto_robots.models import MetapostHistory
+from subscription.templatetags.subscription_tag import profile_withdraw_message_price
 from yekjamodir.settings import BASE_URL
 
 
@@ -424,6 +425,7 @@ def telegram_message_handler(metapost):
 
     for channel in channels:
         if metapost.action == 'new_send':
+            profile_withdraw_message_price(metapost.created_by.profile_user)
             if metapost.metapost_view_type == 'simple_text':
                 telegram_send_message(metapost, chat_id=channel, text=content, parse_mode='HTML')
             else:

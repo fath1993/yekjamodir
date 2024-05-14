@@ -4,7 +4,6 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from accounts.models import VIPPlan, ExtraStoragePlan
 from auto_robots.models import MetaPost
 from blog.models import BlogPost, Blog
 from blog.views import BlogFrontHome, render_with_desired_theme

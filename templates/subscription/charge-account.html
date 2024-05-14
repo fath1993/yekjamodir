@@ -19,25 +19,25 @@
                     <div class="card-body">
                         <form action="{% url 'subscription:charge-wallet' %}" method="post">
                             {% csrf_token %}
-                            <div class="form-group mb-1">
+                            <div class="form-group mb-3">
                                 <label for="charge_amount">مقدار شارژ</label>
                                 <select class="js-example-basic-single" id="charge_amount"
-                                        name="charge_amount" onchange="change_amount_value(this.value)">
-                                    <option></option>
-                                    <option {% if not charge_amount %}selected{% elif charge_amount == '55000' %}selected{% endif %} value="55000">50 هزار تومان</option>
-                                    <option {% if charge_amount == '110000' %}selected{% endif %} value="110000">100 هزار تومان</option>
-                                    <option {% if charge_amount == '220000' %}selected{% endif %} value="220000">200 هزار تومان</option>
-                                    <option {% if charge_amount == '330000' %}selected{% endif %} value="330000">300 هزار تومان</option>
-                                    <option {% if charge_amount == '550000' %}selected{% endif %} value="550000">500 هزار تومان</option>
-                                    <option {% if charge_amount == '1100000' %}selected{% endif %} value="1100000">1 میلیون تومان</option>
+                                        name="charge_amount" onchange="change_amount_value(this.value, {{ licence_setting.tax_percent }})">
+                                    {% for vip_plan in vip_plans %}
+                                        <option {% if charge_amount == vip_plan.price %}selected{% endif %} value="{{ vip_plan.price }}"><span class="human-readable">{{ vip_plan.price|amount_human_readable }}</span> تومان</option>
+                                    {% empty %}
+                                        <option {% if not charge_amount %}selected{% endif %} value="-">انتخاب</option>
+                                    {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group mb-3">
-								<span class="text-warning">.به تمامی مبالغ فوق 10 % مالیات بر ارزش افزوده تعلق خواهد گرفت</span>
+                            <div class="form-group mb-3" {% if licence_setting.tax_percent == 0 %}hidden{% endif %}>
+								<span class="text-warning">.به تمامی مبالغ فوق {{ licence_setting.tax_percent|floatformat }} % مالیات بر ارزش افزوده تعلق خواهد گرفت</span>
 							</div>
+                        
                             {% if error %}
-                                <span class="text-danger">{{ error }}</span>
+                                <span class="text-danger mb-3">{{ error }}</span>
                             {% endif %}
+                        
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyConfirmModal">خرید</button>
                             <div id="buyConfirmModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 								<div class="modal-dialog" role="document">
@@ -51,13 +51,15 @@
 										<div class="modal-body">
 											<div class="container-fluid bd-example-row">
 												<div class="row">
-                                                    <h2 id="x1" class="col-sm-12 col-md-12 col-lg-12">شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.</h2>
+                                                    <h2 id="x1" class="col-sm-12 col-md-12 col-lg-12"><span class="human-readable">شما در حال خرید اعتبار حساب به میزان {{vip_plans.0.price}} تومان هستید.</span></h2>
                                                 </div>
-                                                <div class="row">
-                                                    <h3 id="x2" class="col-sm-12 col-md-12 col-lg-12">محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان</h3>
+                                            
+                                                <div class="row" {% if licence_setting.tax_percent == 0 %}hidden{% endif %}>
+                                                    <h3 id="x2" class="col-sm-12 col-md-12 col-lg-12"><span class="human-readable">محاسبه {{licence_setting.tax_percent}} درصد مالیات بر ارزش افزوده: {{licence_setting.tax_percent}} تومان</span></h3>
                                                 </div>
+                                            
                                                 <div class="row">
-                                                    <h3 id="x3" class="col-sm-12 col-md-12 col-lg-12">پرداختی نهایی: 55 هزار تومان</h3>
+                                                    <h3 id="x3" class="col-sm-12 col-md-12 col-lg-12"><span class="human-readable">پرداختی نهایی: {{ licence_setting.tax_percent }} تومان</span></h3>
                                                 </div>
 											</div>
 										</div>
@@ -81,51 +83,26 @@
 	<script src="{% static 'admin-panel/vendors/select2/js/select2.min.js' %}"></script>
 	<script src="{% static 'admin-panel/assets/js/examples/select2.js' %}"></script>
     <script>
-        function change_amount_value(value) {
-            if(value === '55000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 55 هزار تومان'
-            }else if(value === '110000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 100 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 10 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 110 هزار تومان'
-            }else if(value === '220000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 200 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 20 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 220 هزار تومان'
-            }else if(value === '330000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 300 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 30 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 330 هزار تومان'
-            }else if(value === '550000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 500 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 50 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 550 هزار تومان'
-            }else if(value === '1100000') {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 1 میلیون تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 100 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 1 میلیون و 100 هزار تومان'
-            }else {
-                document.getElementById('x1').innerText = 'شما در حال خرید اعتبار حساب به میزان 50 هزار تومان هستید.'
-                document.getElementById('x2').innerText = 'محاسبه 10 درصد مالیات بر ارزش افزوده: 5 هزار تومان'
-                document.getElementById('x3').innerText = 'پرداختی نهایی: 55 هزار تومان'
+        function change_amount_value(price, tax) {
+            try {
+                document.getElementById('x1').innerHTML = `<span class="human-readable">شما در حال خرید اعتبار حساب به میزان ${price} تومان هستید.</span>`
+                const final_price = parseInt(parseInt(price) * ((parseFloat(tax) + 100) / 100))
+                const tax_price = parseInt(parseInt(price) * (parseFloat(tax) / 100))
+                document.getElementById('x2').innerHTML = `<span class="human-readable">محاسبه ${tax} درصد مالیات بر ارزش افزوده: ${tax_price} تومان</span>`
+                document.getElementById('x3').innerHTML = `<span class="human-readable">پرداختی نهایی: ${final_price} تومان</span>`
+            } catch (e) {
+                console.log(e)
             }
+            
         }
     </script>
     <script>
-        {% if alert %}
-            'use strict';
-            $(document).ready(function () {
-                toastr.options = {
-                    timeOut: 3000,
-                    progressBar: true,
-                    showMethod: "slideDown",
-                    hideMethod: "slideUp",
-                    showDuration: 200,
-                    hideDuration: 200
-                };
-            });
-        {% endif %}
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select the dropdown element
+            var dropdown = document.getElementById("charge_amount");
+            // Simulate a change event
+            var event = new Event('change');
+            dropdown.dispatchEvent(event);
+        });
     </script>
 {% endblock %}
