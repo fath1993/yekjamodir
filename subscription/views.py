@@ -69,6 +69,7 @@ class SubscriptionView:
 
             new_invoice = Invoice.objects.create(
                 user=request.user,
+                invoice_type='واریز به حساب',
                 amount=int(charge_amount * ((licence_setting.tax_percent + 100) / 100)),
                 tax=int(charge_amount * (licence_setting.tax_percent / 100)),
                 description='شارژ اعتبار حساب',
@@ -84,8 +85,8 @@ class SubscriptionView:
                 data = {
                     "merchant_id": ZARINPAL_API_KEY,
                     "amount": new_invoice.amount * 10,
-                    # "callback_url": f'{BASE_URL}{reverse("subscription:charge-wallet-callback")}',
-                    "callback_url": f'http://127.0.0.1:8000{reverse("subscription:charge-wallet-callback")}',
+                    "callback_url": f'{BASE_URL}{reverse("subscription:charge-wallet-callback")}',
+                    # "callback_url": f'http://127.0.0.1:8000{reverse("subscription:charge-wallet-callback")}',
                     "description": f"فاکتور پرداختی توسط {request.user.username}",
                     "metadata": {"mobile": request.user.username}
                 }
@@ -135,8 +136,11 @@ class SubscriptionView:
                         invoice.description = f'{response_message}'
                         invoice.ref_id = ref_id
                         invoice.save()
-                        if invoice.amount == 1100000:
-                            context['charge_amount'] = '1 میلیون تومان'
+                        profile = request.user.profile_user
+                        profile.wallet_balance += (invoice.amount - invoice.tax)
+                        profile.save()
+                        if invoice.amount > 999999:
+                            context['charge_amount'] = f'{invoice.amount / 1000000} میلیون تومان'
                         else:
                             context['charge_amount'] = f'{invoice.amount} هزار تومان'
                         return render(request, 'subscription/pay-result/pay-success.html', context)

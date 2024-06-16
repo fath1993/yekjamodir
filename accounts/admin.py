@@ -1,5 +1,5 @@
 from django.contrib import admin
-from accounts.models import Profile, SMSAuthCode, Invoice
+from accounts.models import Profile, SMSAuthCode, Invoice, UserNotification
 
 
 @admin.register(Profile)
@@ -87,3 +87,6 @@ class InvoiceAdmin(admin.ModelAdmin):
         'updated_at',
         'created_by',
     )
+
+
+admin.site.register(UserNotification)

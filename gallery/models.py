@@ -27,3 +27,21 @@ def delete_source_file(sender, instance, **kwargs):
         os.remove(instance.file.path)
     except:
         pass
+
+
+def create_file(request, in_memory_file_content):
+    new_file = FileGallery.objects.create(
+        alt=in_memory_file_content.name,
+        file=in_memory_file_content,
+        created_by=request.user,
+    )
+    return new_file
+
+
+def delete_file(file_id):
+    try:
+        file = FileGallery.objects.get(id=file_id)
+        file.delete()
+        return True
+    except:
+        return False

@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load subscription_tag %}
+{% load humanize %}
+{% load static %}
+
+{% block extra_css %}
+<!-- DataTable -->
+<link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+    <main class="main-content">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">لیست صورت حساب ها</h6>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 5%">ردیف</th>
+                                        <th scope="col" style="width: 10%">شناسه یکتا</th>
+                                        <th scope="col" style="width: 15%">نوع</th>
+                                        <th scope="col" style="width: 30%">توضیحات</th>
+                                        <th scope="col" style="width: 15%">مبلغ</th>
+                                        <th scope="col" style="width: 10%">وضعیت</th>
+                                        <th scope="col" style="width: 20%">تاریخ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invoice in page %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <button class="btn btn-link text-primary" data-toggle="modal" data-target="#invoiceDetailModal_{{ forloop.counter }}">{{ invoice.id }}</button>
+                                            <div id="invoiceDetailModal_{{ forloop.counter }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <div class="modal-title" id="gridModalLabel"><h3 class="mt-2">جزئیات صورت حساب به شماره <span class="text-info">*{{ invoice.id }}*</span></h3></div>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="بستن">
+                                                                <i class="ti-close"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="info-container">
+                                                                <ul class="list-unstyled">
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">شناسه یکتا:</span>
+                                                                        <span>{{ invoice.id|default:"-" }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">پرداختی:</span>
+                                                                        <span><span class="human-readable">{{ invoice.amount|default:"-" }}</span> تومان</span>
+                                                                    </li>
+                                                                    {% if invoice.authority != 'financial_licence' and invoice.authority != 'warehouse_licence' and invoice.authority != 'social_licence' and invoice.authority != 'blog_licence' and invoice.authority != 'automation_licence' %}
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">مالیات:</span>
+                                                                        <span><span class="human-readable">{{ invoice.tax|default:"-" }}</span> تومان</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">افزایش اعتبار:</span>
+                                                                        <span><span class="human-readable">{{ invoice.amount|subtract_two_value:invoice.tax }}</span> تومان</span>
+                                                                    </li>
+                                                                    {% endif %}
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">توضیحات:</span>
+                                                                        <span>{{ invoice.description|default:"-" }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">شماره پرداخت:</span>
+                                                                        <span>{{ invoice.authority|default:"-" }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">کد پیگیری:</span>
+                                                                        <span>{{ invoice.ref_id|default:"-" }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">تاریخ و زمان ایجاد:</span>
+                                                                        <span>{{ invoice.created_at|date:'d-m-Y ساعت H:i' }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">تاریخ و زمان بروزرسانی:</span>
+                                                                        <span>{{ invoice.updated_at|date:'d-m-Y ساعت H:i' }}</span>
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">نوع:</span>
+                                                                        {% if invoice.invoice_type == 'واریز به حساب' %}
+                                                                            <span class="badge bg-success">واریز به حساب</span>
+                                                                        {% else %}
+                                                                            <span class="badge bg-info">برداشت از حساب</span>
+                                                                        {% endif %}
+                                                                    </li>
+                                                                    <li class="mb-3">
+                                                                        <span class="fw-bold me-2">وضعیت:</span>
+                                                                        {% if invoice.status == 'پرداخت شده' %}
+                                                                            <span class="badge bg-success">پرداخت شده</span>
+                                                                        {% else %}
+                                                                            <span class="badge bg-danger">پرداخت نشده</span>
+                                                                        {% endif %}
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ invoice.invoice_type}}</td>
+                                        <td data-toggle="tooltip" data-placement="top" title="{{ invoice.description}}">{{ invoice.description|truncatechars:50}}</td>
+                                        <td><span class="human-readable">{{ invoice.amount}}</span> تومان</td>
+                                        <td>
+                                            {% if invoice.status == 'پرداخت شده' %}
+                                            <span class="badge badge-success">پرداخت شده</span>
+                                            {% else %}
+                                            <span class="badge badge-danger">پرداخت نشده</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ invoice.created_at|date:'Y-m-d ساعت H:i'}}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row justify-content-center">
+                            <div class="col-sm-12 col-md-12 col-lg-12">
+                                <nav aria-label="Page navigation example" class="mb-3">
+                                    <ul class="pagination justify-content-center">
+                                        {% if page.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1/">ابتدا</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page.previous_page_number }}{% if request.GET|length > 0 %}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">قبلی</a>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">ابتدا</a>
+                                        </li>
+                                        {% endif %}
+                                    
+                                        {% if page.number|add:-2 >= 1 %}
+                                            <li class="page-item"><a class="page-link" href="#">...</a></li>
+                                        {% endif %}
+                                    
+                                        {% if page.number|add:-1 != 0 %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}&/">{{ page.previous_page_number }}</a></li>
+                                        {% endif %}
+                                    
+                                        <li class="page-item active"><a class="page-link" href="javascript:void(0)">{{ page.number }}</a></li>
+                                    
+                                        {% if page.number|add:1 <= paginator.num_pages %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}&/">{{ page.next_page_number }}</a></li>
+                                        {% endif %}
+                                        
+                                        {% if paginator.num_pages > page.number|add:2 %}
+                                            <li class="page-item"><a class="page-link" href="#">...</a></li>
+                                        {% endif %}
+                                    
+                                        {% if page.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page.next_page_number }}{% if request.GET|length > 0 %}&{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}">بعدی</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ paginator.num_pages }}" tabindex="-1" aria-disabled="true">انتها</a>
+                                        </li>    
+                                        {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">انتها</a>
+                                        </li>
+                                        {% endif %}
+                                        
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- DataTable -->
+<script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'admin-panel/vendors/dataTable/dataTables.responsive.min.js' %}"></script>
+
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
+{% endblock %}

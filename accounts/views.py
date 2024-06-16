@@ -156,13 +156,12 @@ def signup_view(request):
             except:
                 context['err'] = 'ثبت نام شما تکمیل شد. اکانت شما پس از بررسی تایید و فعال خواهد گردید'
                 user = User.objects.create_user(username=phone_number, first_name=full_name,
-                                                email=email, password=password1, is_active=False)
+                                                email=email, password=password1)
                 profile = user.profile_user
                 profile.mobile_phone_number = phone_number
                 profile.save()
                 login(request=request, user=user)
-                return render(request, 'accounts/signup.html', context)
-                # return redirect('dashboard:dashboard')
+                return redirect('dashboard:dashboard')
 
         return render(request, 'accounts/signup.html', context)
 

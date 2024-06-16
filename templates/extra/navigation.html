@@ -1,3 +1,4 @@
+{% load tickets_custom_tag %}
 {% load subscription_tag %}
 {% load static %}
 
@@ -19,9 +20,9 @@
                     <i class="icon ti-briefcase"></i>
                 </a>
             </li>
-            <li data-toggle="tooltip" title="پشتیبانی (غیر فعال)">
-                <a href="#navigationSupport" title="پشتیبانی">
-                    <i class="icon ti-help-alt"></i>
+            <li data-toggle="tooltip" title="پیام رسانی">
+                <a href="#navigationSupport" title="پیام رسانی">
+                    <i class="icon ti-headphone"></i>
                 </a>
             </li>
             <li data-toggle="tooltip" title="آموزش(غیرفعال)">
@@ -109,21 +110,21 @@
                     {% endif %}
                 </ul>
             </li>
-            <li>
-                <a href="#"><i class="fa fa-plane mr-2"></i>اتوماسیون</a>
-                <ul>
-                    {% if request|has_user_active_licence:'automation_licence' %}
-                        <li><a href="#"><i class="fa fa-pencil mr-2"></i>نقش ها و وظایف</a></li>
-                        <li><a href="#"><i class="fa fa-project-diagram mr-2"></i>پروژه های تعریفی</a></li>
-                        <li><a href="#"><i class="fa fa-diagram-project mr-2"></i>پروژه های مشارکتی</a></li>
-                        <li><a href="#"><i class="fa fa-envelope mr-2"></i>صندوق دریافت</a></li>
-                        <li><a href="#"><i class="fa fa-send mr-2"></i>صندوق ارسال</a></li>
-                        <li><a href="#"><i class="fa fa-message mr-2"></i>اعلانات</a></li>
-                    {% else %}
-                        <li><a href="{% url 'subscription:change-vip-plan' %}"><i class="fa fa-star mr-2"></i>خرید لایسنس</a></li>
-                    {% endif %}
-                </ul>
-            </li>
+{#            <li>#}
+{#                <a href="#"><i class="fa fa-plane mr-2"></i>اتوماسیون</a>#}
+{#                <ul>#}
+{#                    {% if request|has_user_active_licence:'automation_licence' %}#}
+{#                        <li><a href="#"><i class="fa fa-pencil mr-2"></i>نقش ها و وظایف</a></li>#}
+{#                        <li><a href="#"><i class="fa fa-project-diagram mr-2"></i>پروژه های تعریفی</a></li>#}
+{#                        <li><a href="#"><i class="fa fa-diagram-project mr-2"></i>پروژه های مشارکتی</a></li>#}
+{#                        <li><a href="#"><i class="fa fa-envelope mr-2"></i>صندوق دریافت</a></li>#}
+{#                        <li><a href="#"><i class="fa fa-send mr-2"></i>صندوق ارسال</a></li>#}
+{#                        <li><a href="#"><i class="fa fa-message mr-2"></i>اعلانات</a></li>#}
+{#                    {% else %}#}
+{#                        <li><a href="{% url 'subscription:change-vip-plan' %}"><i class="fa fa-star mr-2"></i>خرید لایسنس</a></li>#}
+{#                    {% endif %}#}
+{#                </ul>#}
+{#            </li>#}
 {#            <li>#}
 {#                <a id="tasks" href="#">وظیفه</a>#}
 {#                <ul>#}
@@ -164,19 +165,26 @@
 {#            </li>#}
         </ul>
         <ul id="navigationSupport">
-            <li class="navigation-divider"><span class="font-size-18 text-primary">پشتیبانی</span></li>
-            <li>
-                <a href="#">درباره ما<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+            <li class="navigation-divider"><span class="font-size-18 text-primary">پیام رسانی</span></li>
+            <li id="ticket-sent-list" class="menu-item">
+                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='sent' %}" class="menu-link">
+                    <div><span>صندوق ارسال </span><span class="text-muted">({{ request|ticket_count:'send_box' }})</span></div>
+                </a>
             </li>
-            <li>
-                <a href="#">ارتباط با ما<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
+            <li id="ticket-received-list" class="menu-item">
+                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='received' %}" class="menu-link">
+                    <div><span>صندوق دریافت </span><span class="text-muted">({{ request|ticket_count:'receive_box' }})</span></div>
+                </a>
             </li>
-            <li>
-                <a href="#">تیکت<span class="font-size-12 text-warning ml-2">*غیرفعال</span></a>
-{#                <ul>#}
-{#                    <li><a href="#">ارسال تیکت </a></li>#}
-{#                    <li><a href="#">لیست تیکت ها </a></li>#}
-{#                </ul>#}
+            <li id="notification-list" class="menu-item">
+                <a href="{% url 'ticket:notification-list' %}" class="menu-link">
+                    <div><span>اطلاعیه ها </span><span class="text-muted">({{ request|notification_count }})</span></div>
+                </a>
+            </li>
+            <li id="ticket-admin-list" class="menu-item">
+                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='all' %}" class="menu-link">
+                    <div><span>پیام های کاربران </span><span class="text-muted">({{ request|ticket_count:'all' }})</span></div>
+                </a>
             </li>
         </ul>
         <ul id="navigationTutorial">

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'website',
     'automation',
     'subscription',
+    'tickets',
 ]
 
 SITE_ID = 1

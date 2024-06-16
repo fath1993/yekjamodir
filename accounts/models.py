@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django_jalali.db import models as jmodel
 
+from tickets.models import Notification
 
 TRANSACTION_STATUS = (('پرداخت نشده', 'پرداخت نشده'), ('پرداخت شده', 'پرداخت شده'))
 INVOICE_TYPE = (('واریز به حساب', 'واریز به حساب'), ('برداشت از حساب', 'برداشت از حساب'))
-
 
 
 class Profile(models.Model):
@@ -19,13 +19,11 @@ class Profile(models.Model):
     profile_pic = models.ImageField(upload_to='profile-pic/', blank=True, verbose_name='عکس پروفایل')
     wallet_balance = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='اعتبار حساب')
 
-
     financial_licence = models.BooleanField(default=False, verbose_name='لایسنس حسابداری')
     warehouse_licence = models.BooleanField(default=False, verbose_name='لایسنس انبار داری')
     social_licence = models.BooleanField(default=False, verbose_name='لایسنس شبکه های اجتماعی')
     blog_licence = models.BooleanField(default=False, verbose_name='لایسنس بلاگ')
     automation_licence = models.BooleanField(default=False, verbose_name='لایسنس اتوماسیون')
-
 
     default_maximum_storage_quota = models.PositiveIntegerField(default=100, null=False, blank=False,
                                                                 verbose_name='حداکثر فضای ذخیره سازی',
@@ -67,9 +65,10 @@ class SMSAuthCode(models.Model):
 
 
 class Invoice(models.Model):
-    invoice_type = models.CharField(max_length=255, choices=INVOICE_TYPE, default='برداشت', null=False,
-                              blank=False, verbose_name='نوع صورت حساب')
-    user = models.ForeignKey(User, related_name='invoice_user', on_delete=models.CASCADE, null=False, blank=False, verbose_name='کاربر')
+    invoice_type = models.CharField(max_length=255, choices=INVOICE_TYPE, default='واریز به حساب', null=False,
+                                    blank=False, verbose_name='نوع صورت حساب')
+    user = models.ForeignKey(User, related_name='invoice_user', on_delete=models.CASCADE, null=False, blank=False,
+                             verbose_name='کاربر')
     amount = models.PositiveIntegerField(null=False, blank=False, verbose_name='مبلغ - تومان')
     tax = models.PositiveIntegerField(default=0, null=False, blank=False, verbose_name='مالیات - تومان')
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name='توضیحات')
@@ -81,7 +80,8 @@ class Invoice(models.Model):
 
     created_at = jmodel.jDateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
     updated_at = jmodel.jDateTimeField(auto_now=True, verbose_name='تاریخ بروز رسانی')
-    created_by = models.ForeignKey(User, related_name='invoice_created_by', on_delete=models.CASCADE, null=False, blank=False,
+    created_by = models.ForeignKey(User, related_name='invoice_created_by', on_delete=models.CASCADE, null=False,
+                                   blank=False,
                                    editable=False, verbose_name='ساخته شده توسط')
 
     def __str__(self):
@@ -91,3 +91,23 @@ class Invoice(models.Model):
         ordering = ['-created_at', ]
         verbose_name = 'صورت حساب'
         verbose_name_plural = 'صورت حساب ها'
+
+
+class UserNotification(models.Model):
+    user = models.ForeignKey(User, related_name='user_user_notification', on_delete=models.CASCADE, null=False,
+                             blank=False,
+                             editable=False, verbose_name='کاربر')
+    notification = models.ForeignKey(Notification, related_name='notification_user_notification',
+                                     on_delete=models.CASCADE, null=False,
+                                     blank=False,
+                                     editable=False, verbose_name='اطلاعیه')
+    has_seen_by_user = models.BooleanField(default=False, verbose_name='دیده شده توسط کاربر')
+    created_at = jmodel.jDateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_at = jmodel.jDateTimeField(auto_now=True, verbose_name='تاریخ بروز رسانی')
+
+    def __str__(self):
+        return self.user.username
+
+    class Meta:
+        verbose_name = 'اطلاعیه کاربر'
+        verbose_name_plural = 'اطلاعیه های کاربران'

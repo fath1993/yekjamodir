@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 
 from custom_logs.models import custom_log
-from gallery.models import FileGallery
+from gallery.models import FileGallery, delete_file
 from PIL import Image
 import io
 from django.core.files.base import ContentFile
@@ -16,6 +16,26 @@ from django.core.paginator import Paginator
 from utilities.http_metod import fetch_data_from_http_post, fetch_single_file_from_http_file, fetch_data_from_http_get
 from utilities.slug_generator import name_to_url
 from yekjamodir.settings import BASE_URL
+
+
+class FileGalleryView:
+    def __init__(self):
+        super().__init__()
+
+    def delete_file(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return JsonResponse({"message": f'دسترسی غیر مجاز'})
+
+        if request.method != 'POST':
+            return JsonResponse({"message": f'دسترسی غیر مجاز'})
+
+        context = {}
+        file_id = fetch_data_from_http_post(request, 'file_id', context)
+        if delete_file(file_id):
+            return JsonResponse({"message": f'فایل با شناسه یکتای {file_id} حذف شد', 'result': 'deleted'})
+        else:
+            return JsonResponse({"message": f'فایل با شناسه یکتای {file_id} یافت نشد'})
+
 
 
 class FilesList(View):
