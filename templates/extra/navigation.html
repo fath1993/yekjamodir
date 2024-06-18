@@ -20,8 +20,8 @@
                     <i class="icon ti-briefcase"></i>
                 </a>
             </li>
-            <li data-toggle="tooltip" title="پیام رسانی">
-                <a href="#navigationSupport" title="پیام رسانی">
+            <li id="communication" data-toggle="tooltip" title="پیام رسانی">
+                <a href="#navigationCommunication" title="پیام رسانی">
                     <i class="icon ti-headphone"></i>
                 </a>
             </li>
@@ -164,26 +164,16 @@
 {#                </ul>#}
 {#            </li>#}
         </ul>
-        <ul id="navigationSupport">
+        <ul id="navigationCommunication">
             <li class="navigation-divider"><span class="font-size-18 text-primary">پیام رسانی</span></li>
-            <li id="ticket-sent-list" class="menu-item">
-                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='sent' %}" class="menu-link">
+            <li>
+                <a id="navigationCommunication_ticket_sent_list" href="{% url 'ticket:ticket-list-with-box-status' box_status='sent' %}">
                     <div><span>صندوق ارسال </span><span class="text-muted">({{ request|ticket_count:'send_box' }})</span></div>
                 </a>
             </li>
-            <li id="ticket-received-list" class="menu-item">
-                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='received' %}" class="menu-link">
+            <li>
+                <a id="navigationCommunication_ticket_received_list" href="{% url 'ticket:ticket-list-with-box-status' box_status='received' %}">
                     <div><span>صندوق دریافت </span><span class="text-muted">({{ request|ticket_count:'receive_box' }})</span></div>
-                </a>
-            </li>
-            <li id="notification-list" class="menu-item">
-                <a href="{% url 'ticket:notification-list' %}" class="menu-link">
-                    <div><span>اطلاعیه ها </span><span class="text-muted">({{ request|notification_count }})</span></div>
-                </a>
-            </li>
-            <li id="ticket-admin-list" class="menu-item">
-                <a href="{% url 'ticket:ticket-list-with-box-status' box_status='all' %}" class="menu-link">
-                    <div><span>پیام های کاربران </span><span class="text-muted">({{ request|ticket_count:'all' }})</span></div>
                 </a>
             </li>
         </ul>

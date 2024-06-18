@@ -1,13 +1,20 @@
+import json
+import threading
+
 import jdatetime
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
+
+from accounts.models import Profile
 from auto_robots.models import Bot, MetaPost
 from calendar_event.views import date_string_to_date_format
 from subscription.templatetags.subscription_tag import has_user_active_licence
 from utilities.http_metod import fetch_data_from_http_post, fetch_datalist_from_http_post
 from utilities.messengers.messenger import messenger
+from utilities.telegram_message_handler import telegram_http_send_message_via_post_method
 
 
 class AutoRobotList(View):
@@ -651,3 +658,222 @@ def gap_new_message_view(request, bot_id):
         return redirect('accounts:login')
 
 
+class RequestFile(View):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.context = {'detail': 'ثبت نام کاربر جدید'}
+        self.today = jdatetime.datetime.now()
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'message': 'not allowed'})
+
+    def post(self, request, *args, **kwargs):
+        try:
+            telegram_response_check_result = telegram_response_check(request, True)
+            if not telegram_response_check_result:
+                return JsonResponse({'message': 'telegram_response_has_error'})
+            else:
+                user_unique_id = telegram_response_check_result[0]
+                user_first_name = telegram_response_check_result[1]
+                message_text = telegram_response_check_result[2]
+                user_phone_number = telegram_response_check_result[3]
+
+            try:
+                profile = Profile.objects.get(telegram_user_id=user_unique_id)
+            except Exception as e:
+                if user_phone_number:
+                    try:
+                        user_phone_number = str(user_phone_number).replace('+', '')
+                        user = User.objects.get(username=user_phone_number)
+                        user_profile = user.profile_user
+                        user_profile.telegram_user_id = user_unique_id
+                        user_profile.save()
+                        telegram_message_need_to_create_account(user_unique_id)
+                        return JsonResponse({'message': 'telegram_message_start_first_time'})
+                    except:
+                        telegram_message_start_first_time(user_unique_id)
+                        return JsonResponse({'message': 'telegram_message_start_first_time'})
+                else:
+                    telegram_message_confirm_phone_number_warning(user_unique_id)
+                    return JsonResponse({'message': 'telegram_message_confirm_phone_number_warning'})
+            if message_text == '/start':
+                telegram_message_start(user_unique_id)
+                return JsonResponse({'message': 'telegram_message_start'})
+
+            if message_text == "🔙 بازگشت":
+                telegram_message_start(user_unique_id)
+                return JsonResponse({'message': 'telegram_message_start'})
+
+            if message_text == "🏡 صفحه اصلی":
+                telegram_message_start(user_unique_id)
+                return JsonResponse({'message': 'telegram_message_start'})
+
+            RequestHandler().start()
+
+            return JsonResponse({'message': 'process_links_and_send_message_to_telegram'})
+
+        except Exception as e:
+            custom_log(f'{e}')
+            return JsonResponse({'message': f'{e}'})
+
+
+class RequestHandler(threading.Thread):
+    def __init__(self, user, message_text):
+        super().__init__()
+        self.user = user
+        self.message_text = message_text
+
+    def run(self):
+        try:
+            new_user_request_history = UserRequestHistory.objects.create(user=self.user,
+                                                                         data_track=self.data_track)
+            text = f'''موارد زیر توسط ربات تایید و درحال بررسی می باشند: \n\n'''
+            for file_page_link in self.file_page_link_list:
+                try:
+                    custom_log(file_page_link)
+                    file_type = file_page_link[0]
+                    link = file_page_link[1]
+                    file_unique_code = file_page_link[2]
+                    try:
+                        file = File.objects.get(file_type=file_type, unique_code=file_unique_code)
+                        if file.download_percentage == 100 and str(file.file_storage_link) != '' and not file.file:
+                            file.download_percentage = 0
+                            file.is_acceptable_file = True
+                            file.in_progress = False
+                            file.failed_repeat = 0
+                            file.save()
+                        else:
+                            if not file.is_acceptable_file and not file.in_progress and file.failed_repeat == 10:
+                                file.is_acceptable_file = True
+                                file.failed_repeat = 0
+                                file.save()
+                            else:
+                                pass
+                    except:
+                        file = File.objects.create(file_type=file_type, page_link=link, unique_code=file_unique_code)
+                    if file_type == 'envato':
+                        text += f'سرویس دهنده: EnvatoElement'
+                    if file_type == 'motion_array':
+                        text += f'سرویس دهنده: MotionArray'
+                    text += f'\n'
+                    text += f'کد 🔁: {file_unique_code}'
+                    text += f'\n'
+                    text += f'____________________'
+                    text += f'\n\n'
+                    new_user_request_history.files.add(file)
+                    new_user_request_history.save()
+                except Exception as e:
+                    custom_log('RequestHandler->forloop of file_page_link_list try/except. err: ' + str(e))
+            text += f'🔷🔶🔶🔶🔶🔶🔶🔷'
+            text += f'\n\n'
+            telegram_response = telegram_http_send_message_via_post_method(chat_id=self.user, text=text,
+                                                                           parse_mode='HTML')
+            response = json.loads(telegram_response['message'])
+            message_id = response['result']['message_id']
+            chat_id = response['result']['chat']['id']
+            UserRequestHistoryDetail.objects.create(
+                user_request_history=new_user_request_history,
+                telegram_chat_id=chat_id,
+                telegram_message_id=message_id,
+            )
+        except Exception as e:
+            custom_log('RequestHandler->try/except. err: ' + str(e))
+        return
+
+
+def telegram_response_check(request, custom_log_print: bool):
+    try:
+        secret_key = request.META['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN']
+        if secret_key is not None and str(secret_key) == '12587KFlk54NCJDmvn8541':
+            if custom_log_print:
+                custom_log('secret_key: confirmed')
+            try:
+                front_input = json.loads(request.body)
+                if custom_log_print:
+                    custom_log(str(front_input))
+                try:
+                    try:
+                        user_unique_id = front_input['callback_query']['from']['id']
+                        user_first_name = front_input['callback_query']['from']['first_name']
+                        message_text = front_input['callback_query']['data']
+                        response_list = [user_unique_id, user_first_name, message_text, None]
+                    except:
+                        try:
+                            user_unique_id = front_input['message']['from']['id']
+                            user_first_name = front_input['message']['from']['first_name']
+                            message_text = str(front_input['message']['text'])
+                            response_list = [user_unique_id, user_first_name, message_text, None]
+                        except:
+                            user_unique_id = front_input['message']['contact']['user_id']
+                            user_first_name = front_input['message']['contact']['first_name']
+                            message_text = str(front_input['message']['reply_to_message']['text'])
+                            user_phone_number = front_input['message']['contact']['phone_number']
+                            response_list = [user_unique_id, user_first_name, message_text, user_phone_number]
+                    return response_list
+                except Exception as e:
+                    if custom_log_print:
+                        custom_log('RequestFile->try/except. err: ' + str(e))
+                    return False
+            except:
+                if custom_log_print:
+                    custom_log('input format is not correct')
+                return False
+        else:
+            if custom_log_print:
+                custom_log('wrong secret_key')
+            return False
+    except:
+        if custom_log_print:
+            custom_log('unauthorized access')
+        return False
+
+
+def telegram_message_start_first_time(user_unique_id):
+    message_text = "ثبت نام شما با موفقیت انجام شد. \n به ربات تلگرام یکجا مدیر خوش آمدید. در این ربات می توانید پیام های خود را ارسال نمایید"
+    telegram_http_send_message_via_post_method(chat_id=user_unique_id, text=message_text, parse_mode='HTML')
+
+
+
+def telegram_message_need_to_create_account(user_unique_id):
+    message_text = "ابتدا در وبسایت https://yekjamodir.ir اکانت بسازید"
+    telegram_http_send_message_via_post_method(chat_id=user_unique_id, text=message_text, parse_mode='HTML')
+
+
+def telegram_message_start(user_unique_id):
+    # Define the menu buttons
+    menu_buttons = [
+        ["راهنمای دانلود", "دانلود فایل"],
+        ["شارژ حساب", "پروفایل کاربری"]
+    ]
+
+    # Create the keyboard markup
+    keyboard_markup = {
+        "keyboard": menu_buttons,
+        "resize_keyboard": True,
+        "one_time_keyboard": True
+    }
+
+    # Convert the markup to a JSON string
+    reply_markup = json.dumps(keyboard_markup)
+
+    message_text = "صفحه اصلی"
+    telegram_http_send_message_via_post_method(chat_id=user_unique_id, text=message_text,
+                                               reply_markup=reply_markup, parse_mode='Markdown')
+
+
+def telegram_message_confirm_phone_number_warning(user_unique_id):
+    reply_markup = {'keyboard': [
+        [
+            {'text': 'تایید شماره تلفن',
+             'request_contact': True
+             }
+        ]
+    ],
+        'one_time_keyboard': True
+    }
+
+    reply_markup = json.dumps(reply_markup)
+
+    message_text = "برای تایید عضویت لازم هست دکمه تایید شماره تلفن را انتخاب نمایید"
+    telegram_http_send_message_via_post_method(chat_id=user_unique_id, text=message_text,
+                                               reply_markup=reply_markup, parse_mode='Markdown')

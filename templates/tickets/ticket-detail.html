@@ -5,8 +5,7 @@
 {% load static %}
 
 {% block extra_css %}
-<!-- DataTable -->
-<link rel="stylesheet" href="{% static 'admin-panel/vendors/dataTable/responsive.bootstrap.min.css' %}" type="text/css">
+
 {% endblock %}
 
 {% block content %}
@@ -20,37 +19,12 @@
 						</a>
 						<div>
 							<figure class="avatar avatar-sm m-r-10">
-								<img src="assets/media/image/avatar.jpg" class="rounded-circle" alt="image">
+								<img src="{% if request.user.profile_user.profile_pic %}{{ request.user.profile_user.profile_pic.url }}{% else %}{% static 'admin-panel/custom/profile.png' %}{% endif %}" class="rounded-circle" alt="image">
 							</figure>
 						</div>
 						<div>
-							<h6 class="mb-1 primary-font line-height-18">بری الن</h6>
-							<span class="small text-success">در حال نوشتن ...</span>
-						</div>
-						<div class="ml-auto d-flex">
-							<button type="button" class="ml-2 btn btn-sm btn-success btn-floating">
-								<i class="fa fa-video-camera"></i>
-							</button>
-							<div class="dropdown ml-2">
-								<button type="button" data-toggle="dropdown" class="btn btn-sm  btn-warning btn-floating">
-									<i class="fa fa-cog"></i>
-								</button>
-								<div class="dropdown-menu dropdown-menu-right">
-									<div class="dropdown-menu-body">
-										<ul>
-											<li>
-												<a class="dropdown-item" href="#">پروفایل</a>
-											</li>
-											<li>
-												<a class="dropdown-item" href="#">مسدود کردن</a>
-											</li>
-											<li>
-												<a class="dropdown-item" href="#">حذف</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
+							<h6 class="mb-1 primary-font line-height-18">سازنده پیام: {{ ticket.owner.username }}</h6>
+							<span class="small text-success">گیرنده پیام: {{ ticket.receiver.username }}</span>
 						</div>
 					</div>
 					<div class="chat-body-messages">
@@ -59,186 +33,186 @@
                                 {% if request.user == message.ticket.owner %}
                                     {% if message.created_by == request.user %}
                                         <div class="message-item">
-                                            {{ message.content }}
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            {{ message.content }}<br>
+                                            <small class=" text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                         </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}    
                                     {% else %}
                                         <div class="message-item outgoing-message">
-                                        {{ message.content }}
-                                        <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                        {{ message.content }}<br>
+                                        <small class=" text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                     </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item outgoing-message message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}
                                     {% endif %}
                                 {% elif request.user == message.ticket.receiver %}
                                     {% if message.created_by == request.user %}
                                         <div class="message-item">
-                                            {{ message.content }}
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            {{ message.content }}<br>
+                                            <small class="text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                         </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}    
                                     {% else %}
                                         <div class="message-item outgoing-message">
-                                        {{ message.content }}
-                                        <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                        {{ message.content }}<br>
+                                        <small class=" text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                     </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item outgoing-message message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}
                                     {% endif %}    
                                 {% else %}
                                     {% if message.created_by == request.user %}
                                         <div class="message-item">
-                                            {{ message.content }}
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            {{ message.content }}<br>
+                                            <small class=" text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                         </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}
                                     {% else %}
                                         <div class="message-item outgoing-message">
-                                        {{ message.content }}
-                                        <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                        {{ message.content }}<br>
+                                        <small class=" text-muted">{{ message.created_at|date:'Y-m-d ساعت H:i' }}</small>
                                     </div>
                                         {% if message.attachments.all.count != 0 %}    
                                         <div class="message-item outgoing-message message-item-media">
+                                            {% for attachment in message.attachments.all %}
                                             <ul>
-                                                {% for attachment in message.attachments.all %}
-                                                    <li>
-                                                        {% if attachment.file.url|file_field_is_image %}
-                                                        <a href="{{ attachment.file.url }}">
-                                                            <img src="{{ attachment.file.url }}}" alt="{{ attachment.alt }}">
-                                                            <span>portfolio-four.jpg</span>
-                                                        </a>
-                                                        {% else %}
-                                                        <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
-                                                            <i class="fa fa-download font-size-18 m-r-10"></i>
-                                                            <div class="small">
-                                                                <div class="mb-2">{{ attachment.file.alt }}</div>
-                                                                <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
-                                                            </div>
-                                                        </a>
-                                                        {% endif %}
-                                                    </li>    
-                                                {% endfor %}
+                                                <li>
+                                                    {% if attachment.file.url|file_field_is_image %}
+                                                    <a href="{{ attachment.file.url }}">
+                                                        <img src="{{ attachment.file.url }}" alt="{{ attachment.file }}">
+                                                        <span>{{ attachment.file }}</span>
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ attachment.file.url }}" class="btn btn-outline-light text-left align-items-center justify-content-center">
+                                                        <i class="fa fa-download font-size-18 m-r-10"></i>
+                                                        <div class="small">
+                                                            <div class="mb-2">{{ attachment.file }}</div>
+                                                            <div dir="ltr">{{ attachment.file.size|filesizeformat }}</div>
+                                                        </div>
+                                                    </a>
+                                                    {% endif %}
+                                                </li>
                                             </ul>
-                                            <small class="message-item-date text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:M' }}</small>
+                                            <small class=" text-muted">{{ attachment.created_at|date:'Y-m-d ساعت H:i' }}</small>
+                                            {% endfor %}
                                         </div>
                                         {% endif %}
                                     {% endif %}    
@@ -248,33 +222,18 @@
 						</div>
 					</div>
 					<div class="chat-body-footer">
-						<form class="d-flex align-items-center">
-							<input type="text" class="form-control" placeholder="پیام ...">
+						<form class="d-flex align-items-center"  method="post"
+                                action="{% url 'ticket:message-create' ticket_id=ticket.id %}" enctype="multipart/form-data">
+							{% csrf_token %}
+                            <input type="text" class="form-control" name="content" placeholder="پیام ..." required>
 							<div class="d-flex">
-								<button type="button" class="ml-3 btn btn-primary btn-floating">
+								<button type="submit" class="ml-3 btn btn-primary btn-floating">
 									<i class="fa fa-send"></i>
 								</button>
-								<div class="dropup">
-									<button type="button" data-toggle="dropdown" class="ml-3 btn btn-success btn-floating">
-										<i class="fa fa-plus"></i>
-									</button>
-									<div class="dropdown-menu dropdown-menu-right">
-										<div class="dropdown-menu-body">
-											<ul>
-												<li>
-													<a class="dropdown-item" href="#">
-														<i class="icon fa fa-picture-o"></i> تصویر
-													</a>
-												</li>
-												<li>
-													<a class="dropdown-item" href="#">
-														<i class="icon fa fa-video-camera"></i> ویدئو
-													</a>
-												</li>
-											</ul>
-										</div>
-									</div>
-								</div>
+                                <label for="files" class="ml-3 btn btn-primary btn-floating">
+                                    <input id="files" type="file" name="files" style="display:none;" multiple>
+                                    <i class="fa fa-plus"></i>
+                                </label>
 							</div>
 						</form>
 					</div>
@@ -285,16 +244,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- DataTable -->
-<script src="{% static 'admin-panel/vendors/dataTable/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'admin-panel/vendors/dataTable/dataTables.bootstrap4.min.js' %}"></script>
-<script src="{% static 'admin-panel/vendors/dataTable/dataTables.responsive.min.js' %}"></script>
-
-
-<script>
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-</script>
 
 {% endblock %}

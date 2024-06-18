@@ -26,6 +26,8 @@ class ProfileAdmin(admin.ModelAdmin):
         'metapost_daily_sent',
         'metapost_last_send_date',
         'user_financial_default_broker_id',
+
+        'telegram_user_id',
     )
 
 

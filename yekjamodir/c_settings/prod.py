@@ -26,5 +26,5 @@ DATABASES['log_db'] = {
 }
 
 CRONJOBS = [
-    ('* * * * *', 'auto_robots.tasks.start_task_thread',),
+    ('* * * * *', 'system_thread.cron.check_system_thread_is_active',),
 ]

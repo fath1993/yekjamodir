@@ -9,35 +9,6 @@ from auto_robots.models import MetaPost
 from utilities.messengers.messenger import messenger
 
 
-def start_task_thread():
-    active_threads = threading.enumerate()
-    custom_log(f'active_threads: {active_threads}')
-    threads_name_list = []
-    for thread in active_threads:
-        if thread.is_alive():
-            threads_name_list.append(str(thread.name))
-            custom_log(f'{thread.name} is active.')
-
-    if not 'once_messenger_thread' in threads_name_list:
-        custom_log("general_functions: start OnceMessengerThread", "d")
-        OnceMessengerThread(name='once_messenger_thread').start()
-        time.sleep(1)
-
-    # if not 'weekly_messenger_thread' in threads_name_list:
-    #     custom_log("general_functions: start WeeklyMessengerThread", "d")
-    #     WeeklyMessengerThread(name='weekly_messenger_thread').start()
-    #     time.sleep(1)
-
-    if not 'daily_messenger_thread' in threads_name_list:
-        custom_log("general_functions: start DailyMessengerThread", "d")
-        DailyMessengerThread(name='daily_messenger_thread').start()
-        time.sleep(1)
-
-    if not 'monthly_messenger_thread' in threads_name_list:
-        custom_log("general_functions: start MonthlyMessengerThread", "d")
-        MonthlyMessengerThread(name='monthly_messenger_thread').start()
-        time.sleep(1)
-
 
 class OnceMessengerThread(threading.Thread):
     def __init__(self, name):

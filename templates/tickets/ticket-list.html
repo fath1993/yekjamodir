@@ -14,12 +14,12 @@
             <div class="col-sm-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header heading-color">
-                        {% if request.path != '/tickets/list&box-status=received/' and request.path != '/tickets/list&box-status=all/' %}
+                        {% if request.path != '/ticket/list&box-status=received/' and request.path != '/tickets/list&box-status=all/' %}
                         <button id="create-new" type="button" class="btn btn-primary btn-uppercase m-3" data-toggle="modal" data-target="#gridSystemModal">
                             <i class="ti-plus m-r-5"></i> ایجاد پیام جدید
                         </button>
                         {% endif %}
-                        {% if request.path == '/tickets/list&box-status=received/' %}
+                        {% if request.path == '/ticket/list&box-status=received/' %}
                         <span class="text-left">شناسه پیام رسانی شما: <span class="text-success">#{{ request.user.username }}</span></span>
                         {% endif %}
                         {% if err %}

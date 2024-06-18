@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 
 from accounts.custom_decorator import CheckLogin, RequireMethod
 from accounts.models import UserNotification
+from custom_logs.models import custom_log
 from gallery.models import FileGallery
 from tickets.models import Ticket, Message, Notification
 from tickets.serializer import MessageSerializer
@@ -75,12 +76,12 @@ class TicketView:
                     Q(**{'ticket__receiver': request.user})
                 )
 
-            messages = Message.objects.filter(z)
+            messages = Message.objects.filter(z).order_by('created_at')
             context = {'page_title': f'جزئیات پیام با موضوع *{ticket.subject}*',
                        'ticket': ticket, 'messages': messages, 'get_params': request.GET.urlencode()}
             return render(request, 'tickets/ticket-detail.html', context)
         except Exception as e:
-            print(e)
+            custom_log(f'{e}')
             return render(request, '404.html')
 
     @CheckLogin()
@@ -163,21 +164,15 @@ class TicketView:
         try:
             ticket = Ticket.objects.get(id=ticket_id)
             context = {'page_title': f'حذف تیکت با ایدی {ticket_id}'}
-            if request.user.is_superuser:
-                ticket.delete()
+            if ticket.owner == request.user or ticket.receiver == request.user or request.user.is_superuser:
                 message = 'با موفقیت حذف گردید'
-                return redirect(
-                    reverse('ticket:ticket-list-with-box-status'
-                    , kwargs={'box_status': 'all'}) + f'?message={message}')
-            else:
-                if ticket.owner == request.user:
-                    message = 'با موفقیت حذف گردید'
-                    ticket.delete()
-                    return redirect(reverse(
-                        'ticket:ticket-list-with-box-status'
+                ticket.delete()
+                return redirect(reverse(
+                    'ticket:ticket-list-with-box-status'
                     , kwargs={'box_status': 'sent'}) + f'?message={message}')
-                else:
-                    return render(request, '404.html')
+            else:
+                return render(request, '404.html')
+
         except Exception as e:
             print(e)
             return render(request, '404.html')
@@ -309,7 +304,7 @@ class MessageView:
                 Q(**{'ticket__receiver': request.user})
             )
 
-        messages = Message.objects.filter(q)
+        messages = Message.objects.filter(q).order_by('created_at')
 
         serializer = MessageSerializer(messages, many=True)
         json_response_body = {
@@ -362,7 +357,7 @@ class MessageView:
 
             if not content:
                 context['err'] = 'محتوا بدرستی وارد نشده است'
-                return render(request, 'tickets/ticket-list.html', context)
+                return redirect('ticket:ticket-detail-with-id', ticket_id=ticket_id)
 
             owner = ticket.owner
             receiver = ticket.receiver

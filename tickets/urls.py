@@ -18,12 +18,12 @@ urlpatterns = [
     path('message/create&id=<int:ticket_id>/', MessageView().create, name='message-create'),
     path('message/detail&id=<int:ticket_id>/', MessageView().detail, name='message-detail-with-id'),
 
-    # Notification
-    path('notification/list/', NotificationView().list, name='notification-list'),
-    path('notification/filter/', NotificationView().filter, name='notification-filter'),
-    path('notification/notification-create/', NotificationView().create, name='notification-create'),
-    path('notification/detail&id=<int:notification_id>/', NotificationView().detail, name='notification-detail-with-id'),
-    path('notification/change-state&id=<int:notification_id>/', NotificationView().change_state, name='notification-change_state-with-id'),
+    # # Notification
+    # path('notification/list/', NotificationView().list, name='notification-list'),
+    # path('notification/filter/', NotificationView().filter, name='notification-filter'),
+    # path('notification/notification-create/', NotificationView().create, name='notification-create'),
+    # path('notification/detail&id=<int:notification_id>/', NotificationView().detail, name='notification-detail-with-id'),
+    # path('notification/change-state&id=<int:notification_id>/', NotificationView().change_state, name='notification-change_state-with-id'),
 
 ]
 

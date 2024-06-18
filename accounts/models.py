@@ -35,6 +35,9 @@ class Profile(models.Model):
     user_financial_default_broker_id = models.PositiveIntegerField(default=0, null=False, blank=False,
                                                                    verbose_name='صندوق  مالی پیشفرض')
 
+    telegram_user_id = models.CharField(max_length=255, null=True, blank=True,
+                                        verbose_name='آیدی تلگرام کاربر')
+
     def __str__(self):
         return self.user.username
 

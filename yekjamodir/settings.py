@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'automation',
     'subscription',
     'tickets',
+    'system_thread',
 ]
 
 SITE_ID = 1
